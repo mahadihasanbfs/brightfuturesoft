@@ -1,14 +1,13 @@
 import { useState } from "react";
 import mahadi from '../../../Assctes/teamMember/mahadi.jpg';
 import hadi from '../../../Assctes/teamMember/mohotasimhadi.jpeg';
-import maruf from '../../../Assctes/teamMember/mahady.png'
 
 const Item = ({ title, children }) => {
       const [isOpen, setIsOpen] = useState(false);
 
 
       return (
-            <div className="border rounded shadow-sm">
+            <div className="border border-gray-700 rounded shadow-sm">
                   <button
                         type="button"
                         aria-label="Open item"
@@ -17,7 +16,7 @@ const Item = ({ title, children }) => {
                         onClick={() => setIsOpen(!isOpen)}
                   >
                         <p className="text-lg font-medium">{title}</p>
-                        <div className="flex ml-3 items-center justify-center w-8 h-8 p-2 border rounded-full">
+                        <div className="flex ml-3 items-center justify-center w-8 h-8 p-2 border border-gray-700 rounded-full">
                               <svg
                                     viewBox="0 0 24 24"
                                     className={`w-3 text-gray-300 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''
@@ -45,12 +44,10 @@ const Item = ({ title, children }) => {
 };
 
 export const Faq = () => {
-      const [active, setActive] = useState(1);
+
       const [schedule, setSchedule] = useState(false)
 
-      const toggle = (id) => {
-            setActive(active === id ? null : id);
-      };
+
 
       return (
             <div className="px-4 text-white py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 lg:py-20">

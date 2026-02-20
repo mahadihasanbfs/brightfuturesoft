@@ -551,7 +551,7 @@ const Read_more_service = () => {
 
                                                 {/* Conditionally render the answer based on the open state */}
                                                 {openQuestionId === idx && (
-                                                      <div className="px-4 pb-5 sm:px-6 sm:pb-6">
+                                                      <div className="px-4 pb-5 sm:px-6 sm:pb-6 text-gray-300">
                                                             <p>{question.answer}</p>
                                                       </div>
                                                 )}

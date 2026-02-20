@@ -74,7 +74,7 @@ const OurVission = () => {
                                     </ul>
 
                               </div>
-                              <div className="md:flex block justify-end" >
+                              <div className="md:flex block justify-end text-gray-200" >
                                     <img loading="lazy" src={vct} alt="" className="md:block hidden w-[300px]" />
 
                                     <div className="md:hidden block">

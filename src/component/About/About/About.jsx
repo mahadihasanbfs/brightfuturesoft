@@ -143,7 +143,7 @@ const About = () => {
                                                             <div className="body pb-4">
                                                                   <h2 className="text-white font-semibold mt-2">{tData.name}</h2>
                                                                   <p className="text-[14px] text-[#1becff] capitalize">{tData.possition ?? tData.designation}</p>
-                                                                  <small>{tData?.email}</small>
+                                                                  <small className='text-gray-300'>{tData?.email}</small>
                                                                   <Link to={tData.linkedin} target="_blank">
                                                                         <RxLinkedinLogo className="text-4xl mt-4 m-auto text-[#1e6dff]" />
                                                                   </Link>
