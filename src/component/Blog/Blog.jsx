@@ -10,7 +10,6 @@ const Blog = () => {
       // const blog_data = useLoaderData();
       const {
             data: blog = [],
-            refetch,
             isLoading,
       } = useQuery({
             queryKey: ["all_users"],
@@ -51,13 +50,13 @@ const Blog = () => {
                                     <h2 className="md:text-6xl text-4xl font-semibold text-[#00ccff]">
                                           Welcome to our blog
                                     </h2>
-                                    <p className='mt-8'>
+                                    <p className='mt-8 text-white'>
                                           Discover the latest technological innovations and trends: your <br /> ultimate guide to the digital world.
                                     </p>
                               </div>
                         </div>
                   </div>
-                  <div className="content px-1 py-2 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-20 lg:px-2 md:w-[100%] w-[95%]">
+                  <div className="content px-1 py-2 mx-auto sm:max-w-xl md:max-w-full lg:max-w-7xl md:px-20 lg:px-2 md:w-full w-[95%]">
                         <h1 className="text-white font-semibold text-2xl border-b pb-2 border-[#80808093]">Blogs</h1>
                         <br />
                         <div className="grid md:grid-cols-3 gap-12">

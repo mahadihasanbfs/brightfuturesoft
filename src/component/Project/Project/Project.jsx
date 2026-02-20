@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 const Project = () => {
 
-      const { data: project = [], refetch, isLoading } = useQuery({
+      const { data: project = [], isLoading } = useQuery({
             queryKey: ["project_data"],
             queryFn: async () => {
                   const res = await fetch(
@@ -29,7 +29,7 @@ const Project = () => {
             window.scrollTo(0, 0);
       }, []);
 
-    
+
 
       return (
             <div className='px-4 py-5 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8'>

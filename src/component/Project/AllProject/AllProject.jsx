@@ -104,7 +104,7 @@ const AllProject = () => {
                         </div>
                         <div className="flex justify-between mt-8 border-b border-[#ffffff2f] pb-3">
                               {/* <h4 className="font-bold whitespace-nowrap text-lg text-blue-500">All Projects</h4> */}
-                              <ul className="flex whitespace-nowrap gap-8 overflow-x-auto w-40 md:w-full items-center px-4">
+                              <ul className="flex whitespace-nowrap gap-8 overflow-x-auto  md:w-full items-center px-4">
                                     <li>
                                           <button onClick={() => setSearchValue("all")} className={`duration-200 cursor-pointer capitalize hover:text-blue-500 ${searchValue == 'all' ? 'text-blue-500' : 'text-gray-300'}`}>All Projects</button>
                                     </li>
