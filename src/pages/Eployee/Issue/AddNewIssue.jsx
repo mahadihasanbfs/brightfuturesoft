@@ -77,7 +77,7 @@ const AddNewIssue = () => {
                                     <label className="sr-only" htmlFor="title">
                                           Title
                                     </label>
-                                    <input required name="author_name" id='author_name' type="text" className="w-full p-2 rounded-lg outline-none border-none bg-[#00000034]" defaultValue={user?.name} placeholder="What is your name?" />
+                                    <input required name="author_name" id='author_name' type="text" className="w-full p-2 rounded-lg outline-none border-none bg-[#00000034]" value={user?.name} placeholder="What is your name?" />
                               </div>
 
                               <div className="relative bg-[#0b0a2238] border border-[#1795F0] rounded-lg mt-8">

@@ -443,24 +443,41 @@ const Apply_List = () => {
                         </div>
 
                         {/* Filters and Search */}
-                        <div className="bg-surface border border-gray-500 border  rounded-lg p-6 mb-6">
+                        <div className="border border-gray-500 border  rounded-lg p-6 mb-6">
                               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
                                     <div className="flex flex-wrap items-center gap-3">
-                                          <select
-                                                value={filterStatus}
-                                                onChange={e => {
-                                                      setFilterStatus(e.target.value)
-                                                      setSelectedApplications([])
-                                                      setCurrentPage(1)
-                                                }}
-                                                className="px-4 py-2 bg-surface-elevated border border-gray-500  rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                                          >
-                                                <option value="all">All Status</option>
-                                                <option value="shortlisted">Shortlisted</option>
-                                                <option value="pending">Pending Review</option>
-                                                <option value="rejected">Rejected</option>
-                                                <option value="interview">Interview Scheduled</option>
-                                          </select>
+                                          <div className="relative inline-block w-56">
+                                                <select
+                                                      value={filterStatus}
+                                                      onChange={(e) => {
+                                                            setFilterStatus(e.target.value);
+                                                            setSelectedApplications([]);
+                                                            setCurrentPage(1);
+                                                      }}
+                                                      className="
+      w-full appearance-none px-4 py-2.5 pr-10  rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200
+    "
+                                                >
+                                                      <option value="all">All Status</option>
+                                                      <option value="shortlisted">Shortlisted</option>
+                                                      <option value="pending">Pending Review</option>
+                                                      <option value="rejected">Rejected</option>
+                                                      <option value="interview">Interview Scheduled</option>
+                                                </select>
+
+                                                {/* Custom Dropdown Icon */}
+                                                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500 dark:text-gray-400">
+                                                      <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                      >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                      </svg>
+                                                </div>
+                                          </div>
                                           <div className="h-6 w-px bg-border"></div>
                                           <span className="text-sm text-muted font-mono">
                                                 {searchFilter.length} of {job_data.length} applications
@@ -697,20 +714,48 @@ const Apply_List = () => {
                               <div className="flex items-center justify-between px-6 py-4 border-t ">
                                     <div className="flex items-center gap-2">
                                           <label className="text-sm text-muted">Rows per page:</label>
-                                          <select
-                                                value={pageSize}
-                                                onChange={e => {
-                                                      setPageSize(Number(e.target.value))
-                                                      setCurrentPage(1)
-                                                }}
-                                                className="px-3 py-1.5 bg-surface-elevated border border-gray-500 border border-gray-500 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                          >
-                                                {PAGE_SIZE_OPTIONS.map(size => (
-                                                      <option key={size} value={size}>
-                                                            {size}
-                                                      </option>
-                                                ))}
-                                          </select>
+                                          <div className="relative inline-block ">
+                                                <select
+                                                      value={pageSize}
+                                                      onChange={(e) => {
+                                                            setPageSize(Number(e.target.value));
+                                                            setCurrentPage(1);
+                                                      }}
+                                                      className="
+      w-full appearance-none
+      px-3 py-2 pr-9
+      rounded-xl
+      border border-gray-300 dark:border-gray-600
+      bg-white dark:bg-gray-800
+      text-gray-800 dark:text-gray-100
+      text-sm font-medium
+      shadow-sm
+      focus:outline-none
+      focus:ring-2 focus:ring-indigo-500
+      focus:border-indigo-500
+      transition-all duration-200
+    "
+                                                >
+                                                      {PAGE_SIZE_OPTIONS.map((size) => (
+                                                            <option key={size} value={size}>
+                                                                  {size} per page
+                                                            </option>
+                                                      ))}
+                                                </select>
+
+                                                {/* Dropdown Icon */}
+                                                <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-500 dark:text-gray-400">
+                                                      <svg
+                                                            className="w-4 h-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                      >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                                      </svg>
+                                                </div>
+                                          </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                           <span className="text-sm text-muted font-mono">
@@ -1484,7 +1529,7 @@ function ApplicationDetailsModal({
                                                 : "Add to Shortlist"}
                                     </button>
                                     <button
-                                          onClick={onClose}
+                                          onClick={() => onStatusChange("rejected")}
                                           className="flex-1 px-6 py-2.5 bg-red-500 hover:bg-red-500/90 text-white rounded-lg font-medium transition-all"
                                     >
                                           Rejected

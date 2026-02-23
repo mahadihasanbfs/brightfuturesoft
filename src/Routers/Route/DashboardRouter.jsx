@@ -9,6 +9,7 @@ import Meeting_details from "../../pages/Eployee/Client_meeting/Meeting_details"
 import Contact_management from "../../pages/Eployee/Contact/Contact_management";
 import SubscribersTable from "../../pages/Eployee/Contact/Subcriber_management";
 import EmployeeManagement from "../../pages/Eployee/EmployeeManagement/EmployeeManagement";
+import Invoice from "../../pages/Eployee/Invoice/Invoice";
 import Issue from "../../pages/Eployee/Issue/AddNewIssue";
 import IssueList from "../../pages/Eployee/Issue/IsueList";
 import Apply_List from "../../pages/Eployee/JobPost/ApplyList";
@@ -123,6 +124,10 @@ export const dashboardRouter = [
       {
             path: "client-meeting/details",
             element: <Meeting_details />
+      },
+      {
+            path: "invoice",
+            element: <Invoice />
       }
 
 ]

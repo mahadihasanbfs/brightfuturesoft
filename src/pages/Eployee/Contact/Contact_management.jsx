@@ -217,7 +217,7 @@ const Contact_management = () => {
                                     {/* Header (Fixed) */}
                                     <div className="p-6 border-b border-white/20">
                                           <h3 className="text-2xl font-bold text-white">
-                                                📩 Contact Details
+                                                Contact Details
                                           </h3>
                                     </div>
 
