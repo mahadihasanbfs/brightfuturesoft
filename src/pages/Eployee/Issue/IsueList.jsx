@@ -191,10 +191,11 @@ const IssueList = () => {
                                                                                                 {issue.author_name}
                                                                                           </div>
                                                                                     </td>
-                                                                                    <td className="px-4 py-4 text-sm font-medium text-right text-gray-50 align-top lg:align-middle lg:text-left whitespace-nowrap"> <div title={issue.subject} className="flex items-center ">
+                                                                                    <td
+                                                                                          onClick={() => view_issue(issue)} className="px-4 cursor-pointer py-4 text-sm font-medium text-right text-gray-50 align-top lg:align-middle lg:text-left whitespace-nowrap"> <div title={issue.subject} className="flex items-center ">
 
-                                                                                          {issue?.subject?.split(' ')?.slice(0, 5)?.join(" ")}
-                                                                                    </div></td>
+                                                                                                {issue?.subject?.split(' ')?.slice(0, 5)?.join(" ")}
+                                                                                          </div></td>
 
                                                                                     <td className=" px-4 py-4 text-sm font-medium text-gray-50 table-cell whitespace-nowrap">
                                                                                           <div className="flex items-center ">
@@ -236,12 +237,7 @@ const IssueList = () => {
                                                                                                             >
                                                                                                                   View Issue
                                                                                                             </button>
-                                                                                                            {/* <button
-                                                                            type="button"
-                                                                            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-gray-100 border border-gray-700 rounded-md shadow-sm hover:bg-indigo-600 focus:outline-none hover:text-white hover:border-indigo-600 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                                                        >
-                                                                            Edit Issue
-                                                                        </button> */}
+
 
                                                                                                             <button
                                                                                                                   onClick={() => delete_issue(issue._id)}

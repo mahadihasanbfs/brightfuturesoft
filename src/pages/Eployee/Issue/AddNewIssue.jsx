@@ -58,15 +58,7 @@ const AddNewIssue = () => {
 
                   <div className="w-full py-12">
                         <div className=" mb-4  mx-8">
-                              {/* <Link
-                        to={'/dashboard/issue-submit'}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 bg-white  rounded-md shadow-sm  focus:outline-none focus:ring-offset-2 hover:bg-red-300 "
-                    >
-                        <svg className="w-5 h-5 mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Back Issue List
-                    </Link> */}
+
                               <Link_Button name={'Back Issue List'} url={'/dashboard/issue-submit'} />
                         </div>
 
@@ -77,7 +69,7 @@ const AddNewIssue = () => {
                                     <label className="sr-only" htmlFor="title">
                                           Title
                                     </label>
-                                    <input required name="author_name" id='author_name' type="text" className="w-full p-2 rounded-lg outline-none border-none bg-[#00000034]" value={user?.name} placeholder="What is your name?" />
+                                    <input disabled required name="author_name" id='author_name' type="text" className="w-full p-2 rounded-lg outline-none border-none bg-[#00000034]" value={user?.name} placeholder="What is your name?" />
                               </div>
 
                               <div className="relative bg-[#0b0a2238] border border-[#1795F0] rounded-lg mt-8">
