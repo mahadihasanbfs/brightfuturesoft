@@ -257,8 +257,8 @@ const Contact_management = () => {
 
                                                 {/* Message Height Control */}
                                                 <div className="max-h-60 overflow-y-auto mt-2 pr-2">
-                                                      <p className="text-white whitespace-pre-wrap">
-                                                            {selectContact.message}
+                                                      <p dangerouslySetInnerHTML={{ __html: selectContact.message }} className="text-white whitespace-pre-wrap">
+
                                                       </p>
                                                 </div>
                                           </div>
