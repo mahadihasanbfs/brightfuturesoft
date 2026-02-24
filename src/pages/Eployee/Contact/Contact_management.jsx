@@ -162,9 +162,8 @@ const Contact_management = () => {
                                                             onClick={() => setSelectContact(contact)}
                                                             className="px-6 py-4 cursor-pointer  transition-colors"
                                                       >
-                                                            <div className="text-sm text-gray-200 truncate max-w-xs">
-                                                                  {contact.message.split(" ").slice(0, 10).join(" ")}
-                                                                  {contact.message.split(" ").length > 10 ? "..." : ""}
+                                                            <div dangerouslySetInnerHTML={{ __html: contact.message?.split(' ').slice(0, 10).join(' ') }} className="text-sm text-gray-200 truncate max-w-xs">
+
                                                             </div>
                                                       </td>
                                                       <td className="px-6 py-4 whitespace-nowrap">
@@ -201,9 +200,7 @@ const Contact_management = () => {
                               onClick={() => setSelectContact(null)}
                         >
                               <div
-                                    className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-br from-white/10 to-white/5
-                 backdrop-blur-xl border border-white/20 rounded-2xl
-                 shadow-2xl flex flex-col"
+                                    className="relative w-full max-w-2xl max-h-[90vh] backdrop-blur-xs border border-white/20 rounded-2xl shadow-2xl flex flex-col"
                                     onClick={(e) => e.stopPropagation()}
                               >
                                     {/* Close Button */}
@@ -247,10 +244,10 @@ const Contact_management = () => {
                                                 </p>
                                           </div>
 
-                                          <InfoCard
+                                          {/* <InfoCard
                                                 label="Date"
                                                 value={formatDate(selectContact.time_stamp)}
-                                          />
+                                          /> */}
 
                                           <div className="bg-white/10 p-4 rounded-xl border border-white/10">
                                                 <p className="text-sm text-gray-300 font-medium">Message</p>
