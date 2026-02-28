@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Plus, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { useReactToPrint } from 'react-to-print';
 import ProjectFormModal from '../modal/ProjectFormModal';
+import InvoicePrint from '../InstallmentInvoice';
+
 
 export default function ProjectsTab({
       projects,
@@ -14,18 +17,26 @@ export default function ProjectsTab({
       const [expandedProject, setExpandedProject] = useState(null);
       const [editingProject, setEditingProject] = useState(null);
 
+      // which invoice is currently selected to print
+      const [selectedInvoice, setSelectedInvoice] = useState(null); // { project, installment }
+
+      const invoiceRef = useRef(null);
+
+      const handlePrint = useReactToPrint({
+            content: () => invoiceRef.current,
+            documentTitle: selectedInvoice
+                  ? `Invoice-${selectedInvoice.project?.projectName}-${selectedInvoice.installment?.id}`
+                  : 'Invoice',
+            removeAfterPrint: true,
+      });
+
       const formatCurrency = (amount) => `৳ ${Number(amount).toLocaleString()}`;
       const formatDate = (date) => new Date(date).toLocaleDateString();
 
       const getProjectProgress = (projectId) => {
-            const projectInstallments = installments.filter(
-                  (i) => i.projectId === projectId
-            );
+            const projectInstallments = installments.filter((i) => i.projectId === projectId);
 
-            const total = projectInstallments.reduce(
-                  (sum, i) => sum + Number(i.amount),
-                  0
-            );
+            const total = projectInstallments.reduce((sum, i) => sum + Number(i.amount), 0);
 
             const paid = projectInstallments
                   .filter((i) => i.status === 'paid')
@@ -37,9 +48,7 @@ export default function ProjectsTab({
 
       const handleAddProject = (project, newInstallments) => {
             if (editingProject) {
-                  setProjects(
-                        projects.map((p) => (p.id === project.id ? project : p))
-                  );
+                  setProjects(projects.map((p) => (p.id === project.id ? project : p)));
             } else {
                   setProjects([...projects, project]);
             }
@@ -51,37 +60,57 @@ export default function ProjectsTab({
 
       const handleDeleteProject = (projectId) => {
             setProjects(projects.filter((p) => p.id !== projectId));
-            setInstallments(
-                  installments.filter((i) => i.projectId !== projectId)
-            );
+            setInstallments(installments.filter((i) => i.projectId !== projectId));
       };
 
       const handleMarkInstallmentPaid = (installmentId) => {
             setInstallments(
                   installments.map((i) =>
                         i.id === installmentId
-                              ? {
-                                    ...i,
-                                    status: 'paid',
-                                    paidDate: new Date().toISOString().split('T')[0],
-                              }
+                              ? { ...i, status: 'paid', paidDate: new Date().toISOString().split('T')[0] }
                               : i
                   )
             );
       };
 
-      return (
-            <div className="min-h-screen bg-gray-950 text-white p-6 space-y-6">
+      const handleInvoiceClick = (project, installment) => {
+            setSelectedInvoice({ project, installment });
 
-                  {showForm && <ProjectFormModal onClose={() => setShowForm(false)}
-                        onSave={handleAddProject}
-                        editingProject={editingProject} />}
+            // wait a tick so state updates and hidden component renders
+            setTimeout(() => handlePrint(), 0);
+      };
+
+      return (
+            <div className="min-h-screen bg-gray-950 text-white p-6 space-y-6 relative">
+                  {showForm && (
+                        <ProjectFormModal
+                              onClose={() => setShowForm(false)}
+                              onSave={handleAddProject}
+                              editingProject={editingProject}
+                        />
+                  )}
+
+                  {/* Hidden printable invoice */}
+                  <div >
+                        {selectedInvoice && (
+                              <div
+                                    // className="rounded-3xl border border-white/10 bg-white/10 p-3 shadow-2xl backdrop-blur-xl absolute top-0 left-0"
+                                    onClick={(e) => e.stopPropagation()}
+                                    role="dialog"
+                                    aria-modal="true"
+                              >
+                                    <InvoicePrint
+                                          ref={invoiceRef}
+                                          project={selectedInvoice.project}
+                                          installment={selectedInvoice.installment}
+                                    />
+                              </div>
+                        )}
+                  </div>
 
                   {/* Header */}
                   <div className="flex justify-between items-center">
-                        <h2 className="text-2xl font-bold tracking-tight">
-                              Projects
-                        </h2>
+                        <h2 className="text-2xl font-bold tracking-tight">Projects</h2>
 
                         <button
                               onClick={() => {
@@ -98,16 +127,12 @@ export default function ProjectsTab({
                   {/* Empty State */}
                   {projects.length === 0 ? (
                         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
-                              <p className="text-gray-400">
-                                    No projects yet. Create your first project.
-                              </p>
+                              <p className="text-gray-400">No projects yet. Create your first project.</p>
                         </div>
                   ) : (
                         <div className="space-y-4">
                               {projects.map((project) => {
-                                    const projectInstallments = installments.filter(
-                                          (i) => i.projectId === project.id
-                                    );
+                                    const projectInstallments = installments.filter((i) => i.projectId === project.id);
 
                                     const paidAmount = projectInstallments
                                           .filter((i) => i.status === 'paid')
@@ -121,26 +146,16 @@ export default function ProjectsTab({
                                                 key={project.id}
                                                 className="bg-gray-900 border border-gray-800 rounded-2xl shadow-lg overflow-hidden"
                                           >
-
                                                 {/* Project Header */}
                                                 <div
-                                                      onClick={() =>
-                                                            setExpandedProject(isExpanded ? null : project.id)
-                                                      }
+                                                      onClick={() => setExpandedProject(isExpanded ? null : project.id)}
                                                       className="cursor-pointer p-6 hover:bg-gray-800 transition"
                                                 >
                                                       <div className="flex justify-between items-start">
-
                                                             <div>
-                                                                  <h3 className="text-lg font-semibold">
-                                                                        {project.projectName}
-                                                                  </h3>
-                                                                  <p className="text-sm text-gray-400 mt-1">
-                                                                        {project.clientName}
-                                                                  </p>
-                                                                  <p className="text-xs text-gray-500 mt-1">
-                                                                        {project.description}
-                                                                  </p>
+                                                                  <h3 className="text-lg font-semibold">{project.projectName}</h3>
+                                                                  <p className="text-sm text-gray-400 mt-1">{project.clientName}</p>
+                                                                  <p className="text-xs text-gray-500 mt-1">{project.description}</p>
                                                             </div>
 
                                                             <div className="flex items-center gap-6">
@@ -153,11 +168,7 @@ export default function ProjectsTab({
                                                                         </p>
                                                                   </div>
 
-                                                                  {isExpanded ? (
-                                                                        <ChevronUp size={20} />
-                                                                  ) : (
-                                                                        <ChevronDown size={20} />
-                                                                  )}
+                                                                  {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                                                             </div>
                                                       </div>
 
@@ -167,11 +178,9 @@ export default function ProjectsTab({
                                                                   <div
                                                                         className="h-full bg-blue-600 transition-all duration-500"
                                                                         style={{ width: `${progress}%` }}
-                                                                  ></div>
+                                                                  />
                                                             </div>
-                                                            <span className="text-sm text-gray-400">
-                                                                  {progress}%
-                                                            </span>
+                                                            <span className="text-sm text-gray-400">{progress}%</span>
                                                       </div>
                                                 </div>
 
@@ -190,8 +199,8 @@ export default function ProjectsTab({
                                                             </span>
 
                                                             <span className="text-xs text-gray-400">
-                                                                  Started: {formatDate(project.startDate)} •
-                                                                  End: {formatDate(project.estimatedEndDate)}
+                                                                  Started: {formatDate(project.startDate)} • End:{' '}
+                                                                  {formatDate(project.estimatedEndDate)}
                                                             </span>
                                                       </div>
 
@@ -207,9 +216,7 @@ export default function ProjectsTab({
                                                             </button>
 
                                                             <button
-                                                                  onClick={() =>
-                                                                        handleDeleteProject(project.id)
-                                                                  }
+                                                                  onClick={() => handleDeleteProject(project.id)}
                                                                   className="text-red-400 hover:text-red-500 transition"
                                                             >
                                                                   <Trash2 size={16} />
@@ -220,15 +227,12 @@ export default function ProjectsTab({
                                                 {/* Expandable Installments */}
                                                 {isExpanded && (
                                                       <div className="border-t border-gray-800 p-6 space-y-4 bg-gray-950">
-
                                                             <h4 className="text-sm font-semibold">
                                                                   Installments ({projectInstallments.length})
                                                             </h4>
 
                                                             {projectInstallments.length === 0 ? (
-                                                                  <p className="text-sm text-gray-400">
-                                                                        No installments added yet.
-                                                                  </p>
+                                                                  <p className="text-sm text-gray-400">No installments added yet.</p>
                                                             ) : (
                                                                   <div className="space-y-3">
                                                                         {projectInstallments.map((installment) => (
@@ -241,26 +245,37 @@ export default function ProjectsTab({
                                                                                                 {formatCurrency(installment.amount)}
                                                                                           </p>
                                                                                           <p className="text-xs text-gray-400 mt-1">
-                                                                                                Due: {formatDate(installment.dueDate)} •
-                                                                                                Status: {installment.status}
+                                                                                                Due: {formatDate(installment.dueDate)} • Status:{' '}
+                                                                                                {installment.status}
                                                                                           </p>
                                                                                     </div>
 
                                                                                     {installment.status !== 'paid' ? (
-                                                                                          <button
-                                                                                                onClick={() =>
-                                                                                                      handleMarkInstallmentPaid(
-                                                                                                            installment.id
-                                                                                                      )
-                                                                                                }
-                                                                                                className="text-xs bg-green-600 hover:bg-green-700 px-3 py-1 rounded-lg transition"
-                                                                                          >
-                                                                                                Mark Paid
-                                                                                          </button>
+                                                                                          <div className="flex gap-2">
+                                                                                                <button
+                                                                                                      onClick={() => handleMarkInstallmentPaid(installment.id)}
+                                                                                                      className="text-xs bg-green-600 hover:bg-green-700 px-3 py-1 rounded-lg transition"
+                                                                                                >
+                                                                                                      Mark Paid
+                                                                                                </button>
+
+                                                                                                <button
+                                                                                                      onClick={() => handleInvoiceClick(project, installment)}
+                                                                                                      className="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg transition"
+                                                                                                >
+                                                                                                      Invoice
+                                                                                                </button>
+                                                                                          </div>
                                                                                     ) : (
-                                                                                          <span className="text-xs text-green-400 font-medium">
-                                                                                                ✓ Paid
-                                                                                          </span>
+                                                                                          <div className="flex gap-2 items-center">
+                                                                                                <span className="text-xs text-green-400 font-medium">✓ Paid</span>
+                                                                                                <button
+                                                                                                      onClick={() => handleInvoiceClick(project, installment)}
+                                                                                                      className="text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg transition"
+                                                                                                >
+                                                                                                      Invoice
+                                                                                                </button>
+                                                                                          </div>
                                                                                     )}
                                                                               </div>
                                                                         ))}

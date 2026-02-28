@@ -222,7 +222,7 @@ const Apply_List = () => {
       const searchFilter = filteredData.filter(job =>
             Object.values(job).some(value =>
                   String(value)
-                        .toLowerCase()
+                        ?.toLowerCase()
                         .includes(searchQuery.toLowerCase())
             )
       )
@@ -1568,34 +1568,14 @@ function InfoItem({ icon, label, value, color, mono }) {
 
 function ResumeModal({ resume, onClose, copied, onCopy }) {
       return (
-            <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900  ">
-                  <div className="flex min-h-full items-center justify-center p-4">
-                        <div className="relative w-full max-w-5xl bg-surface border border-gray-500 rounded-xl shadow-2xl">
+            <div className="fixed inset-0 z-50 overflow-y-auto backdrop-blur-xs ">
+                  <div className="flex min-h-full items-center justify-center p-4" >
+                        <div className="relative w-full max-w-5xl bg-surface border border-gray-500 rounded-xl shadow-2xl bg-gray-900">
                               <div className="flex items-center justify-between p-4 border-b ">
-                                    <h2 className="text-lg font-semibold text-foreground">
+                                    <h2 className="text-lg  font-semibold text-foreground">
                                           Resume Preview
                                     </h2>
-                                    <button
-                                          onClick={onClose}
-                                          className="p-2 rounded-lg hover:bg-surface-elevated transition-colors text-muted hover:text-foreground"
-                                    >
-                                          <svg
-                                                className="w-5 h-5"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                          >
-                                                <path
-                                                      strokeLinecap="round"
-                                                      strokeLinejoin="round"
-                                                      strokeWidth={2}
-                                                      d="M6 18L18 6M6 6l12 12"
-                                                />
-                                          </svg>
-                                    </button>
-                              </div>
-                              <div className="flex items-center gap-2 px-4 py-3 bg-surface-elevated border-b ">
-                                    <p className="text-xs text-muted font-mono break-all flex-1">
+                                    <p className="text-xs px-2 text-muted font-mono break-all flex-1">
                                           {resume}
                                     </p>
                                     <button
@@ -1639,7 +1619,26 @@ function ResumeModal({ resume, onClose, copied, onCopy }) {
                                                 </svg>
                                           )}
                                     </button>
+                                    <button
+                                          onClick={onClose}
+                                          className="p-2 rounded-lg hover:bg-surface-elevated transition-colors text-muted hover:text-foreground"
+                                    >
+                                          <svg
+                                                className="w-5 h-5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                          >
+                                                <path
+                                                      strokeLinecap="round"
+                                                      strokeLinejoin="round"
+                                                      strokeWidth={2}
+                                                      d="M6 18L18 6M6 6l12 12"
+                                                />
+                                          </svg>
+                                    </button>
                               </div>
+
                               <div className="p-4">
                                     <iframe
                                           src={resume}

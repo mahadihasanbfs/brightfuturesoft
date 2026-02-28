@@ -113,8 +113,9 @@ const EmployeeManagement = () => {
             <div className="container mx-auto px-4 py-8">
                   <h1 className="text-3xl font-bold mb-8 text-gray-100">Employee Management</h1>
 
-                  <div className="mb-4">
-                        <Link_Button name={'Add New Employee'} url={'/sign_up'} />
+                  <div className="mb-4 flex gap-2">
+                        <Link_Button name={'Add New Employee'} url={'/sign_up'} />{' '}
+                        <Link_Button name={'Attendance'} url={'/dashboard/employee-management/attendance'} />
                   </div>
 
                   {isLoading ? (

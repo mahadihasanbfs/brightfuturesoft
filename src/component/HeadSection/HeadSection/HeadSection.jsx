@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import vectorHdr from '../../../Assctes/vectors/vector(header).png';
 import Typewriter from 'typewriter-effect';
 import { HiArrowSmallRight } from "react-icons/hi2";
 import "animate.css/animate.min.css";

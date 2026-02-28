@@ -72,7 +72,7 @@ const navigationItems = [
       },
       {
             title: "Web Mail",
-            path: "https://webmail.brightfuturesoft.com",
+            path: "https://mail.google.com/mail/u/0/#inbox",
             icon: (
                   <Mail className="h-5 w-5" />
             ),

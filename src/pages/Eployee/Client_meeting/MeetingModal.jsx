@@ -57,7 +57,7 @@ function CountryDropdown({ value, onChange, countries, loading, error }) {
       const filteredCountries = useMemo(
             () =>
                   countries.filter((country) =>
-                        country.name.toLowerCase().includes(searchTerm.toLowerCase())
+                        country.name?.toLowerCase().includes(searchTerm.toLowerCase())
                   ),
             [countries, searchTerm]
       );

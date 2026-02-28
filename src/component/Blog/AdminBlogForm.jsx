@@ -40,7 +40,7 @@ const AdminBlogForm = () => {
             const photo = await uploadImage(image);
             const formatTitleToURL = (title) => {
                   return title
-                        .toLowerCase()
+                        ?.toLowerCase()
                         .replace(/\s+/g, '_')
             };
 

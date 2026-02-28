@@ -11,13 +11,19 @@ import {
       TrendingUp,
 } from 'lucide-react';
 import SummaryTab from './tabs/SummaryTab';
-import ProjectsTab from './tabs/ProjectsTab';
 import MaintenanceTab from './tabs/MaintenanceTab';
 import ExpensesTab from './tabs/ExpensesTab';
 import ReportsTab from './tabs/ReportsTab';
+import ProjectsTab from './tabs/ProjectsTab';
 
 export default function Home() {
       const [activeTab, setActiveTab] = useState('summary');
+
+      useEffect(() => {
+            window.scrollTo(0, 0);
+      }, []); useEffect(() => {
+            window.scrollTo(0, 0);
+      }, [])
 
       const [projects, setProjects] = useState([]);
       const [installments, setInstallments] = useState([]);
