@@ -1,4 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react"
+import { base_url } from "../../../layout/Title";
 
 const sampleHolidays = [
       { date: "2026-02-04", name: "Shab e-Barat (Night of Records)" },
@@ -34,12 +36,10 @@ const sampleHolidays = [
 ];
 
 
-const employeeBirthdays = [
-      { month: 8, day: 20, name: "Mahadi Hasan" },
-      { month: 11, day: 25, name: "Arnob Dey" },
-      { month: 1, day: 13, name: "Munif Shahriar Shovon" },
-      { month: 2, day: 2, name: "Omar Faruk" },
-];
+
+
+
+
 
 const specialDays = [
       { month: 1, day: 1, name: "New Year Celebrations" },
@@ -73,6 +73,42 @@ const CalendarIcon = () => (
 export default function CalendarPage() {
       const today = new Date()
       const [currentDate, setCurrentDate] = useState(today)
+
+      const { data: teamMembers = [], } = useQuery({
+            queryKey: ["team_birthday"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/auth/all`, {
+                        headers: {
+                              'content-type': 'application/json',
+                              'author': 'bright_future_soft'
+                        },
+                        method: 'GET',
+                  });
+                  const data = await res.json();
+                  return data.data;
+            },
+      });
+
+
+
+
+
+      const employeeBirthdays = teamMembers
+            .filter(member => member.dob) // যাদের dob আছে
+            .map(member => {
+                  const dobDate = new Date(member.dob);
+
+                  return {
+                        id: member._id,
+                        name: member.name,
+                        month: dobDate.getMonth() + 1,
+                        day: dobDate.getDate(),
+                        image: member.image,
+                        designation: member.designation,
+                  };
+            });
+
+
 
       const year = currentDate.getFullYear()
       const month = currentDate.getMonth()

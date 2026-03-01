@@ -1,9 +1,13 @@
 import { useState } from "react";
 import mahadi from '../../../Assctes/teamMember/mahadi.jpg';
 import hadi from '../../../Assctes/teamMember/mohotasimhadi.jpeg';
+import { useQuery } from "@tanstack/react-query";
+import { base_url } from "../../../layout/Title";
 
 const Item = ({ title, children }) => {
       const [isOpen, setIsOpen] = useState(false);
+
+
 
 
       return (
@@ -46,7 +50,20 @@ const Item = ({ title, children }) => {
 export const Faq = () => {
 
       const [schedule, setSchedule] = useState(false)
-
+      const { data: teamMembers = [], } = useQuery({
+            queryKey: ["job_data"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/auth/all`, {
+                        headers: {
+                              'content-type': 'application/json',
+                              'author': 'bright_future_soft'
+                        },
+                        method: 'GET',
+                  });
+                  const data = await res.json();
+                  return data.data;
+            },
+      });
 
 
       return (
@@ -125,21 +142,22 @@ export const Faq = () => {
                         <div className="px-6 py-12 sm:p-12">
                               <div className="max-w-sm mx-auto">
                                     <div className="relative z-0 flex items-center justify-center -space-x-2 ">
-                                          <img
-                                                className="relative z-10 inline-block rounded-full w-14 h-14 ring-4 ring-gray-100"
-                                                src={hadi}
-                                                alt=""
-                                          />
-                                          <img
-                                                className="relative z-30 inline-block w-16 h-16 rounded-full ring-4 ring-gray-100"
-                                                src={mahadi}
-                                                alt=""
-                                          />
-                                          <img
-                                                className="relative z-10 inline-block rounded-full w-14 h-14 ring-4 ring-gray-100 object-cover"
-                                                src="https://sever.brightfuturesoft.com/api/v2/image/6992cacb2a443b2a8e29a55d"
-                                                alt=""
-                                          />
+
+                                          {teamMembers.slice(0, 3).map((member, index) => (
+                                                <img
+                                                      key={member._id}
+                                                      className={`relative inline-block object-cover rounded-full w-14 h-14 ring-4 ring-gray-100 transition-all duration-300 ${index === 2 ? "opacity-90" : "opacity-100"
+                                                            }`}
+                                                      src={member.image}
+                                                      alt=""
+                                                />
+                                          ))}
+
+                                          {teamMembers.length > 3 && (
+                                                <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gray-400 text-white text-sm font-semibold ring-4 ring-gray-100 opacity-70 backdrop-blur-sm">
+                                                      +{teamMembers.length - 3}
+                                                </div>
+                                          )}
                                     </div>
 
                                     <h3 className="mt-6 text-2xl font-semibold text-gray-900">Still have questions?</h3>

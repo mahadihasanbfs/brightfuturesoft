@@ -115,7 +115,7 @@ const EmployeeManagement = () => {
 
                   <div className="mb-4 flex gap-2">
                         <Link_Button name={'Add New Employee'} url={'/sign_up'} />{' '}
-                        <Link_Button name={'Attendance'} url={'/dashboard/employee-management/attendance'} />
+                        {/* <Link_Button name={'Attendance'} url={'/dashboard/employee-management/attendance'} /> */}
                   </div>
 
                   {isLoading ? (
