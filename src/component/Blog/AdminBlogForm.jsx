@@ -8,14 +8,13 @@ import { AuthContext } from '../../context/UseContext/AuthProvider';
 
 const AdminBlogForm = () => {
       const { user } = useContext(AuthContext);
-      const [selectedFile, setSelectedFile] = useState(null);
+
       const [previewUrl, setPreviewUrl] = useState(null);
       const [fileName, setFileName] = useState('');
       const [loading, setLoading] = useState(false)
 
       const handleFileChange = (event) => {
             const file = event.target.files[0];
-            setSelectedFile(file);
 
             if (file) {
                   const reader = new FileReader();
@@ -196,7 +195,7 @@ const AdminBlogForm = () => {
                                     <div className="mt-4">
                                           <button
                                                 type="submit"
-                                                className="inline-block w-full rounded-lg bg-black px-5 py-3 font-medium text-white sm:w-auto"
+                                                className="inline-block w-full rounded-lg bg-[#1c65b4] px-5 py-3 font-medium text-white sm:w-auto"
                                           >
                                                 {loading ? 'Loading..' : 'Publish Blog'}
                                           </button>

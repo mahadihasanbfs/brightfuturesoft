@@ -129,7 +129,7 @@ function ChipDropdown({
                   window.removeEventListener("resize", updatePosition);
                   window.removeEventListener("scroll", updatePosition);
             };
-      }, [open]); P
+      }, [open]);
 
       /* ---------------- Outside Click Close ---------------- */
       useEffect(() => {
@@ -279,7 +279,6 @@ function TaskManagement() {
 
       const [labelSearch, setLabelSearch] = useState("");
       const [customLabels, setCustomLabels] = useState([]);
-      const [editorTab, setEditorTab] = useState("write");
       const [imageFiles, setImageFiles] = useState([]);
       const imageInputRef = useRef(null);
       const [createMore, setCreateMore] = useState(false);
@@ -440,7 +439,6 @@ function TaskManagement() {
             setLabelSearch("");
             setPriority("medium");
             setImageFiles([]);
-            setEditorTab("write");
             setCreateMore(false);
             closeAllDropdowns();
       };
@@ -457,7 +455,6 @@ function TaskManagement() {
             setLabelSearch("");
             setPriority("medium");
             setImageFiles([]);
-            setEditorTab("write");
             setCreateMore(false);
             closeAllDropdowns();
       };
@@ -465,7 +462,6 @@ function TaskManagement() {
       const goToStep2WithTemplate = (type) => {
             setIssueType(type);
             setAddStep(2);
-            setEditorTab("write");
             closeAllDropdowns();
       };
 
@@ -548,7 +544,6 @@ function TaskManagement() {
                               setLabelSearch("");
                               setPriority("medium");
                               setImageFiles([]);
-                              setEditorTab("write");
                               closeAllDropdowns();
                         } else {
                               closeAddModal();
@@ -741,7 +736,7 @@ function TaskManagement() {
                                                                                                             className="h-7 w-7 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-900 flex items-center justify-center text-slate-200 text-xs font-semibold"
                                                                                                             title={assignee}
                                                                                                       >
-                                                                                                            {assignee.charAt(0).toUpperCase()}
+                                                                                                            <img className="w-5 h-5 rounded-full object-cover" src={TEAM_MEMBERS.find((m) => m.id === assignee)?.avatar || ''} alt="" />
                                                                                                       </div>
                                                                                                 ))}
                                                                                                 {task.assignees.length > 3 && (
@@ -757,7 +752,15 @@ function TaskManagement() {
                                                                                     {task.deadline && (
                                                                                           <div className="flex items-center gap-1 text-xs text-slate-400">
                                                                                                 <Calendar size={12} />
-                                                                                                {new Date(task.deadline).toLocaleDateString()}
+                                                                                                {
+                                                                                                      task.deadline
+                                                                                                            ? new Date(task.deadline).toLocaleDateString("en-GB", {
+                                                                                                                  day: "numeric",
+                                                                                                                  month: "long",
+                                                                                                                  year: "numeric",
+                                                                                                            })
+                                                                                                            : "No deadline"
+                                                                                                }
                                                                                           </div>
                                                                                     )}
                                                                               </div>
@@ -1147,8 +1150,6 @@ function TaskManagement() {
                                                       <div className="flex items-center gap-4 text-sm text-slate-500">
                                                             <div className="flex items-center gap-1.5">
                                                                   <Clock size={14} />
-
-                                                                  {console.log(selectedTask)}
                                                                   <span>{timeAgo(selectedTask.create_at)}</span>
                                                             </div>
                                                             <div className="w-1 h-1 rounded-full bg-slate-700" />
