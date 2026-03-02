@@ -436,8 +436,8 @@ const AddProject = () => {
       const options = data.flatMap(category =>
             category.options.map(tech => ({
                   ...tech,
-                  category: category.title, // fix এখানে
-                  value: tech.name,         // value define
+                  category: category.title,
+                  value: tech.name,
                   label: (
                         <div
                               className="capitalize flex items-center"
@@ -457,7 +457,7 @@ const AddProject = () => {
       const handleChange = (selectedOptions) => {
             const selected = selectedOptions.map(option => ({
                   name: option.label.props.children[1], // Extract name from label
-                  imageUrl: option.imageUrl,
+                  imageUrl: option.img,
                   category: option.category
             }));
             setSelectedTechnologies(selected);

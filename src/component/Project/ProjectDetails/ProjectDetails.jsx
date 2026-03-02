@@ -37,7 +37,7 @@ const ProjectDetails = () => {
       useEffect(() => {
             refetch()
       }, [id])
-
+      console.log(project.technologies);
       return (
             <div className="bg-[#1b2030] text-[#8a8a8a] px-2  py-[100px]">
                   {isLoading && <SkeletonLoader />}
@@ -75,10 +75,11 @@ const ProjectDetails = () => {
                                                             <ul className="mt-8 space-y-5">
                                                                   {project?.technologies?.map((technology) => (
                                                                         <li key={technology?.name} className="flex items-center space-x-3">
+                                                                              {console.log(technology, "tec")}
                                                                               <div className="inline-flex items-center justify-center flex-shrink-0 w-5  ">
-                                                                                    <img src={technology?.imageUrl} alt="" />
+                                                                                    <img src={technology?.imageUrl} alt={technology?.imageUrl} />
                                                                               </div>
-                                                                              <span className="flex text-base font-bold text-gray-300 ">
+                                                                              <span className="flex text-base font-bold text-gray-300 capitalize ">
                                                                                     {technology?.name}
                                                                               </span>
                                                                         </li>
