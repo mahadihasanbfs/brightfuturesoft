@@ -77,7 +77,7 @@ const ProjectDetails = () => {
                                                                         <li key={technology?.name} className="flex items-center space-x-3">
                                                                               {console.log(technology, "tec")}
                                                                               <div className="inline-flex items-center justify-center flex-shrink-0 w-5  ">
-                                                                                    <img src={technology?.imageUrl} alt={technology?.imageUrl} />
+                                                                                    <img src={technology?.imageUrl ?? technology?.img} />
                                                                               </div>
                                                                               <span className="flex text-base font-bold text-gray-300 capitalize ">
                                                                                     {technology?.name}
