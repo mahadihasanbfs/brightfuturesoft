@@ -3,6 +3,7 @@ import Lottie from "lottie-react";
 import data from "./animation_ljyq2m2p.json";
 
 const Loader = () => {
+
   return (
     <div>
       <div className=" flex justify-center items-center py-52">
@@ -15,3 +16,4 @@ const Loader = () => {
 };
 
 export default Loader;
+

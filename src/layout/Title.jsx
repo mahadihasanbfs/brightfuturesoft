@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 
-const MetaTitle = ({ title, description, keywords, author, ogTitle, ogDescription, ogImage, ogUrl }) => {
+const MetaTitle = ({ title, description, keywords, author, ogTitle, ogDescription, ogImage, ogUrl, schema }) => {
       return (
             <Helmet>
 
@@ -13,7 +13,7 @@ const MetaTitle = ({ title, description, keywords, author, ogTitle, ogDescriptio
                   {/* Open Graph meta tags for social media */}
                   <meta property="og:title" content={ogTitle || title} />
                   <meta property="og:description" content={ogDescription || description} />
-                  <meta property="og:image" content={ogImage || "/default-image.jpg"} />
+                  <meta property="og:image" content={ogImage || "https://www.brightfuturesoft.com/logo.png"} />
                   <meta property="og:url" content={ogUrl || window.location.href} />
                   <meta property="og:type" content="website" />
 
@@ -21,12 +21,19 @@ const MetaTitle = ({ title, description, keywords, author, ogTitle, ogDescriptio
                   <meta name="twitter:card" content="summary_large_image" />
                   <meta name="twitter:title" content={ogTitle || title} />
                   <meta name="twitter:description" content={ogDescription || description} />
-                  <meta name="twitter:image" content={ogImage || "/default-image.jpg"} />
+                  <meta name="twitter:image" content={ogImage || "https://www.brightfuturesoft.com/logo.png"} />
 
                   {/* Additional meta tags */}
                   <link rel="canonical" href={ogUrl || window.location.href} />
                   <meta property="article:published_time" content={new Date().toISOString()} />
                   <meta property="article:modified_time" content={new Date().toISOString()} />
+
+                  {/* JSON-LD structured data (if provided) */}
+                  {schema && (
+                        <script type="application/ld+json">
+                              {JSON.stringify(schema)}
+                        </script>
+                  )}
             </Helmet>
       );
 };

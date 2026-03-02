@@ -1,8 +1,4 @@
-"use client"
-
 import { useEffect, useState } from "react"
-import EmploymentTerms from "./EmploymentTerms"
-import FAQ from "./FAQ"
 import MetaTitle, { base_url } from "../../layout/Title"
 import moduleName from "../../Assctes/logo.png"
 import JobCard from "./Card"
@@ -37,17 +33,55 @@ const Job = () => {
             fetchJobs()
       }, [])
 
+      // Build JSON-LD structured data for organization and job postings
+      const organizationSchema = {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Bright Future Soft",
+            "url": "https://www.brightfuturesoft.com",
+            "logo": "https://www.brightfuturesoft.com/logo.png"
+      }
+
+      const jobPostings = jobList && jobList.length > 0 ? jobList.map((job) => {
+            return {
+                  "@type": "JobPosting",
+                  "title": job?.job_title || job?.title || "Job Opening at Bright Future Soft",
+                  "description": job?.short_description || job?.description || "Join Bright Future Soft and work on innovative projects.",
+                  "datePosted": job?.createdAt || job?.date || new Date().toISOString(),
+                  "employmentType": job?.employment_type || job?.employmentType || "FULL_TIME",
+                  "hiringOrganization": {
+                        "@type": "Organization",
+                        "name": "Bright Future Soft",
+                        "sameAs": "https://www.brightfuturesoft.com"
+                  },
+                  "jobLocation": {
+                        "@type": "Place",
+                        "address": {
+                              "@type": "PostalAddress",
+                              "addressLocality": job?.location || "Dhaka",
+                              "addressCountry": job?.country || "BD"
+                        }
+                  }
+            }
+      }) : []
+
+      const schema = {
+            "@context": "https://schema.org",
+            "@graph": [organizationSchema, ...jobPostings]
+      }
+
       return (
             <div className="min-h-screen bg-gray-900">
                   <MetaTitle
-                        title="Careers"
-                        description="Explore career opportunities at Bright Future Soft. Join our team and contribute to innovative projects and a dynamic work environment."
-                        keywords="careers, job openings, work with us, Bright Future Soft"
+                        title="Careers — Join Bright Future Soft | Software Jobs in Bangladesh"
+                        description="Explore curated job openings at Bright Future Soft — a leading software company in Bangladesh. Apply to work on web, mobile, AI and enterprise solutions. Competitive salaries, remote options, and a growth-oriented culture."
+                        keywords="Bright Future Soft careers, software jobs Bangladesh, web developer jobs, mobile developer jobs, AI jobs, remote software jobs"
                         author="Bright Future Soft"
-                        ogTitle="Careers at Bright Future Soft"
-                        ogDescription="Discover exciting career opportunities at Bright Future Soft. Be a part of our innovative team and contribute to impactful projects."
+                        ogTitle="Careers at Bright Future Soft — We're hiring top tech talent"
+                        ogDescription="Explore open positions at Bright Future Soft. Work on impactful products, flexible work options, and career growth in software development, AI, and cloud solutions."
                         ogImage={moduleName}
                         ogUrl="https://www.brightfuturesoft.com/careers"
+                        schema={schema}
                   />
 
                   {/* Hero Section */}
@@ -163,13 +197,7 @@ const Job = () => {
                         )}
                   </div>
 
-                  {/* Employment Terms */}
-                  {/* <EmploymentTerms /> */}
 
-                  {/* FAQ Section */}
-                  {/* <FAQ /> */}
-
-                  {/* CTA Section */}
                   <News_Letter />
             </div>
       )

@@ -8,7 +8,7 @@ import { AuthContext } from "../context/UseContext/AuthProvider"
 import { Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
 
-// Navigation items configuration
+
 const navigationItems = [
       {
             title: "Dashboard",
@@ -187,11 +187,126 @@ const commonNavigationItems = [
       },
 ]
 
+// Navigation Item Component (declared at module scope to avoid recreating during render)
+const NavigationItem = ({ item, onClick }) => (
+      <NavLink
+            target={item.title === "Web Mail" ? "_blank" : "_self"}
+            to={item.path}
+            className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive ? "bg-[#1c65b4] text-white shadow-lg" : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                  }`
+            }
+            onClick={onClick}
+      >
+            <span className="opacity-75">{item.icon}</span>
+            <span>{item.title}</span>
+      </NavLink>
+)
+
+// Sidebar Content Component (module scope)
+const SidebarContent = ({ onItemClick, searchValue, onSearchChange, isAdmin, user, handleLogout, logo }) => (
+      <div className="flex flex-col h-full">
+            <div className="hidden lg:flex items-center justify-start px-6 py-8 border-b border-gray-800">
+                  <Link to="/" className="flex items-start ">
+                        <img src={logo || "/placeholder.svg"} alt="Logo" className="w-40" />
+                  </Link>
+            </div>
+
+            <div className="overflow-y-auto">
+                  <nav className="flex-1 px-4 py-6 space-y-2 ">
+
+                        <div className="flex items-center justify-between mb-4">
+                              <input
+                                    onChange={(e) => onSearchChange(e.target.value)}
+                                    value={searchValue}
+                                    placeholder="Search navigation..."
+                                    className="w-full px-4 py-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                              />
+                        </div>
+
+                        <div className="space-y-1">
+                              {navigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
+                                    <NavigationItem key={item.path} item={item} onClick={onItemClick} />
+                              ))}
+                        </div>
+
+
+                        {isAdmin && (
+                              <>
+                                    <div className="pt-6">
+                                          <div className="px-4 pb-2">
+                                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</h3>
+                                          </div>
+                                          <div className="space-y-1">
+                                                {adminNavigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
+                                                      <NavigationItem key={item.path} item={item} onClick={onItemClick} />
+                                                ))}
+                                          </div>
+                                    </div>
+                              </>
+                        )}
+
+
+                        <div className="pt-6">
+                              <div className="px-4 pb-2">
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">General</h3>
+                              </div>
+                              <div className="space-y-1">
+                                    {commonNavigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
+                                          <NavigationItem key={item.path} item={item} onClick={onItemClick} />
+                                    ))}
+                              </div>
+                        </div>
+
+
+                        <div className="pt-6">
+                              <button
+                                    onClick={() => {
+                                          handleLogout()
+                                          onItemClick?.()
+                                    }}
+                                    className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-gray-300 hover:bg-red-600 hover:text-white transition-all duration-200"
+                              >
+                                    <svg className="h-5 w-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                          <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                          />
+                                    </svg>
+                                    <span>Log out</span>
+                              </button>
+                        </div>
+                  </nav>
+            </div>
+
+
+
+            {user && (
+                  <div className="px-4 py-4 border-t border-gray-800">
+                        <div className="flex items-center gap-3">
+                              <img
+                                    src={user?.image || "https://randomuser.me/api/portraits/women/79.jpg"}
+                                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-700"
+                                    alt={user?.name || "User"}
+                              />
+                              <div className="flex-1 min-w-0">
+                                    <p className="text-white text-sm font-medium truncate">{user?.name}</p>
+                                    <p className="text-xs text-gray-400 truncate">{user?.possition
+                                    }</p>
+                              </div>
+                        </div>
+                  </div>
+            )}
+      </div>
+)
+
 const Dashboard = () => {
       const { user, setUser } = useContext(AuthContext)
       const navigate = useNavigate()
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
       const [searchValue, setSearchValue] = useState("")
+
 
       const handleLogout = () => {
             setUser(null)
@@ -209,124 +324,7 @@ const Dashboard = () => {
             navigate("/sign_in")
       }
 
-      // Navigation Item Component
-      const NavigationItem = ({ item, onClick }) => (
-            <NavLink
-                  target={item.title === "Web Mail" ? "_blank" : "_self"}
-                  to={item.path}
-                  className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive ? "bg-[#1c65b4] text-white shadow-lg" : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                        }`
-                  }
-                  onClick={onClick}
-            >
-                  <span className="opacity-75">{item.icon}</span>
-                  <span>{item.title}</span>
-            </NavLink>
-      )
-
-      // Sidebar Content Component
-      const SidebarContent = ({ onItemClick }) => (
-            <div className="flex flex-col h-full">
-                  <div className="hidden lg:flex items-center justify-start px-6 py-8 border-b border-gray-800">
-                        <Link to="/" className="flex items-start ">
-                              <img src={logo || "/placeholder.svg"} alt="Logo" className="w-40" />
-                        </Link>
-                  </div>
-
-                  <div className="overflow-y-auto">
-                        <nav className="flex-1 px-4 py-6 space-y-2 ">
-
-
-                              {/* need a search option for navigationItems */}
-
-                              <div className="flex items-center justify-between mb-4">
-                                    <input
-                                          onChange={(e) => {
-                                                setSearchValue(e.target.value);
-                                          }}
-                                          value={searchValue}
-                                          placeholder="Search navigation..."
-                                          className="w-full px-4 py-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                    />
-                              </div>
-
-                              <div className="space-y-1">
-                                    {navigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
-                                          <NavigationItem key={item.path} item={item} onClick={onItemClick} />
-                                    ))}
-                              </div>
-
-
-                              {isAdmin && (
-                                    <>
-                                          <div className="pt-6">
-                                                <div className="px-4 pb-2">
-                                                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</h3>
-                                                </div>
-                                                <div className="space-y-1">
-                                                      {adminNavigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
-                                                            <NavigationItem key={item.path} item={item} onClick={onItemClick} />
-                                                      ))}
-                                                </div>
-                                          </div>
-                                    </>
-                              )}
-
-
-                              <div className="pt-6">
-                                    <div className="px-4 pb-2">
-                                          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">General</h3>
-                                    </div>
-                                    <div className="space-y-1">
-                                          {commonNavigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
-                                                <NavigationItem key={item.path} item={item} onClick={onItemClick} />
-                                          ))}
-                                    </div>
-                              </div>
-
-
-                              <div className="pt-6">
-                                    <button
-                                          onClick={() => {
-                                                handleLogout()
-                                                onItemClick?.()
-                                          }}
-                                          className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-sm font-medium text-gray-300 hover:bg-red-600 hover:text-white transition-all duration-200"
-                                    >
-                                          <svg className="h-5 w-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                <path
-                                                      strokeLinecap="round"
-                                                      strokeLinejoin="round"
-                                                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                                />
-                                          </svg>
-                                          <span>Log out</span>
-                                    </button>
-                              </div>
-                        </nav>
-                  </div>
-
-
-
-                  {user && (
-                        <div className="px-4 py-4 border-t border-gray-800">
-                              <div className="flex items-center gap-3">
-                                    <img
-                                          src={user?.image || "https://randomuser.me/api/portraits/women/79.jpg"}
-                                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-700"
-                                          alt={user?.name || "User"}
-                                    />
-                                    <div className="flex-1 min-w-0">
-                                          <p className="text-white text-sm font-medium truncate">{user?.name}</p>
-                                          <p className="text-xs text-gray-400 truncate">{user?.possition
-                                          }</p>
-                                    </div>
-                              </div>
-                        </div>
-                  )}
-            </div>
-      )
+      
 
       return (
             <div className="flex h-screen bg-gray-100">
@@ -338,13 +336,13 @@ const Dashboard = () => {
                   {/* Desktop Sidebar */}
                   <aside className="hidden lg:flex ">
                         <div className="flex flex-col w-80 bg-gray-900 border-r border-gray-800">
-                              <SidebarContent />
+                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} isAdmin={isAdmin} user={user} handleLogout={handleLogout} logo={logo} />
                         </div>
                   </aside>
 
                   {/* Mobile Sidebar */}
                   <div
-                        className={`fixed inset-y-0 left-0 z-50 w-80 bg-gray-900 transform transition-transform duration-300 ease-in-out lg:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+                        className={`fixed inset-y-0 left-0 z-50 w-80 bg-gray-900 transform transition-transform duration-300 ease-in-out lg:hidden flex flex-col h-full ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                               }`}
                   >
                         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-800">
@@ -360,8 +358,8 @@ const Dashboard = () => {
                                     </svg>
                               </button>
                         </div>
-                        <div className="flex-1 overflow-scroll-y">
-                              <SidebarContent onItemClick={closeMobileMenu} />
+                        <div className="flex-1 overflow-y-auto">
+                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} isAdmin={isAdmin} user={user} handleLogout={handleLogout} logo={logo} />
                         </div>
 
                   </div>

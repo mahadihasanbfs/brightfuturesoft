@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import { base_url } from '../../layout/Title';
+import MetaTitle, { base_url } from '../../layout/Title';
 import { Link, useParams } from 'react-router-dom';
 import uploadImage from '../../Hook/ImageUpload';
 import Swal from 'sweetalert2';
@@ -182,8 +182,64 @@ const ViewDetails = () => {
 
 
 
+      // helper to strip HTML and create concise descriptions
+      const stripHtml = (html) => {
+            if (!html) return ''
+            return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      }
+
+      const metaTitle = job_data?.job_position ? `${job_data.job_position} — Careers at Bright Future Soft` : 'Career Opportunity — Bright Future Soft'
+
+      const metaDescription = job_data?.short_description || stripHtml(job_data?.description)?.slice(0, 160) || 'Join Bright Future Soft — work on web, mobile, AI and enterprise solutions. Apply now for this opportunity.'
+
+      const jobSchema = job_data && job_data.job_position ? {
+            "@context": "https://schema.org",
+            "@type": "JobPosting",
+            "title": job_data.job_position,
+            "description": stripHtml(job_data.description),
+            "datePosted": job_data.createdAt || job_data.date || new Date().toISOString(),
+            "validThrough": job_data.dateline ? new Date(job_data.dateline + 'T23:59:59').toISOString() : undefined,
+            "employmentType": job_data.job_type || job_data.job_type || "FULL_TIME",
+            "hiringOrganization": {
+                  "@type": "Organization",
+                  "name": "Bright Future Soft",
+                  "sameAs": "https://www.brightfuturesoft.com",
+                  "logo": "https://www.brightfuturesoft.com/logo.png"
+            },
+            "jobLocation": {
+                  "@type": "Place",
+                  "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": job_data.location || 'Dhaka',
+                        "addressCountry": job_data.country || 'BD'
+                  }
+            },
+            "baseSalary": job_data.salary ? {
+                  "@type": "MonetaryAmount",
+                  "currency": job_data.currency || 'BDT',
+                  "value": {
+                        "@type": "QuantitativeValue",
+                        "value": job_data.salary,
+                        "unitText": "YEAR"
+                  }
+            } : undefined
+      } : null
+
       return (
             <div>
+                  {jobSchema && (
+                        <MetaTitle
+                              title={metaTitle}
+                              description={metaDescription}
+                              keywords={`Bright Future Soft careers, ${job_data?.job_position || ''}`}
+                              author="Bright Future Soft"
+                              ogTitle={metaTitle}
+                              ogDescription={metaDescription}
+                              ogImage="https://www.brightfuturesoft.com/logo.png"
+                              ogUrl={`https://www.brightfuturesoft.com/careers/${job_data?._id || ''}`}
+                              schema={jobSchema}
+                        />
+                  )}
                   <section className="py-12 bg-gray-900 sm:py-16 lg:py-20">
                         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                               <div className="max-w-3xl mx-auto xl:max-w-7xl mt-4">
