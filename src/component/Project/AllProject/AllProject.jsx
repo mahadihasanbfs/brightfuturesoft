@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useLoaderData } from 'react-router-dom';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import ProjectCart from '../ProjectCart/ProjectCart';
-import Title, { base_url } from '../../../layout/Title';
+import MetaTitle, { base_url } from '../../../layout/Title';
 import moduleName from '../../../Assctes/logo.png';
-import MetaTitle from '../../../layout/Title';
 import { useQuery } from '@tanstack/react-query';
 
 const AllProject = () => {
-      // const datas = useLoaderData();
-      // const project = datas.data
-      // console.log(project);
+
       const {
             data: project = [],
-            refetch,
             isLoading,
       } = useQuery({
-            queryKey: ["all_users"],
+            queryKey: ["projects"],
             queryFn: async () => {
                   const res = await fetch(`${base_url}/project/get-project`, {
                         headers: {
@@ -32,26 +28,83 @@ const AllProject = () => {
 
       // const stickyTopSpace = 50;
       const [searchValue, setSearchValue] = useState("all");
-      const [searchResults, setSearchResults] = useState([]);
 
-
-      useEffect(() => {
-            if (searchValue === "all") {
-                  // Show all projects if searchValue is "all"
-                  setSearchResults(project);
-            } else {
-                  const filteredObjects = project.filter((obj) =>
-                        obj.projectType.toLowerCase().includes(searchValue.toLowerCase())
-                  );
-                  setSearchResults(filteredObjects);
-            }
+      const searchResults = useMemo(() => {
+            if (searchValue === "all") return project;
+            return project.filter((obj) => (obj.projectType || '').toLowerCase().includes(searchValue.toLowerCase()));
       }, [searchValue, project]);
 
 
-      useEffect(() => {
-            window.scrollTo(0, 0);
-      }, []);
+     useEffect(() => {
+      window.scrollTo(0, 0);
 
+      document.title =
+            "Bright Future Soft | Our Projects ";
+
+      const description =
+            "Explore Bright Future Soft’s portfolio of ERP systems, SaaS platforms, web applications, mobile apps, and UI/UX design projects delivered for startups, SMEs, and enterprises in Bangladesh.";
+
+      const keywords =
+            "Software Projects Bangladesh, ERP Projects, SaaS Portfolio, Web Development Portfolio, Mobile App Projects, UI UX Design Projects, Bright Future Soft";
+
+      // Meta Description
+      let metaDescription = document.querySelector("meta[name='description']");
+      if (!metaDescription) {
+            metaDescription = document.createElement("meta");
+            metaDescription.name = "description";
+            document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute("content", description);
+
+      // Meta Keywords
+      let metaKeywords = document.querySelector("meta[name='keywords']");
+      if (!metaKeywords) {
+            metaKeywords = document.createElement("meta");
+            metaKeywords.name = "keywords";
+            document.head.appendChild(metaKeywords);
+      }
+      metaKeywords.setAttribute("content", keywords);
+
+      // OG Title
+      let ogTitle = document.querySelector("meta[property='og:title']");
+      if (!ogTitle) {
+            ogTitle = document.createElement("meta");
+            ogTitle.setAttribute("property", "og:title");
+            document.head.appendChild(ogTitle);
+      }
+      ogTitle.setAttribute(
+            "content",
+            "Our Projects - Bright Future Soft"
+      );
+
+      // OG Description
+      let ogDesc = document.querySelector("meta[property='og:description']");
+      if (!ogDesc) {
+            ogDesc = document.createElement("meta");
+            ogDesc.setAttribute("property", "og:description");
+            document.head.appendChild(ogDesc);
+      }
+      ogDesc.setAttribute("content", description);
+
+      // OG Image (Logo or Banner)
+      let ogImage = document.querySelector("meta[property='og:image']");
+      if (!ogImage) {
+            ogImage = document.createElement("meta");
+            ogImage.setAttribute("property", "og:image");
+            document.head.appendChild(ogImage);
+      }
+      ogImage.setAttribute("content", "https://yourdomain.com/logo.png");
+
+      // Canonical
+      let canonical = document.querySelector("link[rel='canonical']");
+      if (!canonical) {
+            canonical = document.createElement("link");
+            canonical.setAttribute("rel", "canonical");
+            document.head.appendChild(canonical);
+      }
+      canonical.setAttribute("href", window.location.href);
+
+}, []);
       const stripHtmlTags = (html) => {
             // Create a new DOM parser
             const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -69,18 +122,11 @@ const AllProject = () => {
             return doc.body.textContent || '';
       };
 
+
+
       return (
             <div className="md:py-20 all-project-bg ">
-                  <MetaTitle
-                        title="Projects"
-                        description="Explore our diverse range of projects at Bright Future Soft. From innovative web and app development to impactful UI/UX design, see how we bring ideas to life."
-                        keywords="projects, web development, app development, UI/UX design, software solutions, portfolio, Bright Future Soft"
-                        author="Bright Future Soft"
-                        ogTitle="Our Projects"
-                        ogDescription="Discover the projects we've worked on at Bright Future Soft. Our portfolio showcases our expertise in web and app development, UI/UX design, and more."
-                        ogImage={moduleName}
-                        ogUrl="https://www.brightfuturesoft.com/all_project"
-                  />
+
                   <div className="px-1 pt-1 pb-20 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 md:w-[80%] w-[95%] mt-5">
                         <div className="p-banner px-4 py-[110px]" align="center">
                               <h1 className='text-4xl font-bold text-white'>Our Projects</h1>

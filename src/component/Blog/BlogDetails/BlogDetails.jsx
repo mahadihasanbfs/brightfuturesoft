@@ -49,26 +49,70 @@ const BlogDetails = () => {
             return doc.body.innerHTML;
       };
 
+
+      useEffect(() => {
+      if (!blogInfo?.title) return;
+
+      // Dynamic Title
+      document.title = `${blogInfo.title} | Bright Future Soft Blog`;
+
+      // Clean text for description (HTML remove করে)
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = blogInfo?.message || "";
+      const plainText = tempDiv.textContent || tempDiv.innerText || "";
+      const description = plainText.slice(0, 160);
+
+      // Meta Description
+      const metaDescription = document.querySelector("meta[name='description']");
+      if (metaDescription) {
+            metaDescription.setAttribute("content", description);
+      } else {
+            const meta = document.createElement("meta");
+            meta.name = "description";
+            meta.content = description;
+            document.head.appendChild(meta);
+      }
+
+      // OG Title
+      const ogTitle = document.querySelector("meta[property='og:title']");
+      if (ogTitle) {
+            ogTitle.setAttribute("content", blogInfo.title);
+      } else {
+            const meta = document.createElement("meta");
+            meta.setAttribute("property", "og:title");
+            meta.content = blogInfo.title;
+            document.head.appendChild(meta);
+      }
+
+      // OG Description
+      const ogDesc = document.querySelector("meta[property='og:description']");
+      if (ogDesc) {
+            ogDesc.setAttribute("content", description);
+      } else {
+            const meta = document.createElement("meta");
+            meta.setAttribute("property", "og:description");
+            meta.content = description;
+            document.head.appendChild(meta);
+      }
+
+      // OG Image
+      if (blogInfo?.img) {
+            const ogImage = document.querySelector("meta[property='og:image']");
+            if (ogImage) {
+                  ogImage.setAttribute("content", blogInfo.img);
+            } else {
+                  const meta = document.createElement("meta");
+                  meta.setAttribute("property", "og:image");
+                  meta.content = blogInfo.img;
+                  document.head.appendChild(meta);
+            }
+      }
+
+}, [blogInfo]);
+
       return (
 
             <section class="py-12 bg-gray-900 sm:py-16 lg:py-28">
-                  <Helmet>
-                        <title>{blogInfo?.title} | Bright Future Soft</title>
-                        <meta name="description" content={blogInfo?.meta_description} />
-
-                        {/* Open Graph (OG) tags for Facebook and other platforms */}
-                        <meta property="og:title" content={blogInfo?.title} />
-                        <meta property="og:description" content={blogInfo?.meta_description} />
-                        <meta property="og:image" content={blogInfo?.img} />
-                        <meta property="og:url" content={window.location.href} />
-                        <meta property="og:type" content="article" />
-
-                        {/* Twitter Card tags */}
-                        <meta name="twitter:card" content="summary_large_image" />
-                        <meta name="twitter:title" content={blogInfo?.title} />
-                        <meta name="twitter:description" content={blogInfo?.meta_description} />
-                        <meta name="twitter:image" content={blogInfo?.img} />
-                  </Helmet>
 
 
                   <div class="px-4  mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl  lg:px-8">

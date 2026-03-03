@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import mahadi from '../../../Assctes/teamMember/mahadi.jpg';
@@ -477,7 +477,6 @@ const Read_more_service = () => {
       const id = location.pathname.split('/')[2];
       const selectedOffer = serviceInfo.find(offer => offer.url === id);
 
-      console.log(selectedOffer, 'selectedOffer', id);
 
 
       const [openQuestionId, setOpenQuestionId] = useState(0);
@@ -486,6 +485,63 @@ const Read_more_service = () => {
             // Toggle the open question id, close if the same question is clicked
             setOpenQuestionId(openQuestionId === questionId ? null : questionId);
       };
+
+useEffect(() => {
+      if (!selectedOffer?.name) return;
+
+      // Title
+      document.title = `${selectedOffer.name} | Bright Future Soft Services`;
+
+      const description =
+            selectedOffer?.description?.slice(0, 160) ||
+            "Professional software development and SaaS solutions by Bright Future Soft.";
+
+      // Meta Description
+      const metaDescription = document.querySelector("meta[name='description']");
+      if (metaDescription) {
+            metaDescription.setAttribute("content", description);
+      } else {
+            const meta = document.createElement("meta");
+            meta.name = "description";
+            meta.content = description;
+            document.head.appendChild(meta);
+      }
+
+      // OG Title
+      const ogTitle = document.querySelector("meta[property='og:title']");
+      if (ogTitle) {
+            ogTitle.setAttribute("content", selectedOffer.name);
+      } else {
+            const meta = document.createElement("meta");
+            meta.setAttribute("property", "og:title");
+            meta.content = selectedOffer.name;
+            document.head.appendChild(meta);
+      }
+
+      // OG Description
+      const ogDesc = document.querySelector("meta[property='og:description']");
+      if (ogDesc) {
+            ogDesc.setAttribute("content", description);
+      } else {
+            const meta = document.createElement("meta");
+            meta.setAttribute("property", "og:description");
+            meta.content = description;
+            document.head.appendChild(meta);
+      }
+
+      // Canonical URL (Very Important for SEO)
+      const canonicalUrl = window.location.href;
+      let link = document.querySelector("link[rel='canonical']");
+      if (link) {
+            link.setAttribute("href", canonicalUrl);
+      } else {
+            link = document.createElement("link");
+            link.setAttribute("rel", "canonical");
+            link.setAttribute("href", canonicalUrl);
+            document.head.appendChild(link);
+      }
+
+}, [selectedOffer]);
 
 
       if (!selectedOffer) {

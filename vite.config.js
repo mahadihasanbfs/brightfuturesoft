@@ -11,5 +11,9 @@ export default defineConfig({
                         plugins: [['babel-plugin-react-compiler']],
                   },
             }),
+            
       ],
+//       server: {
+//     allowedHosts: ['1f3a8d585ef8c6.lhr.life']
+//   }
 })

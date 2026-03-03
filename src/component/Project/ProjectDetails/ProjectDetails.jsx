@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import Title, { base_url } from '../../../layout/Title';
+import MetaTitle, { base_url } from '../../../layout/Title';
 import mahadi from '../../../Assctes/teamMember/mahadi.jpg';
 import hadi from '../../../Assctes/teamMember/mohotasimhadi.jpeg';
 
 import { useQuery } from '@tanstack/react-query';
+
 
 const ProjectDetails = () => {
 
@@ -12,19 +13,22 @@ const ProjectDetails = () => {
       const { id } = useParams()
 
 
-      const { data: project = {}, refetch, isLoading } = useQuery({
-            queryKey: ["project_data"],
-            queryFn: async () => {
-                  const res = await fetch(
-                        `${base_url}/project/get-project-by-id?project_id=${id}`,
-                        {
-                              headers: {
-                                    'content-type': 'application/json',
-                                    'author': 'bright_future_soft'
-                              },
-                              method: 'GET',
-                        }
-                  );
+      const { data: project = {}, isLoading, } = useQuery({
+            queryKey: ["project_data", id],
+            enabled: !!id,
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            cacheTime: 1000 * 60 * 10,
+            retry: 2,
+            queryFn: async ({ signal }) => {
+                  const res = await fetch(`${base_url}/project/get-project-by-id?project_id=${id}`, {
+                        method: 'GET',
+                        headers: {
+                              'content-type': 'application/json',
+                              'author': 'bright_future_soft'
+                        },
+                        signal,
+                  });
+                  if (!res.ok) throw new Error('Failed to fetch project');
                   const data = await res.json();
                   return data.data;
             },
@@ -34,12 +38,64 @@ const ProjectDetails = () => {
             window.scrollTo(0, 0);
       }, []);
 
-      useEffect(() => {
-            refetch()
-      }, [id])
-      console.log(project.technologies);
+
+     useEffect(() => {
+      if (!project?.project_name) return;
+
+      // Title Change
+      document.title = `${project.project_name} | Bright Future Soft`;
+
+      // Meta Description
+      const metaDescription = document.querySelector("meta[name='description']");
+      if (metaDescription) {
+            metaDescription.setAttribute(
+                  "content",
+                  project?.short_description || 
+                  project?.description?.slice(0, 160) || 
+                  "Project details by Bright Future Soft"
+            );
+      } else {
+            const meta = document.createElement("meta");
+            meta.name = "description";
+            meta.content =
+                  project?.short_description || 
+                  project?.description?.slice(0, 160) || 
+                  "Project details by Bright Future Soft";
+            document.head.appendChild(meta);
+      }
+
+      // Open Graph Title
+      const ogTitle = document.querySelector("meta[property='og:title']");
+      if (ogTitle) {
+            ogTitle.setAttribute("content", project.project_name);
+      } else {
+            const meta = document.createElement("meta");
+            meta.setAttribute("property", "og:title");
+            meta.content = project.project_name;
+            document.head.appendChild(meta);
+      }
+
+      // Open Graph Image
+      if (project?.image_url) {
+            const ogImage = document.querySelector("meta[property='og:image']");
+            if (ogImage) {
+                  ogImage.setAttribute("content", project.image_url);
+            } else {
+                  const meta = document.createElement("meta");
+                  meta.setAttribute("property", "og:image");
+                  meta.content = project.image_url;
+                  document.head.appendChild(meta);
+            }
+      }
+
+}, [project]);
+    
       return (
             <div className="bg-[#1b2030] text-[#8a8a8a] px-2  py-[100px]">
+                 
+                      
+                     
+              
                   {isLoading && <SkeletonLoader />}
                   {!isLoading && <section className="px-4  mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 ">
                         <div className="">
@@ -56,10 +112,11 @@ const ProjectDetails = () => {
 
                                                 <img
                                                       loading="lazy"
+                                                      decoding="async"
                                                       src={project?.image_url || "/default-image.jpg"}
-                                                      alt={`${project?.project_name} -- Project`}
+                                                      alt={project?.project_name ? `${project.project_name} — Project` : "Project image"}
                                                       className="rounded-xl"
-                                                      onError={(e) => (e.target.src = "/default-image.jpg")}
+                                                      onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/default-image.jpg" }}
                                                 />
                                           </div>
                                     </div>
@@ -74,10 +131,14 @@ const ProjectDetails = () => {
 
                                                             <ul className="mt-8 space-y-5">
                                                                   {project?.technologies?.map((technology) => (
-                                                                        <li key={technology?.name} className="flex items-center space-x-3">
-                                                                              {console.log(technology, "tec")}
+                                                                        <li key={technology?.name || technology?.id} className="flex items-center space-x-3">
                                                                               <div className="inline-flex items-center justify-center flex-shrink-0 w-5  ">
-                                                                                    <img src={technology?.imageUrl ?? technology?.img} />
+                                                                                    <img
+                                                                                          src={technology?.imageUrl ?? technology?.img ?? "/default-tech.png"}
+                                                                                          alt={technology?.name || 'technology'}
+                                                                                          className="w-5 h-5 object-contain"
+                                                                                          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/default-tech.png" }}
+                                                                                    />
                                                                               </div>
                                                                               <span className="flex text-base font-bold text-gray-300 capitalize ">
                                                                                     {technology?.name}

@@ -53,7 +53,75 @@ const About = () => {
             },
       })
 
+useEffect(() => {
+      if (!teamMembers.length) return;
 
+      window.scrollTo(0, 0);
+
+      const teamNames = teamMembers.map(m => m.name).join(", ");
+
+      document.title =
+            "Bright Future Soft | About Us | Software Company in Bangladesh";
+
+      const description =
+            `Bright Future Soft is a leading software company in Bangladesh. Our expert team includes ${teamNames}. We specialize in ERP, SaaS, CRM, AI and custom software development.`;
+
+      // Meta Description
+      let metaDescription = document.querySelector("meta[name='description']");
+      if (!metaDescription) {
+            metaDescription = document.createElement("meta");
+            metaDescription.name = "description";
+            document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute("content", description);
+
+      // Canonical
+      let canonical = document.querySelector("link[rel='canonical']");
+      if (!canonical) {
+            canonical = document.createElement("link");
+            canonical.setAttribute("rel", "canonical");
+            document.head.appendChild(canonical);
+      }
+      canonical.setAttribute("href", window.location.href);
+
+      // 🔥 Organization Schema
+      const orgSchema = {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Bright Future Soft",
+            "url": window.location.origin,
+            "logo": logo,
+            "sameAs": [
+                  "https://www.linkedin.com/company/brightfuturesoft"
+            ]
+      };
+
+      // 🔥 Person Schema for all team members
+      const personSchema = teamMembers.map(member => ({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": member.name,
+            "jobTitle": member.designation ?? member.possition,
+            "image": member.image,
+            "email": member.email,
+            "worksFor": {
+                  "@type": "Organization",
+                  "name": "Bright Future Soft"
+            },
+            "sameAs": member.linkedin ? [member.linkedin] : []
+      }));
+
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.innerHTML = JSON.stringify([orgSchema, ...personSchema]);
+
+      document.head.appendChild(script);
+
+      return () => {
+            document.head.removeChild(script);
+      };
+
+}, [teamMembers]);
 
 
       useEffect(() => {
@@ -64,16 +132,7 @@ const About = () => {
 
       return (
             <div className='py-4 bg-[#020A1C] p-2 about-bg'>
-                  <MetaTitle
-                        title="About Us"
-                        description="Learn about the team behind Bright Future Soft. Meet our CEO, directors, and other key team members who contribute to our success."
-                        keywords="about us, team, CEO, founder, manager, software engineers, UI/UX designer, Bright Future Soft"
-                        author="Bright Future Soft"
-                        ogTitle="About Us - Bright Future Soft"
-                        ogDescription="Discover the key members of the Bright Future Soft team. From our CEO and founder to our dedicated software engineers and designers."
-                        ogImage={logo}
-                        ogUrl="https://www.brightfuturesoft.com/about"
-                  />
+                 
                   <div className="head px-2 sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 md:w-[85%] w-[98%] mx-auto rounded-lg ">
                         <div className="md:grid grid-cols-2 md:pt-0 pt-16  mt-2">
                               <div className="flex items-center">
