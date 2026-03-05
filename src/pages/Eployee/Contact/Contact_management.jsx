@@ -105,7 +105,7 @@ const Contact_management = () => {
             )
 
       return (
-            <div className="container mx-auto p-4 relative">
+            <div className="container mx-auto p-4 relative text-white">
                   <h1 className="text-2xl font-bold mb-6">Contact Messages</h1>
 
                   <div className="overflow-x-auto shadow-md border border-white border-opacity-20 rounded-lg">

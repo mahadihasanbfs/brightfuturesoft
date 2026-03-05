@@ -390,7 +390,7 @@ const Apply_List = () => {
       }
 
       return (
-            <div className="min-h-screen bg-gray-900 ">
+            <div className="min-h-screen bg-gray-900 text-white">
                   {/* Toast Notification */}
                   {toast && (
                         <Toast
@@ -429,7 +429,7 @@ const Apply_List = () => {
                                           <h1 className="text-3xl font-bold text-foreground mb-2">
                                                 Application Management
                                           </h1>
-                                          <p className="text-muted">
+                                          <p className="text-foreground">
                                                 Review and manage candidate applications
                                           </p>
                                     </div>

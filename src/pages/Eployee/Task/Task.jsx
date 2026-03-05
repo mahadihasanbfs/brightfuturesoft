@@ -9,7 +9,7 @@ function Modal({ open, onClose, children }) {
       if (!open) return null;
 
       return (
-            <div className="fixed inset-0 z-50">
+            <div className="fixed inset-0 z-50 text-white">
                   <div
                         className="absolute inset-0 bg-black/70 backdrop-blur-md"
                         onClick={onClose}
@@ -571,6 +571,21 @@ function TaskManagement() {
             }
       };
 
+      const markTaskComplete = async (taskId) => {
+            try {
+                  await fetch(`${base_url}/task/update-task?id=${taskId}`, {
+                        method: "PUT",
+                        headers: { "content-type": "application/json", author: "bright_future_soft" },
+                        body: JSON.stringify({ column: "done" }),
+                  });
+                  refetch();
+                  // close modal if viewing the same task
+                  if (selectedTask && selectedTask.id === taskId) closeViewModal();
+            } catch (error) {
+                  console.error(error);
+            }
+      };
+
       const handleDropOnColumn = async (e, columnId) => {
             e.preventDefault();
             if (!draggedId) return;
@@ -606,6 +621,20 @@ function TaskManagement() {
             setDropTarget({ columnId: null, beforeId: null });
       };
 
+      const delete_task = async (taskId) => {
+            console.log(taskId);
+            try {
+                  await fetch(`${base_url}/task/delete-task?id=${taskId}`, {
+                        method: "DELETE",
+                        headers: { "content-type": "application/json", author: "bright_future_soft" },
+                  });
+                  refetch();
+                  if (selectedTask && selectedTask.id === taskId) closeViewModal();
+            } catch (error) {
+                  console.error(error);
+            }
+      }
+
       const openViewModal = (task) => {
             setSelectedTask(task);
             setViewModalOpen(true);
@@ -628,7 +657,7 @@ function TaskManagement() {
 
       return (
             <>
-                  <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
+                  <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8 ">
                         <div className="mb-8">
                               <h1 className="text-3xl font-bold text-slate-100 mb-2">Task Board</h1>
                               <p className="text-slate-400">Manage your team's workflow</p>
@@ -1129,8 +1158,8 @@ function TaskManagement() {
                                                       <span className="text-xs text-slate-400">#{selectedTask.id.slice(-8)}</span>
                                                 </div>
                                           </div>
-                                          <div className="flex items-center gap-2">
-                                                <button className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 transition-all">
+                                                <div className="flex items-center gap-2">
+                                                <button onClick={() => delete_task(selectedTask.id)} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 transition-all" title="Mark complete">
                                                       <Trash2 size={18} />
                                                 </button>
                                                 <button className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-300 transition-all">
@@ -1262,7 +1291,7 @@ function TaskManagement() {
                                                 </div>
 
                                                 <div className="pt-4 border-t border-slate-800">
-                                                      <button className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-bold hover:from-blue-500 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30">
+                                                      <button onClick={() => markTaskComplete(selectedTask.id)} className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-bold hover:from-blue-500 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30">
                                                             Complete Task
                                                             <ArrowRight size={16} />
                                                       </button>

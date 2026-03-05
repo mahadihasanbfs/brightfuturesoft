@@ -8,7 +8,7 @@ const Notice_View = () => {
 
       return (
             <div>
-                  <section class="py-12  sm:py-16 lg:py-20 ">
+                  <section class="py-12  sm:py-16 lg:py-20 text-white ">
                         <div class="px-4  sm:px-6 lg:px-8 max-w-7xl">
                               <div class=" ">
                                     <div class="">

@@ -6,7 +6,7 @@ const ViewIssue = ({ viewissue, issueDetails, setViewissue }) => {
       <div className={viewissue ? "flex" : "hidden"}>
         <div className=" mx-auto py-20">
           <div
-            className={`fixed  z-50 top-0 left-0 flex h-full min-h-screen w-full items-center justify-center backdrop-blur-xs bg-opacity-90 px-4 py-5  ${
+            className={`fixed  z-50 top-0 left-0 flex h-full min-h-screen w-full items-center justify-center backdrop-blur-xs bg-opacity-90 px-4 py-5 text-white ${
               viewissue ? "block" : "hidden"
             }`}
           >
