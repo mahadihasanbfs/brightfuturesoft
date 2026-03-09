@@ -220,7 +220,7 @@ const SidebarContent = ({ onItemClick, searchValue, onSearchChange, isAdmin, use
                                     onChange={(e) => onSearchChange(e.target.value)}
                                     value={searchValue}
                                     placeholder="Search navigation..."
-                                    className="w-full px-4 py-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    className="w-full px-4 py-2 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                               />
                         </div>
 

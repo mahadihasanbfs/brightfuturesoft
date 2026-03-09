@@ -12,7 +12,7 @@ const Account_management = () => {
       const [activeTab, setActiveTab] = useState("profile")
 
       return (
-            <div className="min-h-screen  py-8">
+            <div className="min-h-screen  py-8 text-white">
                   <div className="max-w-5xl px-4">
                         <h1 className="text-3xl font-bold mb-6">Account Management</h1>
 
