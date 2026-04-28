@@ -115,7 +115,6 @@ const EmployeeManagement = () => {
 
                   <div className="mb-4 flex gap-2">
                         <Link_Button name={'Add New Employee'} url={'/sign_up'} />{' '}
-                        {/* <Link_Button name={'Attendance'} url={'/dashboard/employee-management/attendance'} /> */}
                   </div>
 
                   {isLoading ? (
@@ -127,7 +126,7 @@ const EmployeeManagement = () => {
                               {all_users.map((user) => (
                                     <div
                                           key={user._id}
-                                          className=" rounded-lg relative shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                                          className=" rounded-lg relative shadow-md overflow-hidden border border-gray-800 hover:shadow-lg transition-shadow"
                                     >
                                           <div className="p-6">
                                                 <div className="flex items-center justify-between mb-4">
@@ -136,25 +135,28 @@ const EmployeeManagement = () => {
                                                                   <img
                                                                         src={user?.image || "/placeholder.svg"}
                                                                         alt={user?.name}
-                                                                        className="w-12 h-12 rounded object-cover mr-4"
+                                                                        className="w-16 h-16 rounded object-cover mr-4"
                                                                   />
                                                             ) : (
                                                                   <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mr-4">
-                                                                        <span className="text-xl font-bold text-gray-500">{user?.name.charAt(0).toUpperCase()}</span>
+                                                                        <span className="text-xl font-bold text-gray-500">{user?.name.charAt(0).toUpperCase()}</span> 
                                                                   </div>
                                                             )}
                                                             <div>
-                                                                  <h3 className="font-semibold text-lg text-gray-100">{user?.name}</h3>
+                                                                  <h3 className="font-semibold text-lg text-gray-100 flex items-center">
+                                                                        {user?.name} ( <span className="capitalize text-blue-500 text-xs"> {user?.designation}</span> )
+                                                                  </h3>
                                                                   <p className="text-sm text-gray-600">{user?.email}</p>
+                                                                  <span className="text-sm text-gray-500">{user?.phone}</span>
                                                             </div>
                                                       </div>
                                                 </div>
 
-                                                <div className="mt-2 mb-4">
+                                                {/* <div className="mt-2 mb-4">
                                                       <span className="inline-block px-3 py-1 capitalize  text-sm font-medium rounded-full bg-blue-100 text-blue-800">
                                                             {user.designation}
                                                       </span>
-                                                </div>
+                                                </div> */}
 
                                                 <div className="flex justify-end gap-2 absolute bottom-2 right-2">
                                                       <button
@@ -271,7 +273,7 @@ const EmployeeManagement = () => {
                         </div>
                   )}
 
-                  {/* Delete Confirmation Modal */}
+
                   {deleteConfirm && (
                         <div className="fixed inset-0 bg-gray-900/30 bg-opacity-50 flex items-center justify-center p-4 z-50">
                               <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
@@ -312,7 +314,7 @@ const EmployeeManagement = () => {
                         </div>
                   )}
 
-                  {/* Empty state */}
+
                   {!isLoading && all_users.length === 0 && (
                         <div className="text-center py-12 bg-gray-50 rounded-lg">
                               <h3 className="text-lg font-medium text-gray-900 mb-2">No employees found</h3>

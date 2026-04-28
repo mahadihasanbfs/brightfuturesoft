@@ -107,7 +107,7 @@ const AdminBlogForm = () => {
                                                 Title
                                           </label>
                                           <input required
-                                                className="w-full rounded-lg border text-white border-gray-200 p-3 text-sm"
+                                                className="w-full rounded-lg bg-gray-800 border text-white border-gray-200 p-3 text-sm"
                                                 placeholder="Title"
                                                 type="text"
                                                 id="title"
@@ -169,21 +169,7 @@ const AdminBlogForm = () => {
                                                 toolbarSticky: false,
                                                 toolbarAdaptive: false,
                                                 toolbarButtonSize: "small",
-                                                buttons: [
-                                                      "bold",
-                                                      "italic",
-                                                      "underline",
-                                                      "|",
-                                                      "ul",
-                                                      "ol",
-                                                      "|",
-                                                      "link",
-                                                      "|",
-                                                      "undo",
-                                                      "redo",
-                                                      "brush",
-                                                      "paragraph",
-                                                ],
+                                               
                                                 uploader: {
                                                       insertImageAsBase64URI: true,
                                                 },

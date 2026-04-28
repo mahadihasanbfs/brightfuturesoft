@@ -36,22 +36,26 @@ import { useQuery } from '@tanstack/react-query';
 const About = () => {
 
 
-      const {
-            data: teamMembers = [],
-      } = useQuery({
-            queryKey: ["all_users"],
-            queryFn: async () => {
-                  const res = await fetch(`${base_url}/auth/all`, {
-                        headers: {
-                              "content-type": "application/json",
-                              author: "bright_future_soft",
-                        },
-                        method: "GET",
-                  })
-                  const data = await res.json()
-                  return data.data
-            },
-      })
+   const { data: teamMembers = [] } = useQuery({
+  queryKey: ["all_users"],
+  queryFn: async () => {
+    const res = await fetch(`${base_url}/auth/all`, {
+      headers: {
+        "content-type": "application/json",
+        author: "bright_future_soft",
+      },
+    })
+    const { data } = await res.json()
+       return data
+  .filter(user => user.slot != null)
+  .sort((a, b) => {
+    if (a.slot === b.slot) {
+      return a.name.localeCompare(b.name) // duplicate hole name diye sort
+    }
+    return Number(a.slot) - Number(b.slot)
+  })
+  },
+})
 
 useEffect(() => {
       if (!teamMembers.length) return;
