@@ -9,7 +9,7 @@ import { AuthContext } from '../../../context/UseContext/AuthProvider';
 
 const AddNewIssue = () => {
       const [loading, setLoading] = useState(false);
-      const [activeMdl, setActiveMdl] = useState(false);
+
 
 
       const { user } = useContext(AuthContext)
@@ -19,6 +19,7 @@ const AddNewIssue = () => {
       const submit_issue = (e) => {
             e.preventDefault()
             const input = e.target
+            setLoading(true)
             const data = {
                   author_name: input?.author_name?.value,
                   subject: e.target?.subject?.value,
@@ -26,9 +27,6 @@ const AddNewIssue = () => {
                   status: 'pending',
                   issue_date: new Date().getTime()
             }
-
-
-
 
             fetch(`${base_url}/issue/add-issue`, {
                   method: 'POST',
@@ -77,7 +75,6 @@ const AddNewIssue = () => {
                                     <input required type="text" id='subject' name="subject" className="w-full p-2 rounded-lg outline-none border-none  bg-[#00000034]" placeholder="What is your problem?" />
                               </div>
                               <div className="relative bg-[#0b0a2238] text-black font-mono border border-[#1795F0] rounded-lg mt-8">
-                                    {/* <textarea name="body" type="text" className="w-full h-[110px] rounded-lg outline-none border-none  " placeholder="Please describe your problem here" /> */}
                                     <JoditEditor config={{
                                           readonly: false,
                                           theme: "dark",

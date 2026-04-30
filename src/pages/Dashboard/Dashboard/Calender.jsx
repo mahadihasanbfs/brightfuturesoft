@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react"
+import { useContext, useState } from "react"
+import { Link } from "react-router-dom";
 import { base_url } from "../../../layout/Title";
+import { AuthContext } from "../../../context/UseContext/AuthProvider";
 
 const sampleHolidays = [
       { date: "2026-02-04", name: "Shab e-Barat (Night of Records)" },
@@ -73,6 +75,9 @@ const CalendarIcon = () => (
 export default function CalendarPage() {
       const today = new Date()
       const [currentDate, setCurrentDate] = useState(today)
+      const [modalOpen, setModalOpen] = useState(false)
+      const [selectedDayInfo, setSelectedDayInfo] = useState(null)
+      const { user } = useContext(AuthContext)
 
       const { data: teamMembers = [], } = useQuery({
             queryKey: ["team_birthday"],
@@ -90,11 +95,152 @@ export default function CalendarPage() {
       });
 
 
+ const {
+            data: contacts = [],
+            refetch: _refetchContact,
+            isLoading: _isLoadingContact,
+      } = useQuery({
+            queryKey: ["contacts"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/contact/get-contacts`, {
+                        headers: {
+                              "content-type": "application/json",
+                              author: "bright_future_soft",
+                        },
+                        method: "GET",
+                  })
+                  const data = await res.json()
+                  return data.data
+            },
+      })
 
+      const { data: meting_data = [], refetch: _refetchMeting, isLoading: _isLoadingMeting } = useQuery({
+            queryKey: ['meting_data', user?.email],
+            queryFn: async () => {
+                  const res = await fetch(
+                        `${base_url}/meeting/get-meetings?email=${user?.email}`,
+                        {
+                              headers: {
+                                    'content-type': 'application/json',
+                                    'author': 'bright_future_soft',
+                              },
+                              method: 'GET',
+                        }
+                  );
+                  const data = await res.json();
+                  return data.data;
+            },
+            enabled: !!user?.email,
+      });
+
+      console.log(meting_data);
+
+      const {
+            data: notice_data = [],
+            refetch: _refetchNotice,
+            isLoading: _isLoadingNotice,
+      } = useQuery({
+            queryKey: ["notice_data"],
+            queryFn: async () => {
+                  const res = await fetch(
+                        `${base_url}/notice/get-notice`,
+                        {
+                              headers: {
+                                    'content-type': 'application/json',
+                                    'author': 'bright_future_soft'
+                              },
+                              method: 'GET',
+                        }
+                  );
+                  const data = await res.json();
+                  return data.data;
+            },
+      });
+
+      const {
+            data: issue_data = [],
+            isLoading: _isLoadingIssue,
+      } = useQuery({
+            queryKey: ["issue_data"],
+            queryFn: async () => {
+                  const res = await fetch(
+                        `${base_url}/issue/get-issue?author_name=${user?.name}`,
+                        {
+                              headers: {
+                                    'content-type': 'application/json',
+                                    'author': 'bright_future_soft'
+                              },
+                              method: 'GET',
+                        }
+                  );
+                  const data = await res.json();
+                  return data.data;
+            },
+      });
+
+
+      const CALENDLY_TOKEN = "Bearer eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzUxMDIzMDQ4LCJqdGkiOiI3OWMzZDE3NS1hYjJkLTRiOTMtOWUwMS1lM2E5MGE2ZTQ0YmYiLCJ1c2VyX3V1aWQiOiJiMTgxNmZlZi1kYWEyLTRhMWItYmM1NS03MjM0OGRjODA2ZWEifQ.fqFBxpZJcdkp7d4yHaB8_54B5_zpFGSKcKGXQlExAE4psCUv-amJMaIMddsLaQdvkMlra0OtKh6pLajwbKpdXQ";
+
+      const getLocalDateKey = (value) => {
+            const date = new Date(value)
+            if (Number.isNaN(date.getTime())) return null
+            const yearValue = date.getFullYear()
+            const monthValue = String(date.getMonth() + 1).padStart(2, "0")
+            const dayValue = String(date.getDate()).padStart(2, "0")
+            return `${yearValue}-${monthValue}-${dayValue}`
+      }
+
+      const formatDateTime = (value) => {
+            const date = new Date(value)
+            if (Number.isNaN(date.getTime())) return ""
+            return date.toLocaleString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+            })
+      }
+
+      function useCalendlyUser() {
+            return useQuery({
+                  queryKey: ["calendly-user"],
+                  queryFn: async () => {
+                        const res = await fetch("https://api.calendly.com/users/me", {
+                              headers: { Authorization: CALENDLY_TOKEN },
+                        });
+                        const data = await res.json();
+                        return data.resource.uri;
+                  },
+            });
+      }
+
+      function useCalendlyMeetings(userUri) {
+            return useQuery({
+                  queryKey: ["calendly-meetings", userUri],
+                  enabled: !!userUri,
+                  queryFn: async () => {
+                        let events = [];
+                        let nextPage = `https://api.calendly.com/scheduled_events?user=${userUri}`;
+                        while (nextPage) {
+                              const res = await fetch(nextPage, {
+                                    headers: { Authorization: CALENDLY_TOKEN },
+                              });
+                              const data = await res.json();
+                              events = [...events, ...(data.collection || [])];
+                              nextPage = data.pagination?.next_page || null;
+                        }
+                        return events;
+                  },
+            });
+      }
+
+        const { data: userUri } = useCalendlyUser();
+      const { data: meetings } = useCalendlyMeetings(userUri);
 
 
       const employeeBirthdays = teamMembers
-            .filter(member => member.dob) // যাদের dob আছে
+            .filter(member => member.dob) 
             .map(member => {
                   const dobDate = new Date(member.dob);
 
@@ -105,11 +251,84 @@ export default function CalendarPage() {
                         day: dobDate.getDate(),
                         image: member.image,
                         designation: member.designation,
+                        position: member.possition,
                   };
             });
 
+      const normalizeMeetingItem = (meeting) => {
+            const dateKey = getLocalDateKey(meeting?.date)
+            if (!dateKey) return null
 
+            return {
+                  dateKey,
+                  type: "meeting",
+                  title: meeting?.name || "Meeting",
+                  summary: meeting?.status ? `Status: ${meeting.status}` : "Meeting schedule",
+                  raw: meeting,
+            }
+      }
 
+      const normalizeContactItem = (contact) => {
+            const dateKey = getLocalDateKey(contact?.time_stamp)
+            if (!dateKey) return null
+
+            return {
+                  dateKey,
+                  type: "contact",
+                  title: contact?.full_name || "Contact message",
+                  summary: contact?.email_or_phone || contact?.message || "Contact submission",
+                  raw: contact,
+            }
+      }
+
+      const normalizeNoticeItem = (notice) => {
+            const dateKey = getLocalDateKey(notice?.notice_date)
+            if (!dateKey) return null
+
+            return {
+                  dateKey,
+                  type: "notice",
+                  title: notice?.subject || "Notice",
+                  summary: notice?.description || "Official notice",
+                  raw: notice,
+            }
+      }
+
+      const normalizeIssueItem = (issue) => {
+            const dateKey = getLocalDateKey(issue?.issue_date)
+            if (!dateKey) return null
+
+            return {
+                  dateKey,
+                  type: "issue",
+                  title: issue?.subject || `Issue #${issue?.issue_number || ""}`,
+                  summary: issue?.status ? `Status: ${issue.status}` : "Issue submission",
+                  raw: issue,
+            }
+      }
+
+      const normalizeCalendlyItem = (meeting) => {
+            const dateKey = getLocalDateKey(meeting?.start_time)
+            if (!dateKey) return null
+
+            return {
+                  dateKey,
+                  type: "client_meeting",
+                  title: meeting?.name ? `Client Meeting: ${meeting.name}` : "Client Meeting",
+                  summary: meeting?.status ? `Client meeting status: ${meeting.status}` : "Client meeting booking",
+                  raw: meeting,
+            }
+      }
+
+      const calendarItems = [
+            ...(meting_data.map(normalizeMeetingItem).filter(Boolean)),
+            ...(contacts.map(normalizeContactItem).filter(Boolean)),
+            ...(notice_data.map(normalizeNoticeItem).filter(Boolean)),
+            ...(issue_data.map(normalizeIssueItem).filter(Boolean)),
+            ...(Array.isArray(meetings) ? meetings.map(normalizeCalendlyItem).filter(Boolean) : []),
+      ]
+
+            
       const year = currentDate.getFullYear()
       const month = currentDate.getMonth()
 
@@ -132,22 +351,66 @@ export default function CalendarPage() {
 
       const getEvents = (day) => {
             const currentMonth = month + 1;
+            const dateKey = `${year}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             const events = [];
+
             employeeBirthdays.forEach(b =>
                   b.month === currentMonth && b.day === day &&
-                  events.push({ name: `${b.name}'s Birthday`, type: "birthday" })
+                  events.push({
+                        name: `${b.name}'s Birthday`,
+                        type: "birthday",
+                        title: b.name,
+                        summary: b.designation || b.position || "Birthday",
+                        raw: b,
+                  })
             );
             specialDays.forEach(s =>
                   s.month === currentMonth && s.day === day &&
-                  events.push({ name: s.name, type: "special" })
+                  events.push({ name: s.name, type: "special", title: s.name, summary: "Special day" })
             );
-            const dateStr = `${year}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             sampleHolidays.forEach(h =>
-                  h.date === dateStr &&
-                  events.push({ name: h.name, type: "holiday" })
+                  h.date === dateKey &&
+                  events.push({ name: h.name, type: "holiday", title: h.name, summary: "Holiday" })
             );
+
+            calendarItems
+                  .filter(item => item.dateKey === dateKey)
+                  .forEach(item => {
+                        events.push({
+                              name: item.title,
+                              type: item.type,
+                              title: item.title,
+                              summary: item.summary,
+                              raw: item.raw,
+                        })
+                  })
+
             return events;
       };
+
+      const getMembersForDay = (day) => {
+            const currentMonth = month + 1
+            return teamMembers.filter(m => {
+                  if (!m.dob) return false
+                  const d = new Date(m.dob)
+                  return (d.getMonth() + 1) === currentMonth && d.getDate() === day
+            })
+      }
+
+      const openDayModal = (day) => {
+            const events = getEvents(day)
+            const members = getMembersForDay(day)
+            const currentMonth = month + 1
+            const dateStr = `${year}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+            const items = calendarItems.filter(item => item.dateKey === dateStr)
+            setSelectedDayInfo({ day, dateStr, events, members, items })
+            setModalOpen(true)
+      }
+
+      const closeModal = () => {
+            setModalOpen(false)
+            setSelectedDayInfo(null)
+      }
 
       const previousMonth = () => setCurrentDate(new Date(year, month - 1, 1))
       const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1))
@@ -257,7 +520,10 @@ export default function CalendarPage() {
 
                                                 return (
                                                       <div key={day}
-                                                            className={`aspect-square md:aspect-auto md:h-24 lg:h-28 border ${border} p-1.5 md:p-2 lg:p-3 transition-all hover:shadow-md relative overflow-hidden group ${bg} ${isTodayDate ? "ring-2 ring-blue-600 ring-inset" : ""}`}>
+                                                            onClick={() => openDayModal(day)}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            className={`cursor-pointer aspect-square md:aspect-auto md:h-24 lg:h-28 border ${border} p-1.5 md:p-2 lg:p-3 transition-all hover:shadow-md relative overflow-hidden group ${bg} ${isTodayDate ? "ring-2 ring-blue-600 ring-inset" : ""}`}>
                                                             <div className="flex flex-col h-full relative z-10">
                                                                   <span className={`text-xs md:text-sm lg:text-base font-semibold ${isTodayDate ? "text-blue-700" : dayText}`}>
                                                                         {day}
@@ -286,8 +552,380 @@ export default function CalendarPage() {
                                           })}
                                     </div>
                               </div>
+                              {/* Day detail modal */}
+                              {modalOpen && selectedDayInfo && (
+                                   <DayDetailModal 
+  isOpen={modalOpen}
+  selectedDayInfo={selectedDayInfo}
+  onClose={closeModal}
+  formatDateTime={formatDateTime}
+/>
+                              )}
                         </div>
                   </div>
             </div>
       )
+}
+
+
+
+
+
+import { X } from 'lucide-react'
+
+
+
+// Reusable section component to reduce repetition
+function ModalSection({
+  title,
+  count,
+  colorScheme,
+  children,
+}) {
+  return (
+    <section className={`rounded-md border ${colorScheme.border} ${colorScheme.bg} p-4`}>
+      <div className="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-gray-200">
+        <h4 className={`text-xs font-semibold uppercase tracking-wide ${colorScheme.text}`}>
+          {title}
+        </h4>
+        <span className={`rounded-md ${colorScheme.badge} px-2 py-0.5 text-xs font-medium ${colorScheme.badgeText}`}>
+          {count}
+        </span>
+      </div>
+      {children}
+    </section>
+  )
+}
+
+// Reusable item component for links
+function ModalItem({
+  title,
+  summary,
+  timestamp,
+  href,
+  colorScheme,
+}) {
+  return (
+    <Link to={href} className="block">
+      <div className={`rounded-md bg-white p-3 shadow-sm ring-1 ${colorScheme.ring} transition hover:shadow-md`}>
+        <div className="font-medium text-gray-900 text-sm">{title}</div>
+        {summary && <div className="mt-1 text-xs text-gray-600">{summary}</div>}
+        {timestamp && <div className="mt-1.5 text-xs text-gray-500">{timestamp}</div>}
+      </div>
+    </Link>
+  )
+}
+
+// Reusable event item (for holidays/special days)
+function ModalEventItem({ name }) {
+  return (
+    <div className="rounded-md bg-white px-3 py-2 text-sm text-gray-800 shadow-sm ring-1 ring-gray-100">
+      {name}
+    </div>
+  )
+}
+
+export function DayDetailModal({
+  isOpen,
+  selectedDayInfo,
+  onClose,
+  formatDateTime,
+}) {
+  if (!isOpen || !selectedDayInfo) return null
+
+  const birthdayMembers = selectedDayInfo.members || []
+  const holidayEvents = (selectedDayInfo.events || []).filter((e) => e.type === 'holiday')
+  const specialEvents = (selectedDayInfo.events || []).filter((e) => e.type === 'special')
+  const meetingItems = (selectedDayInfo.items || []).filter((i) => i.type === 'meeting')
+  const clientMeetingItems = (selectedDayInfo.items || []).filter((i) => i.type === 'client_meeting')
+  const contactItems = (selectedDayInfo.items || []).filter((i) => i.type === 'contact')
+  const noticeItems = (selectedDayInfo.items || []).filter((i) => i.type === 'notice')
+  const issueItems = (selectedDayInfo.items || []).filter((i) => i.type === 'issue')
+
+  const hasAnyContent =
+    birthdayMembers.length > 0 ||
+    holidayEvents.length > 0 ||
+    specialEvents.length > 0 ||
+    meetingItems.length > 0 ||
+    clientMeetingItems.length > 0 ||
+    contactItems.length > 0 ||
+    noticeItems.length > 0 ||
+    issueItems.length > 0
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-2xl rounded-lg border border-gray-200 bg-white shadow-xl"
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{selectedDayInfo.dateStr}</h2>
+            <p className="mt-1 text-xs text-gray-500 uppercase tracking-wide">Daily overview</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition p-1"
+            aria-label="Close modal"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          {!hasAnyContent ? (
+            <div className="rounded-md border border-gray-200 bg-gray-50 px-6 py-12 text-center">
+              <div className="text-base font-semibold text-gray-700">This is just a normal day.</div>
+              <div className="mt-2 text-sm text-gray-500">
+                No birthdays, meetings, or events scheduled.
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Birthdays */}
+              {birthdayMembers.length > 0 && (
+                <ModalSection
+                  title="Birthdays"
+                  count={birthdayMembers.length}
+                  colorScheme={{
+                    border: 'border-green-100',
+                    bg: 'bg-green-50',
+                    text: 'text-green-800',
+                    badge: 'bg-green-100',
+                    badgeText: 'text-green-700',
+                  }}
+                >
+                  <ul className="space-y-2">
+                    {birthdayMembers.map((m) => (
+                      <li key={m._id || m.email || m.name} className="flex gap-3 p-2">
+                        {m.image ? (
+                          <img
+                            src={m.image}
+                            alt={m.name}
+                            className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gray-200" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-gray-900 text-sm">{m.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {m.dob && new Date(m.dob).toLocaleDateString()}
+                          </div>
+                          {m.position && <div className="text-xs text-gray-400">{m.position}</div>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Meetings */}
+              {meetingItems.length > 0 && (
+                <ModalSection
+                  title="Meetings"
+                  count={meetingItems.length}
+                  colorScheme={{
+                    border: 'border-blue-100',
+                    bg: 'bg-blue-50',
+                    text: 'text-blue-800',
+                    badge: 'bg-blue-100',
+                    badgeText: 'text-blue-700',
+                  }}
+                >
+                  <ul className="space-y-2">
+                    {meetingItems.map((item, idx) => (
+                      <ModalItem
+                        key={`${item.raw?.uri || item.title}-${idx}`}
+                        title={item.title}
+                        summary={item.summary}
+                        timestamp={item.raw?.start_time ? formatDateTime(item.raw.start_time) : undefined}
+                        href="/dashboard/meeting_management"
+                        colorScheme={{
+                          ring: 'ring-blue-100',
+                          hover: 'ring-blue-200',
+                        }}
+                      />
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Client Meetings */}
+              {clientMeetingItems.length > 0 && (
+                <ModalSection
+                  title="Client Meetings"
+                  count={clientMeetingItems.length}
+                  colorScheme={{
+                    border: 'border-purple-100',
+                    bg: 'bg-purple-50',
+                    text: 'text-purple-800',
+                    badge: 'bg-purple-100',
+                    badgeText: 'text-purple-700',
+                  }}
+                >
+                  <ul className="space-y-2">
+                    {clientMeetingItems.map((item, idx) => (
+                      <ModalItem
+                        key={`${item.raw?.uri || item.title}-${idx}`}
+                        title={item.title}
+                        summary={item.summary}
+                        timestamp={item.raw?.start_time ? formatDateTime(item.raw.start_time) : undefined}
+                        href="/dashboard/client_meetings"
+                        colorScheme={{
+                          ring: 'ring-purple-100',
+                          hover: 'ring-purple-200',
+                        }}
+                      />
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Contacts */}
+              {contactItems.length > 0 && (
+                <ModalSection
+                  title="Contacts"
+                  count={contactItems.length}
+                  colorScheme={{
+                    border: 'border-cyan-200',
+                    bg: 'bg-cyan-50',
+                    text: 'text-cyan-700',
+                    badge: 'bg-cyan-100',
+                    badgeText: 'text-cyan-700',
+                  }}
+                >
+                  <ul className="space-y-3">
+                    {contactItems.map((item, idx) => (
+                      <div
+                        key={`${item.raw?._id || item.title}-${idx}`}
+                        className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-cyan-100"
+                      >
+                        <div className="font-medium text-gray-900">{item.title}</div>
+                        <div className="mt-1 text-sm text-gray-600">{item.summary}</div>
+                        {item.raw?.time_stamp && (
+                          <div className="mt-1.5 text-xs text-gray-500">
+                            {formatDateTime(item.raw.time_stamp)}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Notices */}
+              {noticeItems.length > 0 && (
+                <ModalSection
+                  title="Notices"
+                  count={noticeItems.length}
+                  colorScheme={{
+                    border: 'border-amber-200',
+                    bg: 'bg-amber-50',
+                    text: 'text-amber-700',
+                    badge: 'bg-amber-100',
+                    badgeText: 'text-amber-700',
+                  }}
+                >
+                  <ul className="space-y-3">
+                    {noticeItems.map((item, idx) => (
+                      <ModalItem
+                        key={`${item.raw?._id || item.title}-${idx}`}
+                        title={item.title}
+                        summary={item.summary}
+                        timestamp={item.raw?.notice_date ? formatDateTime(item.raw.notice_date) : undefined}
+                        href={`/dashboard/notice/${item.raw?._id || ''}`}
+                        colorScheme={{
+                          ring: 'ring-amber-100',
+                          hover: 'ring-amber-200',
+                        }}
+                      />
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Issues */}
+              {issueItems.length > 0 && (
+                <ModalSection
+                  title="Issues"
+                  count={issueItems.length}
+                  colorScheme={{
+                    border: 'border-red-200',
+                    bg: 'bg-red-50',
+                    text: 'text-red-700',
+                    badge: 'bg-red-100',
+                    badgeText: 'text-red-700',
+                  }}
+                >
+                  <ul className="space-y-3">
+                    {issueItems.map((item, idx) => (
+                      <ModalItem
+                        key={`${item.raw?.issue_number || item.title}-${idx}`}
+                        title={item.title}
+                        summary={item.summary}
+                        timestamp={item.raw?.issue_date ? formatDateTime(item.raw.issue_date) : undefined}
+                        href="/dashboard/issue-submit"
+                        colorScheme={{
+                          ring: 'ring-red-100',
+                          hover: 'ring-red-200',
+                        }}
+                      />
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Special Events */}
+              {specialEvents.length > 0 && (
+                <ModalSection
+                  title="Special Days"
+                  count={specialEvents.length}
+                  colorScheme={{
+                    border: 'border-yellow-200',
+                    bg: 'bg-yellow-50',
+                    text: 'text-yellow-700',
+                    badge: 'bg-yellow-100',
+                    badgeText: 'text-yellow-700',
+                  }}
+                >
+                  <ul className="space-y-2">
+                    {specialEvents.map((event, idx) => (
+                      <ModalEventItem key={`${event.name}-${idx}`} name={event.name} />
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+
+              {/* Holidays */}
+              {holidayEvents.length > 0 && (
+                <ModalSection
+                  title="Holidays"
+                  count={holidayEvents.length}
+                  colorScheme={{
+                    border: 'border-orange-200',
+                    bg: 'bg-orange-50',
+                    text: 'text-orange-700',
+                    badge: 'bg-orange-100',
+                    badgeText: 'text-orange-700',
+                  }}
+                >
+                  <ul className="space-y-2">
+                    {holidayEvents.map((event, idx) => (
+                      <ModalEventItem key={`${event.name}-${idx}`} name={event.name} />
+                    ))}
+                  </ul>
+                </ModalSection>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }

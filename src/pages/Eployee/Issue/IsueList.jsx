@@ -20,7 +20,6 @@ const IssueList = () => {
       const {
             data: issue_data = [],
             refetch,
-            isLoading,
       } = useQuery({
             queryKey: ["issue_data"],
             queryFn: async () => {
@@ -139,7 +138,7 @@ const IssueList = () => {
                               <div className=" px-4 mx-4 max-w-7xl mb-4">
                                     <div className="my-4   ">
                                           <div>
-                                                <p className="text-xl font-bold text-gray-50">Issues Submition</p>
+                                                <p className="text-xl font-bold text-gray-50">Issues Submission</p>
                                                 <p className="mt-1 text-sm font-medium text-gray-500">
                                                       If you have any issue please create a new issue
                                                 </p>
