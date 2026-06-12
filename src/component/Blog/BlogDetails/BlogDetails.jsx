@@ -20,35 +20,14 @@ const BlogDetails = () => {
 
       const blogInfo = blog_data?.data
 
+const cleanContent = (html) => {
+    if (!html) return "";
+    return html
+      .replace(/background-color\s*:\s*[^;"]+;?/g, "") 
+      .replace(/background\s*:\s*[^;"]+;?/g, "")      
+      .replace(/color\s*:\s*[^;"]+;?/g, "");        
+};
 
-
-      const removeInlineStyles = (html) => {
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const elements = doc.getElementsByTagName('*');
-            const unwantedStyles = [
-                  'background-color',
-            ];
-
-            for (let i = 0; i < elements.length; i++) {
-                  const element = elements[i];
-                  const style = element.getAttribute('style') || '';
-
-                  // Remove unwanted styles
-                  unwantedStyles.forEach((unwantedStyle) => {
-                        if (style.includes(unwantedStyle)) {
-                              element.style.removeProperty(unwantedStyle);
-                        }
-                  });
-
-                  // Check if the color is black or not set
-                  const color = element.style.color;
-                  if (color === 'rgb(0, 0, 0)' || !color) {
-                        element.style.color = '#FBF8EF';
-                  }
-            }
-
-            return doc.body.innerHTML;
-      };
 
 
       useEffect(() => {
@@ -180,9 +159,21 @@ const BlogDetails = () => {
                                           <br />
                                           <br />
 
-                                          <p className='text-white ' dangerouslySetInnerHTML={{
-                                                __html: removeInlineStyles(blogInfo.message),
-                                          }}></p>
+                                         <div
+ className="text-white max-w-none 
+    [&_h1]:text-3xl [&_h1]:font-black [&_h1]:mb-6 [&_h1]:text-white
+    [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-white
+    [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-6 [&_h3]:text-white
+    [&_p]:text-slate-400 [&_p]:leading-relaxed [&_p]:mb-4
+    [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-6 [&_ul]:space-y-2
+    [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-6 [&_ol]:space-y-2
+    [&_li]:marker:text-[#1c65b4] [&_li]:pl-2
+    [&_strong]:text-white [&_strong]:font-bold
+    [&_a]:text-[#1c65b4] [&_a]:underline"
+  dangerouslySetInnerHTML={{
+    __html: cleanContent(blogInfo.message),
+  }}
+/>
 
                                     </article>
                               </div>

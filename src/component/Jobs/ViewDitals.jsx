@@ -15,6 +15,7 @@ import JoditEditor from 'jodit-react';
 const ViewDetails = () => {
 
       const { id } = useParams();
+       const brandColor = "#1c65b4";
 
       const [apply, setApply] = useState(false)
 
@@ -227,6 +228,10 @@ const ViewDetails = () => {
 
       return (
             <div>
+                   <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] opacity-[0.1] blur-[120px] rounded-full" style={{ backgroundColor: brandColor }} />
+      </div>
                   {jobSchema && (
                         <MetaTitle
                               title={metaTitle}
@@ -240,10 +245,10 @@ const ViewDetails = () => {
                               schema={jobSchema}
                         />
                   )}
-                  <section className="py-12 bg-gray-900 sm:py-16 lg:py-20">
+                  <section className="py-12 bg-gray-900 sm:py-16 lg:py-20 ">
                         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                               <div className="max-w-3xl mx-auto xl:max-w-7xl mt-4">
-                                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-lg">
+                                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-lg ">
                                           <div className=" px-4 py-12 sm:px-6 lg:px-8">
                                                 <div className="space-y-6">
                                                       <div>
@@ -294,15 +299,23 @@ const ViewDetails = () => {
                                     </div>
 
 
-                                    <div className='px-4 sm:px-6 lg:px-8 mt-2'>
+                                    <div className='px-4 sm:px-6 lg:px-8 mt-2 relative z-10 '>
                                           <div className=" ">
-                                                <div
-
-                                                      className="text-white prose prose-invert max-w-none"
-                                                      dangerouslySetInnerHTML={{
-                                                            __html: job_data?.description,
-                                                      }}
-                                                />
+                                               <div
+  className="text-white max-w-none 
+    [&_h1]:text-3xl [&_h1]:font-black [&_h1]:mb-6 [&_h1]:text-white
+    [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-white
+    [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-6 [&_h3]:text-white
+    [&_p]:text-slate-400 [&_p]:leading-relaxed [&_p]:mb-4
+    [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-6 [&_ul]:space-y-2
+    [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-6 [&_ol]:space-y-2
+    [&_li]:marker:text-[#1c65b4] [&_li]:pl-2
+    [&_strong]:text-white [&_strong]:font-bold
+    [&_a]:text-[#1c65b4] [&_a]:underline"
+  dangerouslySetInnerHTML={{
+    __html: job_data?.description,
+  }}
+/>
                                           </div>
                                           {/* <p className="text-xl  font-bold text-white mt-7 sm:text-xl xl:text-xl font-pj">
                                                 Applications Deadline: {new Date(job_data.dateline).toDateString()}
@@ -340,10 +353,10 @@ const ViewDetails = () => {
                                                                                           setName(false)
                                                                                           setResume(false)
                                                                                     }}
-                                                                                    className='hover:bg-red-600 border absolute top-3 right-2 text-white cursor-pointer ml-3 bg-red-500 rounded-full w-8 h-8 flex justify-center items-center'>
+                                                                                    className=' border absolute top-3 right-2 text-gray-400 cursor-pointer ml-3  rounded-full w-8 h-8 flex justify-center items-center'>
                                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                                                                               </button>
-                                                                                    <p class="pt-6 text-base font-bold  text-gray-100">  🚀 Apply For This Position</p>
+                                                                                    <p class="pt-6 text-base font-bold  text-gray-100">  Apply For This Position</p>
                                                                               </div>
 
                                                                               <div className='overflow-y-auto  h-[60vh]'>

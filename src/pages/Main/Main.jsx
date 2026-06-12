@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import Footer from "../shared/Footer/Footer";
 import Header from "../shared/Header/Header";
 import CopyrightBar from "../shared/CopyrightBar/CopyrightBar";
-import { BsFillSendFill } from "react-icons/bs";
+import { BsFillSendFill, BsWhatsapp } from "react-icons/bs";
 
 const Main = () => {
       const [isOpen, setIsOpen] = useState(false);
@@ -79,11 +79,7 @@ const Main = () => {
                         {isOpen && (
                               <div className="bg-[#f0f2f5] shadow-lg rounded-2xl overflow-hidden w-80 max-h-[500px] flex flex-col">
                                     <div className="bg-[#128C7E] text-white p-4 flex items-center">
-                                          <img
-                                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png?20220228223904"
-                                                alt="WhatsApp"
-                                                className="w-10 h-10 mr-3"
-                                          />
+                                          <BsWhatsapp className='text-3xl mr-2' />
                                           <div>
                                                 <h3 className="font-bold">WhatsApp Chat</h3>
                                                 <p className="text-xs opacity-75">Online</p>
@@ -132,11 +128,12 @@ const Main = () => {
                         className="bg-[#25D366] fixed bottom-3 z-50 right-4 lg:w-14 lg:h-14 w-12 h-12 rounded-full shadow-lg flex justify-center items-center hover:bg-[#128C7E] transition"
                         aria-label="WhatsApp Chat"
                   >
-                        <img
+                        <BsWhatsapp className='text-3xl' />
+                        {/* <img
                               src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png?20220228223904"
                               alt="WhatsApp"
                               className="w-6 h-6 lg:w-8 lg:h-8"
-                        />
+                        /> */}
                   </button>
 
 

@@ -1,262 +1,199 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  ShieldCheck, Clock, Monitor, HeartHandshake, GraduationCap,
+  Award, CalendarDays, Lightbulb, Lock, FileText,
+  X, CheckCircle2, ArrowRight, Zap, ChevronRight, Briefcase
+} from "lucide-react";
 import MetaTitle, { base_url } from "../../layout/Title";
-import moduleName from "../../Assctes/logo.png";
 import JobCard from "./Card";
 import News_Letter from "../Testimonials/Testimonials/News_Letter";
 
 const Job = () => {
-      const [jobList, setJobList] = useState([]);
-      const [loading, setLoading] = useState(true);
-      const [error, setError] = useState(null);
+  const [jobList, setJobList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const brandColor = "#1c65b4";
 
-      useEffect(() => {
-            window.scrollTo(0, 0);
-      }, []);
+  // Policy Data
+  const policies = [
+    { id: 1, icon: <ShieldCheck />, title: "Professional Environment", short: "Safe, ethical and respectful workplace.", details: { highlights: ["Zero Harassment", "Equal Opportunity", "Professional Ethics", "Employee Protection"], fullDesc: "Bright Future Soft is committed to maintaining a professional, respectful, and inclusive work environment. Discrimination, harassment, or any unethical behavior will not be tolerated." } },
+    { id: 2, icon: <Clock />, title: "Probation & Confirmation", short: "Structured onboarding process.", details: { highlights: ["3-Month Probation", "Performance Evaluation", "Mentorship Support", "Confirmation Review"], fullDesc: "All newly hired employees undergo a 3-month probation period focused on evaluation and mentorship to ensure a smooth transition into permanent status." } },
+    { id: 3, icon: <Monitor />, title: "Remote-First Culture", short: "Global collaboration and accountability.", details: { highlights: ["Discord Availability", "Flexible Hours", "Daily Syncs", "Remote Tools"], fullDesc: "We operate as a remote-first company. Team members are expected to remain reachable on Discord and maintain clear communication during assigned hours." } },
+    { id: 4, icon: <HeartHandshake />, title: "People & Culture", short: "Collaboration and continuous growth.", details: { highlights: ["Open Communication", "Team Trust", "Respectful Culture", "Work-Life Balance"], fullDesc: "Built on trust and transparency, our culture encourages open ideas and mutual support to shape the future of our products." } },
+    { id: 5, icon: <GraduationCap />, title: "Learning & Growth", short: "Investing in your personal development.", details: { highlights: ["Technical Training", "Mentorship", "Certification Support", "Career Mapping"], fullDesc: "We value individuals who invest in their growth. We support self-learning and provide mentorship to help you master new technologies." } },
+    { id: 6, icon: <Award />, title: "Recognition", short: "Rewarding ownership and impact.", details: { highlights: ["Performance Reviews", "Recognition Programs", "Leadership Paths", "Growth Bonus"], fullDesc: "Productivity and ownership are rewarded with career advancement and leadership opportunities within the organization." } },
+    { id: 7, icon: <CalendarDays />, title: "Time Off", short: "Supporting employee well-being.", details: { highlights: ["Annual Leave", "Sick Leave", "Public Holidays", "Casual Leave"], fullDesc: "We provide competitive leave packages to ensure our team stays refreshed and maintains a healthy work-life harmony." } },
+    { id: 8, icon: <Lightbulb />, title: "Innovation", short: "Drive impact through ownership.", details: { highlights: ["Creative Thinking", "Ownership Mindset", "Problem Solving", "Proactive Labs"], fullDesc: "We encourage every member to act like an owner—solving problems proactively and driving innovation at every level." } },
+    { id: 9, icon: <Lock />, title: "Confidentiality", short: "Protecting code and client assets.", details: { highlights: ["IP Protection", "NDA Compliance", "Secure Environment", "Client Privacy"], fullDesc: "All work developed at BFS remains exclusive property. We maintain strict protocols to protect our source code and client confidentiality." } },
+    { id: 10, icon: <FileText />, title: "Exit Process", short: "Professional separation procedures.", details: { highlights: ["Notice Period", "Project Handover", "Knowledge Transfer", "Final Settlement"], fullDesc: "We ensure a professional exit process including knowledge transfer and final settlements to maintain long-term professional relationships." } },
+  ];
 
-      useEffect(() => {
-            const fetchJobs = async () => {
-                  try {
-                        setLoading(true);
-                        const response = await fetch(`${base_url}/job-post/all-job`);
-                        if (!response.ok) {
-                              throw new Error("Failed to fetch jobs");
-                        }
-                        const data = await response.json();
-                        setJobList(data.data || []);
-                  } catch (err) {
-                        setError(err.message);
-                  } finally {
-                        setLoading(false);
-                  }
-            };
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch(`${base_url}/job-post/all-job`);
+        const data = await response.json();
+        setJobList(data.data || []);
+      } catch (err) { console.error(err); } 
+      finally { setLoading(false); }
+    };
+    fetchJobs();
+  }, []);
 
-            fetchJobs();
-      }, []);
+  // Animation Variants
+  const containerVars = {
+    animate: { transition: { staggerChildren: 0.1 } }
+  };
 
-      useEffect(() => {
-            window.scrollTo(0, 0);
+  const itemVars = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+  };
 
-            document.title =
-                  "Bright Future Soft | Careers | Software Jobs in Bangladesh";
+  return (
+ 
+  <div className="min-h-screen bg-[#020617] text-slate-200 selection:bg-[#1c65b4]/30 font-sans overflow-x-hidden ">
+      
+      {/* 1. BACKGROUND TEXTURE (The "Glass" Grid) */}
+      <div className="fixed inset-0 z-0 p-4">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-[0.15] blur-[120px] rounded-full" style={{ backgroundColor: brandColor }} />
+      </div>
 
-            const description =
-                  "Explore career opportunities at Bright Future Soft. Join our team to work on ERP, SaaS, AI, web and mobile development projects. Competitive salary and growth-oriented culture.";
-
-            // Meta Description
-            let metaDescription = document.querySelector("meta[name='description']");
-            if (!metaDescription) {
-                  metaDescription = document.createElement("meta");
-                  metaDescription.name = "description";
-                  document.head.appendChild(metaDescription);
-            }
-            metaDescription.setAttribute("content", description);
-
-            // OG Title
-            let ogTitle = document.querySelector("meta[property='og:title']");
-            if (!ogTitle) {
-                  ogTitle = document.createElement("meta");
-                  ogTitle.setAttribute("property", "og:title");
-                  document.head.appendChild(ogTitle);
-            }
-            ogTitle.setAttribute("content", "Careers at Bright Future Soft");
-
-            // OG Description
-            let ogDesc = document.querySelector("meta[property='og:description']");
-            if (!ogDesc) {
-                  ogDesc = document.createElement("meta");
-                  ogDesc.setAttribute("property", "og:description");
-                  document.head.appendChild(ogDesc);
-            }
-            ogDesc.setAttribute("content", description);
-
-            // OG Image
-            let ogImage = document.querySelector("meta[property='og:image']");
-            if (!ogImage) {
-                  ogImage = document.createElement("meta");
-                  ogImage.setAttribute("property", "og:image");
-                  document.head.appendChild(ogImage);
-            }
-            ogImage.setAttribute("content", moduleName);
-
-            // Canonical
-            let canonical = document.querySelector("link[rel='canonical']");
-            if (!canonical) {
-                  canonical = document.createElement("link");
-                  canonical.setAttribute("rel", "canonical");
-                  document.head.appendChild(canonical);
-            }
-            canonical.setAttribute("href", window.location.href);
-      }, []);
-
-      useEffect(() => {
-            if (!jobList.length) return;
-
-            const organizationSchema = {
-                  "@context": "https://schema.org",
-                  "@type": "Organization",
-                  name: "Bright Future Soft",
-                  url: "https://www.brightfuturesoft.com",
-                  logo: "https://www.brightfuturesoft.com/logo.png",
-            };
-
-            const jobPostings = jobList.map((job) => ({
-                  "@type": "JobPosting",
-                  title: job?.job_title || job?.title,
-                  description: job?.short_description || job?.description,
-                  datePosted: job?.createdAt || job?.date,
-                  employmentType: job?.employment_type || "FULL_TIME",
-                  hiringOrganization: {
-                        "@type": "Organization",
-                        name: "Bright Future Soft",
-                  },
-                  jobLocation: {
-                        "@type": "Place",
-                        address: {
-                              "@type": "PostalAddress",
-                              addressLocality: job?.location || "Dhaka",
-                              addressCountry: "BD",
-                        },
-                  },
-            }));
-
-            const script = document.createElement("script");
-            script.type = "application/ld+json";
-            script.innerHTML = JSON.stringify({
-                  "@context": "https://schema.org",
-                  "@graph": [organizationSchema, ...jobPostings],
-            });
-
-            document.head.appendChild(script);
-
-            return () => {
-                  document.head.removeChild(script);
-            };
-      }, [jobList]);
-
-      return (
-            <div className="min-h-screen bg-gray-900">
-                  {/* Hero Section */}
-                  <div className="relative overflow-hidden bg-gray-900">
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-gray-900 to-blue-900/20"></div>
-                        <div className="relative px-4 py-20 mx-auto max-w-7xl lg:px-8">
-                              {/* Background Text */}
-                              <div className="absolute inset-0 flex items-center justify-center opacity-5">
-                                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white whitespace-nowrap">
-                                          CAREERS
-                                    </h1>
-                              </div>
-
-                              {/* Main Content */}
-                              <div className="relative z-10 text-center">
-                                    <div className="mb-8">
-                                          <span className="inline-block px-4 py-2 text-sm font-semibold text-purple-300 bg-purple-900/30 rounded-full border border-purple-500/30">
-                                                🚀 We're Hiring
-                                          </span>
-                                    </div>
-
-                                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                                          Build Your
-                                          <span className="block bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                                                Bright Future
-                                          </span>
-                                    </h1>
-
-                                    <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
-                                          Join a team that values talent, dedication, and growth. We don't
-                                          just hire degrees or experience – we hire passion and potential.
-                                    </p>
-                              </div>
-                        </div>
-                  </div>
-
-                  {/* Jobs Section */}
-                  <div className="px-4 py-16 mx-auto max-w-7xl lg:px-8">
-                        <div className="text-center mb-12">
-                              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                                    Open Positions
-                              </h2>
-                              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                                    Discover exciting opportunities to grow your career with us
-                              </p>
-                        </div>
-
-                        {/* Loading State */}
-                        {loading && (
-                              <div className="flex flex-col gap-4">
-                                    <div className="">
-                                          <div className="lg:grid grid-cols-3 text-white justify-center border border-gray-500 items-center py-6 px-6 rounded">
-                                                <div className="h-8 bg-gray-700 rounded w-2/3 pl-8"></div>
-                                                <div className="flex gap-4 justify-start pl-8 mt-4 md:mt-0 md:pl-0 md:justify-end ">
-                                                      <div className="h-6 bg-gray-700 rounded w-24"></div>
-                                                      <span className="font-extrabold text-gray-700">-</span>
-                                                      <div className="h-6 bg-gray-700 rounded w-24"></div>
-                                                </div>
-                                                <div className="flex pl-8 md:pl-0 lg:justify-end mt-4 md:mt-0">
-                                                      <div className="rounded w-40 h-12 bg-gray-700"></div>
-                                                </div>
-                                          </div>
-                                    </div>
-                                    <div className="">
-                                          <div className="lg:grid grid-cols-3 text-white justify-center border border-gray-500 items-center py-6 px-6 rounded">
-                                                <div className="h-8 bg-gray-700 rounded w-2/3 pl-8"></div>
-                                                <div className="flex gap-4 justify-start pl-8 mt-4 md:mt-0 md:pl-0 md:justify-end ">
-                                                      <div className="h-6 bg-gray-700 rounded w-24"></div>
-                                                      <span className="font-extrabold text-gray-700">-</span>
-                                                      <div className="h-6 bg-gray-700 rounded w-24"></div>
-                                                </div>
-                                                <div className="flex pl-8 md:pl-0 lg:justify-end mt-4 md:mt-0">
-                                                      <div className="rounded w-40 h-12 bg-gray-700"></div>
-                                                </div>
-                                          </div>
-                                    </div>
-                              </div>
-                        )}
-
-                        {/* Error State */}
-                        {error && (
-                              <div className="text-center py-20">
-                                    <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md mx-auto">
-                                          <div className="text-red-400 text-lg font-semibold mb-2">
-                                                Unable to load positions
-                                          </div>
-                                          <div className="text-red-300 text-sm">{error}</div>
-                                    </div>
-                              </div>
-                        )}
-
-                        {/* Jobs Grid */}
-                        {!loading && !error && (
-                              <>
-                                    {jobList.length > 0 ? (
-                                          <div className="space-y-8">
-                                                {jobList.map((job, index) => (
-                                                      <JobCard key={job._id || index} data={job} />
-                                                ))}
-                                          </div>
-                                    ) : (
-                                          <div className="text-center py-20">
-                                                <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 max-w-md mx-auto">
-                                                      <div className="text-6xl mb-4">🚀</div>
-                                                      <h3 className="text-xl font-semibold text-white mb-2">
-                                                            No Open Positions
-                                                      </h3>
-                                                      <p className="text-gray-400">
-                                                            We're not actively hiring right now, but we're always
-                                                            interested in connecting with talented individuals.
-                                                      </p>
-                                                      <button className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
-                                                            Join Our Talent Pool
-                                                      </button>
-                                                </div>
-                                          </div>
-                                    )}
-                              </>
-                        )}
-                  </div>
-
-                  <News_Letter />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 ">
+        
+        {/* 2. HERO SECTION */}
+        <section className="pt-32 pb-24 text-center p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-slate-800 text-sm font-medium mb-8 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: brandColor }}></span>
+                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: brandColor }}></span>
+              </span>
+              <span className="text-slate-400">Join our growing team in Bangladesh</span>
             </div>
-      );
+            
+            <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-[0.9] text-white">
+              BUILD THE <br /> 
+              <span className="italic" style={{ color: brandColor }}>NEXT GEN</span>
+            </h1>
+            <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+              We are a remote-first engineering powerhouse building world-class SaaS, AI, and ERP solutions. Your bright future starts here.
+            </p>
+          </motion.div>
+        </section>
+
+        {/* 3. JOBS SECTION (Priority 1 for Users) */}
+        <section className="pb-32 p-4">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
+            <div className="space-y-2">
+              <h2 className="text-4xl font-bold text-white italic">Current Openings</h2>
+              <p className="text-slate-500">Explore roles across engineering, product, and design.</p>
+            </div>
+            <div className="flex gap-2">
+              <div className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-400">
+                {jobList.length} Opportunities
+              </div>
+            </div>
+          </div>
+
+          <motion.div variants={containerVars} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid gap-4">
+            {console.log(jobList)}
+            {loading ? (
+              [1, 2].map(i => <div key={i} className="h-24 bg-slate-900/50 border border-slate-800 animate-pulse rounded-2xl" />)
+            ) : jobList.length > 0 ? (
+              jobList.map((job) => (
+                  <JobCard data={job} />
+              ))
+            ) : (
+              <div className="py-20 text-center bg-slate-900/20 border-2 border-dashed border-slate-800 rounded-[2rem]">
+                <Zap className="mx-auto mb-4 opacity-20" size={40} style={{ color: brandColor }} />
+                <p className="text-slate-500 font-medium italic">We're not actively hiring right now, but we'd love to see your CV.</p>
+              </div>
+            )}
+          </motion.div>
+        </section>
+
+        {/* 4. POLICY GRID SECTION (The "Why Join Us") */}
+        <section className="py-24 border-t border-slate-800/50 p-4">
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">The BFS Standard</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">Our culture is built on transparency and excellence. Click any card to explore our core policies.</p>
+          </div>
+
+          <motion.div variants={containerVars} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {policies.map((policy) => (
+              <motion.div
+                key={policy.id}
+                variants={itemVars}
+                whileHover={{ y: -5 }}
+                onClick={() => setSelectedPolicy(policy)}
+                className="group cursor-pointer p-8 rounded-[2rem] bg-slate-900/30 border border-slate-800/50 hover:border-[#1c65b4]/50 hover:bg-slate-900/50 transition-all duration-300 backdrop-blur-sm relative overflow-hidden"
+              >
+                {/* Subtle Glow on Hover */}
+                <div className="absolute -right-4 -top-4 w-24 h-24 blur-3xl rounded-full opacity-0 group-hover:opacity-20 transition-opacity" style={{ backgroundColor: brandColor }} />
+                
+                <div className="mb-6 inline-flex p-4 rounded-2xl bg-slate-800/50 text-[#1c65b4] group-hover:scale-110 group-hover:bg-[#1c65b4] group-hover:text-white transition-all duration-300 shadow-inner">
+                  {policy.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-2 text-white group-hover:text-[#1c65b4] transition-colors">{policy.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2">{policy.short}</p>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-[#1c65b4] transition-all">
+                  Read Details <ChevronRight size={14} />
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+      </div>
+
+      {/* 5. MODAL SYSTEM */}
+      <AnimatePresence>
+        {selectedPolicy && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedPolicy(null)} className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" />
+            
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-10 md:p-14">
+                <div className="flex justify-between items-center mb-10">
+                  <div className="p-4 bg-slate-800 rounded-2xl text-[#1c65b4]"> {selectedPolicy.icon} </div>
+                  <button onClick={() => setSelectedPolicy(null)} className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors"><X /></button>
+                </div>
+
+                <h2 className="text-3xl font-bold mb-4 text-white italic">{selectedPolicy.title}</h2>
+                <p className="text-slate-400 text-lg leading-relaxed mb-10">{selectedPolicy.details.fullDesc}</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10">
+                  {selectedPolicy.details.highlights.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-4 bg-slate-950/50 rounded-2xl border border-slate-800">
+                      <CheckCircle2 size={18} style={{ color: brandColor }} />
+                      <span className="text-sm font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setSelectedPolicy(null)}
+                  className="w-full py-4 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg"
+                  style={{ backgroundColor: brandColor }}
+                >
+                  I Understand
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative z-10">
+        <News_Letter />
+    </div>
+</div>
+  );
 };
 
 export default Job;

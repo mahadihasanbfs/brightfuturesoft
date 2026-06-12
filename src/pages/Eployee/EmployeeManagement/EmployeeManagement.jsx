@@ -39,6 +39,9 @@ const EmployeeManagement = () => {
             },
       })
 
+
+
+
       const handleEdit = (user) => {
             setEditingUser(user)
             setFormData({
@@ -144,7 +147,7 @@ const EmployeeManagement = () => {
                                                             )}
                                                             <div>
                                                                   <h3 className="font-semibold text-lg text-gray-100 flex items-center">
-                                                                        {user?.name} ( <span className="capitalize text-blue-500 text-xs"> {user?.designation}</span> )
+                                                                        {user?.name} ( <span className="capitalize text-blue-500 text-xs"> {user?.possition}</span> )
                                                                   </h3>
                                                                   <p className="text-sm text-gray-600">{user?.email}</p>
                                                                   <span className="text-sm text-gray-500">{user?.phone}</span>
