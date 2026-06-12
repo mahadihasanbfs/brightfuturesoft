@@ -93,7 +93,7 @@ const AllProject = () => {
             ogImage.setAttribute("property", "og:image");
             document.head.appendChild(ogImage);
       }
-      ogImage.setAttribute("content", "https://yourdomain.com/logo.png");
+      ogImage.setAttribute("content", "https://brightfuturesoft.com/logo.png");
 
       // Canonical
       let canonical = document.querySelector("link[rel='canonical']");

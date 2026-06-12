@@ -3,7 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, Clock, Monitor, HeartHandshake, GraduationCap,
   Award, CalendarDays, Lightbulb, Lock, FileText,
-  X, CheckCircle2, ArrowRight, Zap, ChevronRight, Briefcase
+  X, CheckCircle2, ArrowRight, Zap, ChevronRight, Briefcase,
+  PiggyBank,
+  Laptop,
+  Scale,
+  AlertTriangle
 } from "lucide-react";
 import MetaTitle, { base_url } from "../../layout/Title";
 import JobCard from "./Card";
@@ -15,19 +19,262 @@ const Job = () => {
   const [selectedPolicy, setSelectedPolicy] = useState(null);
   const brandColor = "#1c65b4";
 
-  // Policy Data
-  const policies = [
-    { id: 1, icon: <ShieldCheck />, title: "Professional Environment", short: "Safe, ethical and respectful workplace.", details: { highlights: ["Zero Harassment", "Equal Opportunity", "Professional Ethics", "Employee Protection"], fullDesc: "Bright Future Soft is committed to maintaining a professional, respectful, and inclusive work environment. Discrimination, harassment, or any unethical behavior will not be tolerated." } },
-    { id: 2, icon: <Clock />, title: "Probation & Confirmation", short: "Structured onboarding process.", details: { highlights: ["3-Month Probation", "Performance Evaluation", "Mentorship Support", "Confirmation Review"], fullDesc: "All newly hired employees undergo a 3-month probation period focused on evaluation and mentorship to ensure a smooth transition into permanent status." } },
-    { id: 3, icon: <Monitor />, title: "Remote-First Culture", short: "Global collaboration and accountability.", details: { highlights: ["Discord Availability", "Flexible Hours", "Daily Syncs", "Remote Tools"], fullDesc: "We operate as a remote-first company. Team members are expected to remain reachable on Discord and maintain clear communication during assigned hours." } },
-    { id: 4, icon: <HeartHandshake />, title: "People & Culture", short: "Collaboration and continuous growth.", details: { highlights: ["Open Communication", "Team Trust", "Respectful Culture", "Work-Life Balance"], fullDesc: "Built on trust and transparency, our culture encourages open ideas and mutual support to shape the future of our products." } },
-    { id: 5, icon: <GraduationCap />, title: "Learning & Growth", short: "Investing in your personal development.", details: { highlights: ["Technical Training", "Mentorship", "Certification Support", "Career Mapping"], fullDesc: "We value individuals who invest in their growth. We support self-learning and provide mentorship to help you master new technologies." } },
-    { id: 6, icon: <Award />, title: "Recognition", short: "Rewarding ownership and impact.", details: { highlights: ["Performance Reviews", "Recognition Programs", "Leadership Paths", "Growth Bonus"], fullDesc: "Productivity and ownership are rewarded with career advancement and leadership opportunities within the organization." } },
-    { id: 7, icon: <CalendarDays />, title: "Time Off", short: "Supporting employee well-being.", details: { highlights: ["Annual Leave", "Sick Leave", "Public Holidays", "Casual Leave"], fullDesc: "We provide competitive leave packages to ensure our team stays refreshed and maintains a healthy work-life harmony." } },
-    { id: 8, icon: <Lightbulb />, title: "Innovation", short: "Drive impact through ownership.", details: { highlights: ["Creative Thinking", "Ownership Mindset", "Problem Solving", "Proactive Labs"], fullDesc: "We encourage every member to act like an owner—solving problems proactively and driving innovation at every level." } },
-    { id: 9, icon: <Lock />, title: "Confidentiality", short: "Protecting code and client assets.", details: { highlights: ["IP Protection", "NDA Compliance", "Secure Environment", "Client Privacy"], fullDesc: "All work developed at BFS remains exclusive property. We maintain strict protocols to protect our source code and client confidentiality." } },
-    { id: 10, icon: <FileText />, title: "Exit Process", short: "Professional separation procedures.", details: { highlights: ["Notice Period", "Project Handover", "Knowledge Transfer", "Final Settlement"], fullDesc: "We ensure a professional exit process including knowledge transfer and final settlements to maintain long-term professional relationships." } },
-  ];
+const policies = [
+  {
+    id: 1,
+    icon: <ShieldCheck />,
+    title: "Professional Environment",
+    short: "Safe, ethical and respectful workplace.",
+    details: {
+      highlights: [
+        "Zero Harassment",
+        "Equal Opportunity",
+        "Professional Ethics",
+        "Employee Protection"
+      ],
+      fullDesc:
+        "Bright Future Soft is committed to maintaining a professional, respectful, and inclusive work environment. Discrimination, harassment, bullying, threats, abusive behavior, or any unethical conduct will not be tolerated. Every employee is expected to treat colleagues, clients, and partners with professionalism and respect."
+    }
+  },
+
+  {
+    id: 2,
+    icon: <Clock />,
+    title: "Probation & Confirmation",
+    short: "Structured onboarding and evaluation process.",
+    details: {
+      highlights: [
+        "3-Month Probation",
+        "Performance Evaluation",
+        "Mentorship Support",
+        "Confirmation Review"
+      ],
+      fullDesc:
+        "All newly hired employees undergo a 3-month probation period. During this period, performance, communication, technical skills, reliability, attendance, and overall contribution are evaluated. The company reserves the right to confirm, extend, or terminate employment based on performance and business requirements."
+    }
+  },
+
+  {
+    id: 3,
+    icon: <Monitor />,
+    title: "Remote-First Culture",
+    short: "Global collaboration and accountability.",
+    details: {
+      highlights: [
+        "Discord Availability",
+        "Fixed Working Hours",
+        "Daily Communication",
+        "Remote Collaboration"
+      ],
+      fullDesc:
+        "As a remote-first company, employees must remain active and reachable on Discord during assigned working hours. Team members are expected to participate in meetings, respond to messages in a reasonable timeframe, provide project updates when required, and maintain professional communication. Unexplained absence, repeated unavailability, or poor communication may result in disciplinary action."
+    }
+  },
+
+  {
+    id: 4,
+    icon: <HeartHandshake />,
+    title: "People & Culture",
+    short: "Collaboration and continuous growth.",
+    details: {
+      highlights: [
+        "Open Communication",
+        "Team Trust",
+        "Respectful Culture",
+        "Work-Life Balance"
+      ],
+      fullDesc:
+        "Our culture is built on trust, transparency, accountability, and teamwork. Employees are encouraged to share ideas, support one another, and contribute to a positive and productive work environment."
+    }
+  },
+
+  {
+    id: 5,
+    icon: <GraduationCap />,
+    title: "Learning & Growth",
+    short: "Investing in professional development.",
+    details: {
+      highlights: [
+        "Technical Training",
+        "Mentorship",
+        "Knowledge Sharing",
+        "Career Growth"
+      ],
+      fullDesc:
+        "We encourage continuous learning and professional growth. Employees are expected to improve their technical and professional skills through project work, self-learning, mentorship, and internal knowledge-sharing initiatives."
+    }
+  },
+
+  {
+    id: 6,
+    icon: <Award />,
+    title: "Performance & Recognition",
+    short: "Rewarding ownership and contribution.",
+    details: {
+      highlights: [
+        "Performance Reviews",
+        "Recognition Programs",
+        "Leadership Opportunities",
+        "Career Advancement"
+      ],
+      fullDesc:
+        "Performance is evaluated based on quality of work, communication, ownership, teamwork, attendance, and overall contribution. Outstanding employees may receive recognition, additional responsibilities, promotions, or leadership opportunities."
+    }
+  },
+
+  {
+    id: 7,
+    icon: <CalendarDays />,
+    title: "Leave & Attendance",
+    short: "Responsible leave management.",
+    details: {
+      highlights: [
+        "Advance Approval",
+        "Emergency Leave",
+        "Attendance Monitoring",
+        "Working Hour Compliance"
+      ],
+      fullDesc:
+        "Employees are expected to maintain regular attendance and obtain approval before taking leave whenever possible. Emergency leave may be granted for genuine unforeseen circumstances. Repeated unauthorized absences, attendance violations, or failure to communicate may affect performance evaluations and employment status."
+    }
+  },
+
+  {
+    id: 8,
+    icon: <Lightbulb />,
+    title: "Innovation & Ownership",
+    short: "Driving impact through initiative.",
+    details: {
+      highlights: [
+        "Creative Thinking",
+        "Ownership Mindset",
+        "Problem Solving",
+        "Continuous Improvement"
+      ],
+      fullDesc:
+        "Every employee is encouraged to take ownership of their work, identify opportunities for improvement, solve problems proactively, and contribute innovative ideas that help the company grow."
+    }
+  },
+
+  {
+    id: 9,
+    icon: <Lock />,
+    title: "Confidentiality & Intellectual Property",
+    short: "Protecting company and client assets.",
+    details: {
+      highlights: [
+        "IP Protection",
+        "Source Code Security",
+        "Client Confidentiality",
+        "NDA Compliance"
+      ],
+      fullDesc:
+        "All software, source code, designs, documents, databases, credentials, business information, and intellectual property developed during employment remain the exclusive property of Bright Future Soft. Confidential information must not be disclosed during or after employment."
+    }
+  },
+
+  {
+    id: 10,
+    icon: <PiggyBank />,
+    title: "Provident Fund (PF)",
+    short: "Supporting long-term financial security.",
+    details: {
+      highlights: [
+        "5% Employee Contribution",
+        "5% Company Contribution",
+        "Monthly Savings",
+        "Long-Term Benefits"
+      ],
+      fullDesc:
+        "Eligible permanent employees may participate in the Provident Fund program. Employees contribute 5% of their basic salary, and Bright Future Soft contributes an additional 5%, helping employees build long-term financial security."
+    }
+  },
+
+  {
+    id: 11,
+    icon: <Laptop />,
+    title: "Equipment & Account Security",
+    short: "Protecting digital assets and access.",
+    details: {
+      highlights: [
+        "Password Protection",
+        "Authorized Access Only",
+        "Repository Security",
+        "Data Protection"
+      ],
+      fullDesc:
+        "Employees are responsible for protecting company devices, accounts, repositories, cloud resources, and client data. Unauthorized sharing of credentials, access, or confidential information is strictly prohibited."
+    }
+  },
+
+  {
+    id: 12,
+    icon: <Scale />,
+    title: "Conflict of Interest",
+    short: "Maintaining integrity and transparency.",
+    details: {
+      highlights: [
+        "Business Ethics",
+        "Client Protection",
+        "Transparency",
+        "Professional Conduct"
+      ],
+      fullDesc:
+        "Employees must avoid activities that create conflicts with the interests of Bright Future Soft, its clients, or its business operations. Potential conflicts must be disclosed to management immediately."
+    }
+  },
+
+  {
+    id: 13,
+    icon: <AlertTriangle />,
+    title: "Policy Violations",
+    short: "Accountability for misconduct.",
+    details: {
+      highlights: [
+        "Attendance Violations",
+        "Data Misuse",
+        "Harassment",
+        "Disciplinary Actions"
+      ],
+      fullDesc:
+        "Violations of company policies, misconduct, fraud, data theft, repeated attendance issues, insubordination, harassment, or actions that damage company interests may result in warnings, suspension, or termination of employment."
+    }
+  },
+
+  {
+    id: 14,
+    icon: <FileText />,
+    title: "Resignation & Exit Process",
+    short: "Professional separation procedures.",
+    details: {
+      highlights: [
+        "Written Resignation",
+        "Notice Period",
+        "Project Handover",
+        "Final Clearance"
+      ],
+      fullDesc:
+        "Employees intending to resign must submit a formal resignation letter and complete the applicable notice period. Before departure, all projects, source code, documentation, credentials, company assets, and responsibilities must be handed over. Experience letters, recommendation letters, and final settlements may be processed after successful completion of all clearance procedures."
+    }
+  },
+
+  {
+    id: 15,
+    icon: <Briefcase />,
+    title: "Project Ownership & Handover",
+    short: "Ensuring business continuity.",
+    details: {
+      highlights: [
+        "Documentation Required",
+        "Code Handover",
+        "Knowledge Transfer",
+        "Client Transition"
+      ],
+      fullDesc:
+        "Employees are responsible for maintaining proper documentation of their work. In the event of role changes, leave, or resignation, all project knowledge, source code, credentials, and relevant information must be transferred to the designated team member."
+    }
+  }
+];
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -51,10 +298,104 @@ const Job = () => {
     animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
+    useEffect(() => {
+      window.scrollTo(0, 0);
+
+      document.title =
+            "Bright Future Soft | Careers - Join Our Team of Innovators and Problem Solvers";
+
+      const description =
+            "Explore exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.";
+
+      const keywords =
+            "Bright Future Soft careers, software development jobs in Bangladesh, remote software jobs, SaaS careers, AI careers, ERP careers, software engineering jobs, tech jobs in Bangladesh, Sales jobs, marketing jobs, design jobs, HR jobs, internship opportunities at Bright Future Soft";
+
+      // Meta Description
+      let metaDescription = document.querySelector("meta[name='description']");
+      if (!metaDescription) {
+            metaDescription = document.createElement("meta");
+            metaDescription.name = "description";
+            document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute("content", description);
+
+      // Meta Keywords
+      let metaKeywords = document.querySelector("meta[name='keywords']");
+      if (!metaKeywords) {
+            metaKeywords = document.createElement("meta");
+            metaKeywords.name = "keywords";
+            document.head.appendChild(metaKeywords);
+      }
+      metaKeywords.setAttribute("content", keywords);
+
+      // OG Title
+      let ogTitle = document.querySelector("meta[property='og:title']");
+      if (!ogTitle) {
+            ogTitle = document.createElement("meta");
+            ogTitle.setAttribute("property", "og:title");
+            document.head.appendChild(ogTitle);
+      }
+      ogTitle.setAttribute(
+            "content",
+            "Careers at Bright Future Soft - Join Our Remote-First Team"
+      );
+
+      // OG Description
+      let ogDesc = document.querySelector("meta[property='og:description']");
+      if (!ogDesc) {
+            ogDesc = document.createElement("meta");
+            ogDesc.setAttribute("property", "og:description");
+            document.head.appendChild(ogDesc);
+      }
+      ogDesc.setAttribute("content", description);
+
+      // OG Image (Logo or Banner)
+      let ogImage = document.querySelector("meta[property='og:image']");
+      if (!ogImage) {
+            ogImage = document.createElement("meta");
+            ogImage.setAttribute("property", "og:image");
+            document.head.appendChild(ogImage);
+      }
+      ogImage.setAttribute("content", "https://brightfuturesoft.com/logo.png");
+
+      // Canonical
+      let canonical = document.querySelector("link[rel='canonical']");
+      if (!canonical) {
+            canonical = document.createElement("link");
+            canonical.setAttribute("rel", "canonical");
+            document.head.appendChild(canonical);
+      }
+      canonical.setAttribute("href", window.location.href);
+
+}, []);
+
   return (
  
   <div className="min-h-screen bg-[#020617] text-slate-200 selection:bg-[#1c65b4]/30 font-sans overflow-x-hidden ">
-      
+
+       <MetaTitle
+                                    title={`Careers at Bright Future Soft}`}
+                                    description={`Explore exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.`}
+                                    keywords={`Bright Future Soft careers, software development jobs in Bangladesh, remote software jobs, SaaS careers, AI careers, ERP careers, software engineering jobs, tech jobs in Bangladesh`}
+                                    author="Bright Future Soft"
+                                    ogTitle={`Careers at Bright Future Soft - Join Our Remote-First Team`}
+                                    ogDescription={`Discover exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.`}
+                                    ogImage="https://www.brightfuturesoft.com/logo.png"
+                                    ogUrl={`https://www.brightfuturesoft.com/careers || ''}`}
+                                    schema={{
+                                          "@context": "https://schema.org",
+                                          "@type": "Organization",
+                                          "name": "Bright Future Soft",
+                                          "url": "https://www.brightfuturesoft.com",
+                                          "logo": "https://www.brightfuturesoft.com/logo.png",
+                                          "sameAs": [
+                                                "https://www.facebook.com/brightfuturesoft",
+                                                "https://www.linkedin.com/company/bright-future-soft",
+                                                "https://twitter.com/brightfuturesoft"
+                                          ],
+                                          "description": `Explore exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.`
+                                    }}
+                              />
       {/* 1. BACKGROUND TEXTURE (The "Glass" Grid) */}
       <div className="fixed inset-0 z-0 p-4">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20" />
