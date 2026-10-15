@@ -22,7 +22,6 @@ import 'swiper/css/scrollbar';
 import 'swiper/css/a11y';
 import 'swiper/css/autoplay';
 
-import { Link } from "react-router-dom";
 import { MdFormatQuote } from "react-icons/md";
 
 const Testimonials = () => {
@@ -83,10 +82,12 @@ const Testimonials = () => {
 
 
       return (
-            <div className='testimonial-bg'>
-                  <div className="px-4 py-20 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 md:w-[80%] w-[95%]">
-                        <h1 className="text-xl  font-bold relative after:absolute after:left-0 after:right-0 after:bottom-[-18px] after:w-[60px] after:rounded-full after:h-[6px] after:bg-[#0095ff] after:mx-auto text-center text-white">TESTI<span className="shadow-tx">MONIALS</span></h1>
-                        <p className="text-center mt-8 text-[gray]">We do people love Bright Future Soft?</p>
+            <section className='testimonial-bg testimonial-section px-4 py-20 sm:px-6 lg:px-8 lg:py-24' aria-labelledby="testimonials-heading">
+                  <div className="mx-auto max-w-7xl">
+                        <div className="section-heading-row">
+                              <div><span className="site-eyebrow">Client stories</span><h2 id="testimonials-heading">Good work speaks<br /><span>through our clients.</span></h2></div>
+                              <p>We value the trust our clients place in us and the relationships we build along the way.</p>
+                        </div>
 
                         <Swiper className="cursor-grab"
                               modules={[Navigation, Pagination, Scrollbar, Autoplay, A11y]}
@@ -128,41 +129,19 @@ const Testimonials = () => {
                               {
                                     testimonials.map(testimonialData =>
                                           <SwiperSlide key={testimonialData.id} className="">
-                                                <div className=" py-[100px] px-2">
-                                                      <div className="testimonial-cart p-4 bg-[#121e34] rounded-md relative overflow-hidden">
-                                                            <div className="bg-[#1795F0] w-[150px] rounded-full h-[150px] flex justify-end items-end p-8 text-white absolute left-[-70px] top-[-70px] qut">
-                                                                  <MdFormatQuote className="text-4xl" />
-                                                            </div>
-                                                            <div className="d-l bg-[#80808048] w-[5px] h-[60px] p-0 absolute -z-0 right-0 top-[70px]">
-                                                                  <div className="h-full relative">
-                                                                        <span className="bg-white text-white absolute top-0 left-0 right-0">.</span>
-                                                                        <span className="bg-[#1795F0] r-shadow text-[#1795F0] absolute bottom-0 h-[40px] left-0 sp-ln-1 right-0">.</span>
-                                                                  </div>
-                                                            </div>
-
-                                                            <div className="d-l bg-[#80808048] w-[5px] h-[60px] p-0 absolute -z-0 left-0 bottom-[70px]">
-                                                                  <div className="h-full relative">
-                                                                        <span className="bg-white text-white absolute top-0 left-0 right-0">.</span>
-                                                                        <span className="bg-[#1795F0] l-shadow text-[#1795F0] absolute bottom-0 h-[40px] sp-ln-2 left-0 right-0">.</span>
-                                                                  </div>
-                                                            </div>
-
-                                                            <h2 className="text-white font-semibold text-xl mt-12">{testimonialData.companyName}</h2>
-                                                            <p className="text-sm text-center mt-2 text-gray-400">
-                                                                  {testimonialData?.comments}
-
-                                                                  <img loading="lazy" src={testimonialData.img} alt="" className="ts-img" />
-
-
-                                                            </p>
-                                                      </div>
+                                                <div className="testimonial-slide-wrap">
+                                                      <article className="testimonial-card">
+                                                            <div className="testimonial-card-top"><img loading="lazy" src={testimonialData.img} alt={`${testimonialData.companyName} logo`} /><span className="testimonial-quote-mark"><MdFormatQuote aria-hidden="true" /></span></div>
+                                                            <p className="testimonial-quote">“{testimonialData?.comments.replace(/Bright Future Soft Soft/g, 'Bright Future Soft')}”</p>
+                                                            <div className="testimonial-attribution"><strong>{testimonialData.companyName}</strong><span>{testimonialData.title}</span></div>
+                                                      </article>
                                                 </div>
                                           </SwiperSlide>)
                               }
 
                         </Swiper>
                   </div>
-            </div>
+            </section>
       );
 };
 

@@ -130,18 +130,19 @@ const Service = () => {
             window.scrollTo(0, 0);
       }, []);
       return (
-            <div className='service-bg '>
-                  <div className="py-20 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl lg:px-5">
-
-                        <h1 className="text-xl  font-bold relative after:absolute after:left-0 after:right-0 after:bottom-[-18px] after:w-[60px] after:rounded-full after:h-[6px] after:bg-[#0095ff] after:mx-auto text-center text-white">Services We  <span className="shadow-tx">Provide</span></h1>
-                        <div className="grid lg:grid-cols-3 md:grid-cols-2  gap-8 mt-16 p-3 mx-auto">
+            <section id="services" className='public-site service-bg services-section px-4 py-20 sm:px-6 lg:px-8 lg:py-24' aria-labelledby="services-heading">
+                  <div className="mx-auto max-w-7xl">
+                        <div className="section-heading-row">
+                              <div><span className="site-eyebrow">What we do</span><h2 id="services-heading">Digital products built<br /><span>around your business.</span></h2></div>
+                              <p>From a focused first release to a complex platform, our team brings design, engineering, and product thinking together.</p>
+                        </div>
+                        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-5 mt-12 mx-auto">
                               {
                                     serviceInfo.map(data => <ServiceCart key={data.id} data={data} />)
                               }
                         </div>
                   </div>
-
-            </div>
+            </section>
       );
 };
 

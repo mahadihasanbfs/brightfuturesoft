@@ -1,35 +1,58 @@
-import Lottie from "lottie-react";
-import React, { useState } from "react";
+import React from "react";
+import { HiArrowSmallRight } from "react-icons/hi2";
 import { Link } from "react-router-dom";
 
 const ServiceCart = ({ data }) => {
+      const { id, pic, name, description, category } = data;
 
-      const { pic, name, description } = data;
+      // Ensure the card displays a concise 1-2 sentence teaser instead of full description
+      const getShortDesc = (text) => {
+            if (!text) return "";
+            const firstPeriod = text.indexOf('.');
+            if (firstPeriod > 20 && firstPeriod <= 110) {
+                  return text.slice(0, firstPeriod + 1);
+            }
+            if (text.length > 105) {
+                  return text.slice(0, 100).trim() + "...";
+            }
+            return text;
+      };
+
+      const shortDescription = getShortDesc(description);
+
       return (
-            <Link to={`/service/${data?.id}`}>
-                  <div>
-                        <div className="cart bg-[#0525b70a] p-2 rounded-xl border border-[#0084ff68]">
-                              <div className="cart-contain bg-[#11223caf] text-white p-3 rounded-xl">
-                                    <div className="cart-header">
-                                          <img loading="lazy" src={pic} alt="" className="rounded-xl md:h-[300px] h-[260px] w-full object-cover" />
+            <Link
+                  to={`/service/${id}`}
+                  className="service-grid-card group"
+                  aria-label={`Explore ${name} services`}
+            >
+                  <article className="flex h-full flex-col">
+                        <div className="service-card-media">
+                              <img
+                                    loading="lazy"
+                                    src={pic}
+                                    alt={`${name} software engineering services by Bright Future Soft`}
+                              />
+                        </div>
+                        <div className="service-card-body">
+                              <span className="service-card-tag">
+                                    {category || "Enterprise Service"}
+                              </span>
+                              <h3 className="service-card-title">{name}</h3>
+                              <p className="service-card-desc" title={description}>
+                                    {shortDescription}
+                              </p>
 
-                                          {/* <Lottie className="rounded-xl md:h-[300px] h-[260px] w-full" animationData={pic} loop={true} /> */}
-
-                                    </div>
-                                    <div className="cart-body">
-                                          <img loading="lazy" src="" alt="" className="" />
-                                          <h2 className="font-[500] mt-3 text-xl">{name}</h2>
-                                          <small className="mt-2 text-[#d4d4d4]">
-                                                {description?.slice(0, 125)}
-                                          </small>
-
-                                          <button className="mt-3 bg-[#1c40bf] w-full p-2 rounded-lg shadow-md duration-200 text-white  hover:bg-[#3454C4]">Get Started with us</button>
-                                    </div>
+                              <div className="service-card-action">
+                                    <span>Learn more</span>
+                                    <HiArrowSmallRight aria-hidden="true" />
                               </div>
                         </div>
-                  </div>
+                  </article>
             </Link>
       );
 };
 
 export default ServiceCart;
+
+

@@ -1,36 +1,38 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { HiArrowSmallRight } from "react-icons/hi2";
+import { Link } from "react-router-dom";
 
-const ProjectCart = ({allProjectData, stickyTopSpace}) => {
-    const {projectData, setProjectData} = useState();
-    const {id, name, pic,description, liveLink, technology } = allProjectData;
-  
-    return (
-            
-        <div className={`sticky mt-[40px] border border-[#007bff] rounded-xl mx-auto md:w-[90%] w-[98%] duration-200 stc-cart bg-[#0b0b16]`}
-			style={{ top: stickyTopSpace }}>
-                <div className='p-3'>
-                    <div className="bg-[#141425] rounded-xl md:grid grid-cols-3">
-                        <div className="p-3">
-                            <img  loading="lazy"src={pic} alt="" className="h-[250px] w-full rounded-lg" />
+const ProjectCart = ({ allProjectData, stickyTopSpace }) => {
+      const { id, name, pic, description, technology = [] } = allProjectData;
+
+      return (
+            <article
+                  className="sticky mx-auto mt-8 w-[98%] overflow-hidden rounded-md border border-sky-900/80 bg-[#0b1d30] transition duration-200 hover:border-sky-400/60 hover:shadow-xl hover:shadow-slate-950/25 md:w-[90%]"
+                  style={{ top: stickyTopSpace }}
+            >
+                  <div className="grid md:grid-cols-[minmax(220px,0.8fr)_1.2fr]">
+                        <div className="overflow-hidden bg-slate-900">
+                              <img loading="lazy" src={pic} alt={name} className="h-56 w-full object-cover md:h-full md:min-h-64" />
                         </div>
-                        <div className="p-2 col-span-2">
-                            <h1 className="font-bold text-xl text-[#00a2ff]">{name}</h1>
-                            <span className="mt-2  text-white">
-							<p>Technology used :</p>
-							<ul className="flex flex-wrap gap-2 mt-2">
-								{
-									technology.map(techData => <li className={`text-[13px] text-white bg-[#064476] px-2 rounded-xl`} key={techData.id}>{techData.name}</li>)
-								}
-							</ul>
-						</span>
-                        <p className="mt-5 text-sm pb-20">{description}</p>
+                        <div className="flex flex-col p-5 sm:p-7">
+                              <h2 className="text-xl font-semibold text-white sm:text-2xl">{name}</h2>
+                              <div className="mt-4">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Technology used</p>
+                                    <ul className="mt-2 flex flex-wrap gap-2">
+                                          {technology.map((techData) => (
+                                                <li key={techData.id} className="rounded-sm border border-sky-300/30 bg-sky-300/[0.08] px-3 py-1 text-xs text-sky-100">
+                                                      {techData.name}
+                                                </li>
+                                          ))}
+                                    </ul>
+                              </div>
+                              <p className="mt-4 flex-1 pb-6 text-sm leading-6 text-slate-400">{description}</p>
+                              <Link to={`/project/${id}`} className="inline-flex w-fit items-center gap-2 rounded-md bg-[#0A65B4] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1478cc]">
+                                    Details <HiArrowSmallRight aria-hidden="true" />
+                              </Link>
                         </div>
-                        	<Link to={`/project/${id}`} className="absolute bg-[#0066ff] right-[20px] bottom-[20px] text-white px-3 py-2 rounded-md duration-200 hover:bg-[#007bff]">Details</Link>
-                    </div>
-                </div>
-        </div>
-    );
+                  </div>
+            </article>
+      );
 };
 
 export default ProjectCart;

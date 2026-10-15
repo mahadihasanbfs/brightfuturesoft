@@ -1,7 +1,5 @@
 import React from 'react';
-import { HiOutlineCodeBracket, HiOutlineCurrencyBangladeshi, HiOutlineWrenchScrewdriver, HiPhone } from 'react-icons/hi2';
-import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
-import 'react-vertical-timeline-component/style.min.css';
+import { HiOutlineCodeBracket } from 'react-icons/hi2';
 import tailwind from '../../../Assctes/icon/Tailwind.png'
 import bootstrap from '../../../Assctes/icon/Bootstrap.png'
 import metarial from '../../../Assctes/icon/Material UI.png'
@@ -304,47 +302,29 @@ const Technology = () => {
             },
       ]
       return (
-            <div>
-                  <div className="tech-bg px-2 py-4 text-capitalize" id='tech'>
-                        <h1 className="text-xl  font-bold relative after:absolute after:left-0 after:right-0 after:bottom-[-18px] after:w-[60px] after:rounded-full after:h-[6px] after:bg-[#0095ff] after:mx-auto text-center text-white">Our Technology <span className="shadow-tx">and Tools</span></h1>
-                        <br /><br />
-                        <VerticalTimeline className='text-white'>
-                              {
-                                    tData.map(tData => <VerticalTimelineElement key={tData.id}
-                                          className="vertical-timeline-element--work"
-                                          contentArrowStyle={{ borderRight: '7px solid  #ff000000', }}
-
-                                          iconStyle={{ background: 'rgb(33, 150, 243)', color: '#fff' }}
-                                          icon={<HiOutlineCodeBracket />}
-                                    >
-                                          <div className="sp-box border rounded-r-lg rounded-bl-lg border-[#2a4892]  relative p-3">
-                                                <div className="absolute top-[-28px] bg-[#2a4892] sp pl-2 pr-14  py-1 left-[-1px]">
-                                                      <h1 className='md:text-md whitespace-nowrap text-sm'>{tData.title}</h1>
-                                                </div>
-                                                <div className="container mx-auto p-4">
-                                                      <figure className="grid mt-4 grid-cols-3 sm:grid-cols-6 gap-4">
-                                                            {tData.options.map((td, index) => (
-                                                                  <div key={index} className="group relative cursor-pointer">
-                                                                        <img
-                                                                              className="border border-blue-500 rounded p-2 bg-gray-700 hover:bg-white w-14 h-14 object-contain transition-colors duration-300"
-                                                                              loading="lazy"
-                                                                              src={td.img}
-                                                                              alt={td.name}
-                                                                        />
-                                                                        <span className="absolute  left-1/2 -translate-x-1/2 bottom-[calc(100%+2px)] flex items-center justify-center capitalize px-2 py-1 whitespace-nowrap text-xs bg-gray-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                                                                              {td.name}
-                                                                        </span>
-                                                                  </div>
-                                                            ))}
-                                                      </figure>
-                                                </div>
-
+            <section className="tech-bg technology-section px-4 py-20 sm:px-6 lg:px-8 lg:py-24" id="tech" aria-labelledby="technology-heading">
+                  <div className="mx-auto max-w-7xl">
+                        <div className="section-heading-row">
+                              <div><span className="site-eyebrow">A modern, proven stack</span><h2 id="technology-heading">The right tools<br /><span>for the right solution.</span></h2></div>
+                              <p>We choose reliable technologies to fit each product’s needs, from responsive interfaces to secure, scalable platforms.</p>
+                        </div>
+                        <div className="technology-grid">
+                              {tData.map((category) => (
+                                    <article className="technology-card" key={category.id}>
+                                          <div className="technology-card-heading"><span><HiOutlineCodeBracket aria-hidden="true" /></span><h3>{category.title}</h3><small>{category.options.length} technologies</small></div>
+                                          <div className="technology-options">
+                                                {category.options.map((technology) => (
+                                                      <div className="technology-option" key={technology.name} title={technology.name}>
+                                                            <img loading="lazy" src={technology.img} alt="" />
+                                                            <span>{technology.name}</span>
+                                                      </div>
+                                                ))}
                                           </div>
-                                    </VerticalTimelineElement>)
-                              }
-                        </VerticalTimeline>
+                                    </article>
+                              ))}
+                        </div>
                   </div>
-            </div>
+            </section>
       );
 };
 

@@ -260,7 +260,7 @@ const Read_more = () => {
                               </div>
 
 
-                              <div className="max-w-5xl mx-auto mt-8 overflow-hidden text-center bg-gray-300 sm:mt-12 rounded-xl">
+                              <div className="public-contact-cta mx-auto mt-8 max-w-5xl overflow-hidden text-center sm:mt-12">
                                     <div className="px-6 py-12 sm:p-12">
                                           <div className="max-w-sm mx-auto">
                                                 <div className="relative z-0 flex items-center justify-center -space-x-2 ">
@@ -274,11 +274,7 @@ const Read_more = () => {
                                                             src={mahadi}
                                                             alt=""
                                                       />
-                                                      <img
-                                                            className="relative z-10 inline-block rounded-full w-14 h-14 ring-4 ring-gray-100 object-cover"
-                                                            src="https://sever.brightfuturesoft.com/api/v2/image/6992cacb2a443b2a8e29a55d"
-                                                            alt=""
-                                                      />
+
                                                 </div>
 
                                                 <h3 className="mt-6 text-2xl font-semibold text-gray-900">Still have questions?</h3>

@@ -11,15 +11,15 @@ import 'swiper/css/a11y';
 import 'swiper/css/autoplay';
 
 
-import { Link } from "react-router-dom";
 import { AiFillLinkedin } from "react-icons/ai";
+import { Link } from "react-router-dom";
 import { base_url } from "../../../layout/Title";
 import { useQuery } from "@tanstack/react-query";
 // import { SwiperSlide } from 'swiper/react';
 
 const Team = () => {
 
-     const { data: teamMembers = [] } = useQuery({
+     const { data: teamMembers = [], isLoading } = useQuery({
   queryKey: ["all_users"],
   queryFn: async () => {
     const res = await fetch(`${base_url}/auth/all`, {
@@ -41,18 +41,22 @@ const Team = () => {
 })
 
       return (
-            <div className=" team-bg">
-                  <div className="px-4 py-5 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8">
-                        <h1 className="text-xl  font-bold relative after:absolute after:left-0 after:right-0 after:bottom-[-18px] after:w-[60px] after:rounded-full after:h-[6px] after:bg-[#0095ff] after:mx-auto text-center text-white">Our <span className="shadow-tx">Team</span></h1>
+            <section className="team-bg team-section px-4 py-20 sm:px-6 lg:px-8 lg:py-24" aria-labelledby="team-heading">
+                  <div className="mx-auto max-w-7xl">
+                        <div className="section-heading-row">
+                              <div><span className="site-eyebrow">Meet the people behind the work</span><h2 id="team-heading">Thoughtful people.<br /><span>Reliable partners.</span></h2></div>
+                              <p>Our team brings product thinking, design, and engineering together to help clients make meaningful progress.</p>
+                        </div>
 
-                        <Swiper
+                        {teamMembers.length > 0 ? <Swiper
                               modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}
                               pagination={{ clickable: true }}
                               autoplay={{
-                                    delay: 1200,              // 🔥 1 second
+                                    delay: 3200,
                                     disableOnInteraction: false,
                                     pauseOnMouseEnter: true,
                               }}
+                              speed={500}
                               breakpoints={{
                                     320: {
                                           slidesPerView: 1,
@@ -87,28 +91,31 @@ const Team = () => {
                               {
                                     teamMembers.map(tData =>
                                           <SwiperSlide key={tData.id} className="cursor-grab">
-                                                <div className=" py-[100px] px-2">
-                                                      <div className="cart-box  p-2 bg-[#1d1e37bc] border-2 border-[#0059ff69] rounded-xl h-[320px]">
-                                                            <div style={{ backgroundImage: `url("${tData?.image}")`, backgroundSize: "cover" }} className="cart-header rounded-[20px]   w-[200px] h-[200px] mx-auto mt-[-40px] i-box">
+                                                <div className="team-slide-wrap">
+                                                      <article className="team-card">
+                                                            <img className="team-photo" src={tData?.image} alt={tData?.name || 'Team member'} loading="lazy" />
+                                                            <div className="team-member-copy">
+                                                                  <h3>{tData?.name}</h3>
+                                                                  <p>{tData.possition ?? tData.designation}</p>
+                                                                  {tData.linkedin && <a href={tData.linkedin} target="_blank" rel="noreferrer" aria-label={`${tData?.name} on LinkedIn`}><AiFillLinkedin aria-hidden="true" /> <span>Connect on LinkedIn</span></a>}
                                                             </div>
-                                                            <div className="body pb-4">
-                                                                  <h2 className="text-white font-semibold mt-2">{tData?.name}</h2>
-                                                                  <p className="text-[14px] text-[#1becff]">{tData.possition ?? tData.designation}</p>
-                                                                  <small className="text-sm text-gray-400">{tData?.email}</small>
-                                                                  <Link to={tData.linkedin} target="_blank">
-                                                                        <AiFillLinkedin className="text-4xl mt-4 m-auto text-[#1e6dff]" />
-                                                                  </Link>
-                                                            </div>
-                                                      </div>
+                                                      </article>
                                                 </div>
                                           </SwiperSlide>)
                               }
 
-                        </Swiper>
+                        </Swiper> : (
+                              <div className="team-empty-state">
+                                    <span className="site-eyebrow">{isLoading ? 'Loading our team' : 'Get to know our team'}</span>
+                                    <h3>{isLoading ? 'Meet the people behind your next project.' : 'A hands-on team, ready to help.'}</h3>
+                                    <p>{isLoading ? 'Our team profiles are on their way.' : 'Talk with us about your goals and we’ll bring the right people into the conversation.'}</p>
+                                    {!isLoading && <Link to="/contacts" className="site-outline-button">Talk with our team <span aria-hidden="true">↗</span></Link>}
+                              </div>
+                        )}
                   </div>
 
 
-            </div>
+            </section>
       );
 };
 

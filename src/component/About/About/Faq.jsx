@@ -1,46 +1,34 @@
-import { useState } from "react";
-import mahadi from '../../../Assctes/teamMember/mahadi.jpg';
-import hadi from '../../../Assctes/teamMember/mohotasimhadi.jpeg';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base_url } from "../../../layout/Title";
+import { CallSchedule } from "../../../pages/shared/Header/Header";
+import { HiChevronDown, HiArrowSmallRight } from "react-icons/hi2";
 
-const Item = ({ title, children }) => {
-      const [isOpen, setIsOpen] = useState(false);
-
-
-
-
+const FaqItem = ({ question, answer, isOpen, onToggle, id }) => {
       return (
-            <div className="border border-gray-700 rounded shadow-sm">
+            <div className={`about-faq-item ${isOpen ? 'is-open' : ''}`}>
                   <button
                         type="button"
-                        aria-label="Open item"
-                        title="Open item"
-                        className="flex items-center justify-between w-full p-4 focus:outline-none"
-                        onClick={() => setIsOpen(!isOpen)}
+                        id={`faq-btn-${id}`}
+                        aria-expanded={isOpen}
+                        aria-controls={`faq-answer-${id}`}
+                        className="about-faq-btn"
+                        onClick={onToggle}
                   >
-                        <p className="text-lg font-medium">{title}</p>
-                        <div className="flex ml-3 items-center justify-center w-8 h-8 p-2 border border-gray-700 rounded-full">
-                              <svg
-                                    viewBox="0 0 24 24"
-                                    className={`w-3 text-gray-300 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''
-                                          }`}
-                              >
-                                    <polyline
-                                          fill="none"
-                                          stroke="currentColor"
-                                          strokeWidth="2"
-                                          strokeLinecap="round"
-                                          strokeMiterlimit="10"
-                                          points="2,7 12,17 22,7"
-                                          strokeLinejoin="round"
-                                    />
-                              </svg>
+                        <span>{question}</span>
+                        <div className="about-faq-toggle-icon" aria-hidden="true">
+                              <HiChevronDown />
                         </div>
                   </button>
                   {isOpen && (
-                        <div className="p-4 pt-0">
-                              <p className="text-gray-400">{children}</p>
+                        <div
+                              id={`faq-answer-${id}`}
+                              role="region"
+                              aria-labelledby={`faq-btn-${id}`}
+                              className="about-faq-body"
+                        >
+                              <p>{answer}</p>
                         </div>
                   )}
             </div>
@@ -48,172 +36,138 @@ const Item = ({ title, children }) => {
 };
 
 export const Faq = () => {
+      const [openIndex, setOpenIndex] = useState(0);
+      const [schedule, setSchedule] = useState(false);
 
-      const [schedule, setSchedule] = useState(false)
       const { data: teamMembers = [] } = useQuery({
-  queryKey: ["all_users"],
-  queryFn: async () => {
-    const res = await fetch(`${base_url}/auth/all`, {
-      headers: {
-        "content-type": "application/json",
-        author: "bright_future_soft",
-      },
-    })
-    const { data } = await res.json()
-       return data
-  .filter(user => user.slot != null)
-  .sort((a, b) => {
-    if (a.slot === b.slot) {
-      return a.name.localeCompare(b.name) // duplicate hole name diye sort
-    }
-    return Number(a.slot) - Number(b.slot)
-  })
-  },
-})
+            queryKey: ["all_users"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/auth/all`, {
+                        headers: {
+                              "content-type": "application/json",
+                              author: "bright_future_soft",
+                        },
+                  });
+                  const { data } = await res.json();
+                  return data
+                        .filter(user => user.slot != null)
+                        .sort((a, b) => {
+                              if (a.slot === b.slot) {
+                                    return a.name.localeCompare(b.name);
+                              }
+                              return Number(a.slot) - Number(b.slot);
+                        });
+            },
+      });
 
+      const faqs = [
+            {
+                  question: "What software engineering services does Bright Future Soft specialize in?",
+                  answer: "We engineer custom enterprise ERP & CRM systems, high-traffic SaaS web platforms, cross-platform mobile apps (Flutter, iOS, Android), and AI-powered workflow automation. We manage the entire lifecycle from architectural planning and UI/UX design through automated testing, cloud deployment, and long-term maintenance."
+            },
+            {
+                  question: "Where is your team located, and how do you collaborate with global clients?",
+                  answer: "Our engineering headquarters is located in Dhaka, Bangladesh. We work with clients across North America, Europe, Australia, and Asia. We align our sprint ceremonies, standups, and bi-weekly demos with your local timezone, using Slack, Jira, and Google Meet for transparent daily communication."
+            },
+            {
+                  question: "Do clients retain 100% intellectual property (IP) and source code ownership?",
+                  answer: "Yes, absolutely. All custom software, database schemas, UI designs, and documentation developed for your project are 100% your intellectual property. Upon delivery, we transfer complete source code repositories and deployment access with zero proprietary licensing lock-ins."
+            },
+            {
+                  question: "What is your typical project delivery timeline and sprint model?",
+                  answer: "We operate in structured 2-week agile sprints. A focused MVP or cloud prototype typically launches in 4 to 8 weeks, while full-scale enterprise ERP or multi-branch platforms generally range from 3 to 6 months. Every sprint ends with an interactive demo so you test working software continuously."
+            },
+            {
+                  question: "Do you provide ongoing SLA support and post-launch maintenance?",
+                  answer: "Yes. We offer SLA-backed technical maintenance and evolution packages. Our engineers handle 24/7 server monitoring, performance tuning, proactive security patching, database backups, and scheduled sprint hours for iterative feature enhancements."
+            },
+            {
+                  question: "How do we get started with Bright Future Soft on a new project?",
+                  answer: "Getting started is straightforward. Book an initial 30-minute discovery call through our appointment scheduler or submit your project details via our contact page. We will review your goals, execute an NDA, and provide a clear architectural roadmap and estimate within 48 hours."
+            }
+      ];
 
       return (
-            <div className="px-4 text-white py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 lg:py-20">
-                  <div className="max-w-4xl sm:mx-auto lg:max-w-5xl">
-                        <div className="flex flex-col mb-16 sm:text-center">
-                              <a href="/" className="mb-6 sm:mx-auto">
-                                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
-                                          <svg
-                                                className="w-10 h-10 text-purple-400"
-                                                stroke="currentColor"
-                                                viewBox="0 0 52 52"
-                                          >
-                                                <polygon
-                                                      strokeWidth="3"
-                                                      strokeLinecap="round"
-                                                      strokeLinejoin="round"
-                                                      fill="none"
-                                                      points="29 13 14 29 25 29 23 39 38 23 27 23"
-                                                />
-                                          </svg>
-                                    </div>
-                              </a>
-                              <div className="max-w-4xl md:mx-auto sm:text-center lg:max-w-7xl">
-                                    <h2 className="max-w-4xl mb-6 font-sans text-3xl font-bold leading-none tracking-tight text-gray-900 sm:text-4xl md:mx-auto">
-                                          <span className="relative inline-block">
-                                                <svg
-                                                      viewBox="0 0 52 24"
-                                                      fill="currentColor"
-                                                      className="absolute top-0 left-0 z-0 hidden w-32 -mt-8 -ml-20 text-blue-gray-100 lg:w-32 lg:-ml-28 lg:-mt-10 sm:block"
-                                                >
-                                                      <defs>
-                                                            <pattern
-                                                                  id="ec5d8ef5-b853-4714-b94f-df28ec98eeb7"
-                                                                  x="0"
-                                                                  y="0"
-                                                                  width=".135"
-                                                                  height=".30"
-                                                            >
-                                                                  <circle cx="1" cy="1" r=".7" />
-                                                            </pattern>
-                                                      </defs>
-                                                      <rect
-                                                            fill="url(#ec5d8ef5-b853-4714-b94f-df28ec98eeb7)"
-                                                            width="52"
-                                                            height="24"
-                                                      />
-                                                </svg>
-                                                <span className="relative text-white">Frequently Asked Questions</span>
-                                          </span>{' '}
+            <section className="about-faq-section px-4 sm:px-6 lg:px-8" aria-labelledby="about-faq-title">
+                  <div className="mx-auto max-w-7xl">
+                        <div className="about-section-header">
+                              <span className="site-eyebrow">Clear Answers</span>
+                              <h2 id="about-faq-title" className="about-section-title">
+                                    Frequently asked questions <br className="hidden sm:inline" />
+                                    <span>about working with us.</span>
+                              </h2>
+                              <p className="about-section-subtitle">
+                                    Everything you need to know about our engineering approach, team engagement, intellectual property, and delivery standards.
+                              </p>
+                        </div>
 
-                                    </h2>
-
+                        <div className="about-faq-container">
+                              <div className="about-faq-list">
+                                    {faqs.map((faq, idx) => (
+                                          <FaqItem
+                                                key={idx}
+                                                id={idx}
+                                                question={faq.question}
+                                                answer={faq.answer}
+                                                isOpen={openIndex === idx}
+                                                onToggle={() => setOpenIndex(openIndex === idx ? null : idx)}
+                                          />
+                                    ))}
                               </div>
-                        </div>
-                        <div className="space-y-4 max-w-7xl">
-                              <Item title="What services does Bright Future Soft provide?">
-                                    Bright Future Soft offers a range of software solutions, including web application development, mobile app development, UI/UX design, and software consultancy. We specialize in creating innovative, user-friendly, and scalable solutions tailored to meet our clients' specific needs.
-                              </Item>
-                              <Item title="How can I get started with Bright Future Soft for my project?">
-                                    Getting started with Bright Future Soft is simple. You can reach out to us via our website contact form, email us at hello@thebrightfuture.co, or give us a call at +880179225520. Our team will be happy to discuss your project requirements and guide you through the next steps.
-                              </Item>
-                              <Item title="How long does it typically take to complete a software project?">
-                                    The project timeline can vary depending on the scope and complexity of the project. After discussing your specific requirements, we will provide you with an estimated timeline during the initial consultation. We prioritize timely delivery without compromising on quality.
-                              </Item>
-                              <Item title="Can Bright Future Soft help with ongoing maintenance and support after the project is completed?">
-                                    Absolutely. We offer post-development support and maintenance services to ensure the smooth operation of your software solution. We can provide updates, security patches, bug fixes, and technical assistance as needed to keep your application up-to-date and functioning optimally.
-                              </Item>
-                              <Item title=" How does Bright Future Soft ensure the security and confidentiality of my project?">
-                                    At Bright Future Soft, we take security and confidentiality seriously. We adhere to industry best practices to safeguard your project information. We can sign non-disclosure agreements (NDAs) to protect your intellectual property and ensure that sensitive data is handled with the utmost care and security.
-                              </Item>
-                        </div>
-                  </div>
 
-                  <div className="max-w-5xl mx-auto mt-8 overflow-hidden text-center bg-gray-300 sm:mt-12 rounded-xl">
-                        <div className="px-6 py-12 sm:p-12">
-                              <div className="max-w-sm mx-auto">
-                                    <div className="relative z-0 flex items-center justify-center -space-x-2 ">
-
-                                          {teamMembers.slice(0, 3).map((member, index) => (
+                              <div className="about-faq-cta">
+                                    <div className="flex items-center justify-center -space-x-2">
+                                          {teamMembers.slice(0, 3).map((member) => (
                                                 <img
                                                       key={member._id}
-                                                      className={`relative inline-block object-cover rounded-full w-14 h-14 ring-4 ring-gray-100 transition-all duration-300 ${index === 2 ? "opacity-90" : "opacity-100"
-                                                            }`}
+                                                      className="relative inline-block h-12 w-12 rounded-full object-cover ring-2 ring-white shadow-sm"
                                                       src={member.image}
-                                                      alt=""
+                                                      alt={member.name || "Engineering team member"}
+                                                      loading="lazy"
                                                 />
                                           ))}
-
                                           {teamMembers.length > 3 && (
-                                                <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gray-400 text-white text-sm font-semibold ring-4 ring-gray-100 opacity-70 backdrop-blur-sm">
+                                                <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#0a65b4] text-xs font-semibold text-white ring-2 ring-white">
                                                       +{teamMembers.length - 3}
                                                 </div>
                                           )}
                                     </div>
 
-                                    <h3 className="mt-6 text-2xl font-semibold text-gray-900">Still have questions?</h3>
-                                    <p className="mt-2 text-base font-normal text-gray-600">
-                                          Can't find the answer you're looking for? Please chat with our friendly team.
+                                    <h3>Have a custom project or architecture question?</h3>
+                                    <p>
+                                          Speak directly with our engineering leaders to explore feasibility, system architecture, and project timelines.
                                     </p>
-                                    <div className="mt-6">
-                                          <button
+
+                                    <div className="about-faq-cta-actions">
+                                          {/* <button
+                                                type="button"
                                                 onClick={() => setSchedule(true)}
-                                                className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700"
-                                                role="button"
+                                                className="hero-primary"
                                           >
-                                                Start free for consultancy
-                                          </button>
+                                                Schedule a consultation
+                                          </button> */}
+
+                                           <button
+                                          type="button"
+                                          className="hero-primary-btn group"
+                                           onClick={() => setSchedule(true)}
+                                    >
+                                          <span>Book an appointment</span>
+                                          <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                                    </button>
+                                          <Link to="/contacts" className="site-outline-button">
+                                                Send us a message <span aria-hidden="true">→</span>
+                                          </Link>
                                     </div>
                               </div>
                         </div>
                   </div>
 
-                  {schedule && <CallSchedule setModalOpen={setSchedule} isModalOpen={schedule} />}
-            </div>
-
+                  {schedule && (
+                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
+                  )}
+            </section>
       );
 };
 
-
-
-const CallSchedule = ({ isModalOpen, setModalOpen }) => {
-      if (!isModalOpen) return null; // Modal won't render if it's closed
-
-      return (
-            <div className="fixed inset-0 z-50 flex items-center h-screen pt-20 justify-center backdrop-blur-xs">
-                  <div className="relative mx-6 w-full max-w-4xl  p-4 glass rounded-lg shadow-lg">
-
-                        {/* Calendly iframe with modifications */}
-                        <iframe
-                              src="https://calendly.com/brightfuturesoft-bd"
-                              title="Calendly Schedule"
-                              className="w-full h-[80vh]  rounded-lg    "
-                        // allow="camera; microphone"
-                        />
-
-                        {/* Close button */}
-                        <button
-                              onClick={() => setModalOpen(false)}
-                              className="absolute top-3 bg-[#2463eb] hover:bg-[#315bb6]  size-10 rounded-full right-3 flex justify-center items-center text-gray-100 hover:text-gray-300"
-                        >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-                        </button>
-                  </div>
-            </div>
-      );
-};
+export default Faq;

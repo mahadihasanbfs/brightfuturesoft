@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, Clock, Monitor, HeartHandshake, GraduationCap,
   Award, CalendarDays, Lightbulb, Lock, FileText,
   X, CheckCircle2, ArrowRight, Zap, ChevronRight, Briefcase,
-  PiggyBank,
-  Laptop,
-  Scale,
-  AlertTriangle
+  PiggyBank, Laptop, Scale, AlertTriangle, Mail, Sparkles, Filter
 } from "lucide-react";
 import MetaTitle, { base_url } from "../../layout/Title";
 import JobCard from "./Card";
@@ -17,512 +14,541 @@ const Job = () => {
   const [jobList, setJobList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPolicy, setSelectedPolicy] = useState(null);
-  const brandColor = "#1c65b4";
+  const [activeCategory, setActiveCategory] = useState("all");
 
-const policies = [
-  {
-    id: 1,
-    icon: <ShieldCheck />,
-    title: "Professional Environment",
-    short: "Safe, ethical and respectful workplace.",
-    details: {
-      highlights: [
-        "Zero Harassment",
-        "Equal Opportunity",
-        "Professional Ethics",
-        "Employee Protection"
-      ],
-      fullDesc:
-        "Bright Future Soft is committed to maintaining a professional, respectful, and inclusive work environment. Discrimination, harassment, bullying, threats, abusive behavior, or any unethical conduct will not be tolerated. Every employee is expected to treat colleagues, clients, and partners with professionalism and respect."
+  const policies = [
+    {
+      id: 1,
+      icon: <ShieldCheck className="w-6 h-6" />,
+      title: "Professional Environment",
+      short: "A respectful, safe, and ethical workplace with equal opportunity for all.",
+      details: {
+        highlights: [
+          "Zero Harassment Policy",
+          "Equal Opportunity Employer",
+          "Professional Ethics Standard",
+          "Comprehensive Employee Protection"
+        ],
+        fullDesc:
+          "Bright Future Soft is committed to maintaining a professional, respectful, and inclusive work environment. Discrimination, harassment, bullying, threats, abusive behavior, or any unethical conduct will not be tolerated. Every employee is expected to treat colleagues, clients, and partners with professionalism and respect."
+      }
+    },
+    {
+      id: 2,
+      icon: <Clock className="w-6 h-6" />,
+      title: "Probation & Confirmation",
+      short: "Structured 3-month onboarding with dedicated mentorship and feedback.",
+      details: {
+        highlights: [
+          "Structured 3-Month Period",
+          "Objective Performance Evaluation",
+          "Dedicated Mentorship Support",
+          "Transparent Confirmation Review"
+        ],
+        fullDesc:
+          "All newly hired employees undergo a 3-month probation period. During this period, performance, communication, technical skills, reliability, attendance, and overall contribution are evaluated. The company reserves the right to confirm, extend, or adjust employment based on performance and business requirements."
+      }
+    },
+    {
+      id: 3,
+      icon: <Monitor className="w-6 h-6" />,
+      title: "Remote-First Culture",
+      short: "Global collaboration, flexible workspace, and team accountability on Discord.",
+      details: {
+        highlights: [
+          "Real-time Discord Collaboration",
+          "Structured Core Working Hours",
+          "Daily Async Updates & Standups",
+          "Transparent Communication"
+        ],
+        fullDesc:
+          "As a remote-first company, employees remain active and reachable on Discord during assigned working hours. Team members participate in sync meetings, respond to communications within a reasonable timeframe, provide regular project updates, and maintain high standards of accountability."
+      }
+    },
+    {
+      id: 4,
+      icon: <HeartHandshake className="w-6 h-6" />,
+      title: "People & Culture",
+      short: "Trust, autonomy, peer respect, and genuine work-life balance.",
+      details: {
+        highlights: [
+          "Open & Constructive Dialogue",
+          "High Trust & Low Bureaucracy",
+          "Supportive Peer Environment",
+          "Sustainable Work-Life Harmony"
+        ],
+        fullDesc:
+          "Our culture is built on trust, transparency, accountability, and teamwork. Employees are encouraged to voice ideas, support teammates across disciplines, and take pride in crafting software that makes a real impact."
+      }
+    },
+    {
+      id: 5,
+      icon: <GraduationCap className="w-6 h-6" />,
+      title: "Learning & Growth",
+      short: "Continuous upskilling, conference attendance, and technical mastery.",
+      details: {
+        highlights: [
+          "Hands-on Project Architecture",
+          "Internal Tech Talks & Brown Bags",
+          "Knowledge Sharing Culture",
+          "Clear Career Ladder Progression"
+        ],
+        fullDesc:
+          "We invest heavily in the continuous learning of our team members. Employees are supported to deepen their technical mastery, explore cutting-edge AI frameworks and modern cloud tools, and share their knowledge with the wider team."
+      }
+    },
+    {
+      id: 6,
+      icon: <PiggyBank className="w-6 h-6" />,
+      title: "Provident Fund (PF)",
+      short: "Long-term financial security with 5% employee + 5% company matching.",
+      details: {
+        highlights: [
+          "5% Monthly Employee Contribution",
+          "5% Matching Company Contribution",
+          "Structured Long-term Growth",
+          "Available for Permanent Staff"
+        ],
+        fullDesc:
+          "Eligible confirmed permanent employees participate in the Bright Future Soft Provident Fund. Employees contribute 5% of their basic salary, matched with an additional 5% by the company, helping each team member build a secure financial foundation."
+      }
+    },
+    {
+      id: 7,
+      icon: <Lightbulb className="w-6 h-6" />,
+      title: "Innovation & Ownership",
+      short: "Proactive problem-solving, architectural freedom, and creative thinking.",
+      details: {
+        highlights: [
+          "Extreme Ownership Mindset",
+          "Fast-Paced Experimentation",
+          "Proactive Solution Finding",
+          "Direct Impact on Products"
+        ],
+        fullDesc:
+          "Every engineer and designer is empowered to own their domain end-to-end. We value builders who spot problems early, propose elegant architectures, and drive features from whiteboard concept to production release."
+      }
+    },
+    {
+      id: 8,
+      icon: <Lock className="w-6 h-6" />,
+      title: "Confidentiality & IP",
+      short: "Strict enterprise data security, NDA compliance, and code protection.",
+      details: {
+        highlights: [
+          "Client Data Confidentiality",
+          "Source Code & Secrets Protection",
+          "Enterprise NDA Compliance",
+          "Secure Development Practices"
+        ],
+        fullDesc:
+          "All software, source code, designs, architectures, and client data developed during employment are protected with enterprise-grade security. Confidential information is maintained strictly under non-disclosure agreements during and after tenure."
+      }
+    },
+    {
+      id: 9,
+      icon: <CalendarDays className="w-6 h-6" />,
+      title: "Leave & Attendance",
+      short: "Fair paid time off, emergency support, and predictable scheduling.",
+      details: {
+        highlights: [
+          "Planned Paid Time Off (PTO)",
+          "Compassionate Emergency Leave",
+          "Predictable Schedules",
+          "Holiday Calendar Observance"
+        ],
+        fullDesc:
+          "We offer comprehensive paid time off, official national holidays, and compassionate leave for unforeseen circumstances. Advance notice helps our distributed teams maintain balance without impacting project delivery."
+      }
     }
-  },
+  ];
 
-  {
-    id: 2,
-    icon: <Clock />,
-    title: "Probation & Confirmation",
-    short: "Structured onboarding and evaluation process.",
-    details: {
-      highlights: [
-        "3-Month Probation",
-        "Performance Evaluation",
-        "Mentorship Support",
-        "Confirmation Review"
-      ],
-      fullDesc:
-        "All newly hired employees undergo a 3-month probation period. During this period, performance, communication, technical skills, reliability, attendance, and overall contribution are evaluated. The company reserves the right to confirm, extend, or terminate employment based on performance and business requirements."
+  const hiringSteps = [
+    {
+      number: "01",
+      title: "CV & Portfolio Review",
+      desc: "Our engineering leads review your experience, code repositories, and past projects to assess alignment."
+    },
+    {
+      number: "02",
+      title: "Technical Conversation",
+      desc: "A hands-on, practical session focused on real-world system design, clean architecture, and problem solving."
+    },
+    {
+      number: "03",
+      title: "Culture & Team Alignment",
+      desc: "A friendly discussion with future colleagues to align on working styles, mutual expectations, and team dynamics."
+    },
+    {
+      number: "04",
+      title: "Offer & Smooth Onboarding",
+      desc: "A transparent offer letter followed by a structured onboarding plan, system credentials, and initial mentorship."
     }
-  },
-
-  {
-    id: 3,
-    icon: <Monitor />,
-    title: "Remote-First Culture",
-    short: "Global collaboration and accountability.",
-    details: {
-      highlights: [
-        "Discord Availability",
-        "Fixed Working Hours",
-        "Daily Communication",
-        "Remote Collaboration"
-      ],
-      fullDesc:
-        "As a remote-first company, employees must remain active and reachable on Discord during assigned working hours. Team members are expected to participate in meetings, respond to messages in a reasonable timeframe, provide project updates when required, and maintain professional communication. Unexplained absence, repeated unavailability, or poor communication may result in disciplinary action."
-    }
-  },
-
-  {
-    id: 4,
-    icon: <HeartHandshake />,
-    title: "People & Culture",
-    short: "Collaboration and continuous growth.",
-    details: {
-      highlights: [
-        "Open Communication",
-        "Team Trust",
-        "Respectful Culture",
-        "Work-Life Balance"
-      ],
-      fullDesc:
-        "Our culture is built on trust, transparency, accountability, and teamwork. Employees are encouraged to share ideas, support one another, and contribute to a positive and productive work environment."
-    }
-  },
-
-  {
-    id: 5,
-    icon: <GraduationCap />,
-    title: "Learning & Growth",
-    short: "Investing in professional development.",
-    details: {
-      highlights: [
-        "Technical Training",
-        "Mentorship",
-        "Knowledge Sharing",
-        "Career Growth"
-      ],
-      fullDesc:
-        "We encourage continuous learning and professional growth. Employees are expected to improve their technical and professional skills through project work, self-learning, mentorship, and internal knowledge-sharing initiatives."
-    }
-  },
-
-  {
-    id: 6,
-    icon: <Award />,
-    title: "Performance & Recognition",
-    short: "Rewarding ownership and contribution.",
-    details: {
-      highlights: [
-        "Performance Reviews",
-        "Recognition Programs",
-        "Leadership Opportunities",
-        "Career Advancement"
-      ],
-      fullDesc:
-        "Performance is evaluated based on quality of work, communication, ownership, teamwork, attendance, and overall contribution. Outstanding employees may receive recognition, additional responsibilities, promotions, or leadership opportunities."
-    }
-  },
-
-  {
-    id: 7,
-    icon: <CalendarDays />,
-    title: "Leave & Attendance",
-    short: "Responsible leave management.",
-    details: {
-      highlights: [
-        "Advance Approval",
-        "Emergency Leave",
-        "Attendance Monitoring",
-        "Working Hour Compliance"
-      ],
-      fullDesc:
-        "Employees are expected to maintain regular attendance and obtain approval before taking leave whenever possible. Emergency leave may be granted for genuine unforeseen circumstances. Repeated unauthorized absences, attendance violations, or failure to communicate may affect performance evaluations and employment status."
-    }
-  },
-
-  {
-    id: 8,
-    icon: <Lightbulb />,
-    title: "Innovation & Ownership",
-    short: "Driving impact through initiative.",
-    details: {
-      highlights: [
-        "Creative Thinking",
-        "Ownership Mindset",
-        "Problem Solving",
-        "Continuous Improvement"
-      ],
-      fullDesc:
-        "Every employee is encouraged to take ownership of their work, identify opportunities for improvement, solve problems proactively, and contribute innovative ideas that help the company grow."
-    }
-  },
-
-  {
-    id: 9,
-    icon: <Lock />,
-    title: "Confidentiality & Intellectual Property",
-    short: "Protecting company and client assets.",
-    details: {
-      highlights: [
-        "IP Protection",
-        "Source Code Security",
-        "Client Confidentiality",
-        "NDA Compliance"
-      ],
-      fullDesc:
-        "All software, source code, designs, documents, databases, credentials, business information, and intellectual property developed during employment remain the exclusive property of Bright Future Soft. Confidential information must not be disclosed during or after employment."
-    }
-  },
-
-  {
-    id: 10,
-    icon: <PiggyBank />,
-    title: "Provident Fund (PF)",
-    short: "Supporting long-term financial security.",
-    details: {
-      highlights: [
-        "5% Employee Contribution",
-        "5% Company Contribution",
-        "Monthly Savings",
-        "Long-Term Benefits"
-      ],
-      fullDesc:
-        "Eligible permanent employees may participate in the Provident Fund program. Employees contribute 5% of their basic salary, and Bright Future Soft contributes an additional 5%, helping employees build long-term financial security."
-    }
-  },
-
-  {
-    id: 11,
-    icon: <Laptop />,
-    title: "Equipment & Account Security",
-    short: "Protecting digital assets and access.",
-    details: {
-      highlights: [
-        "Password Protection",
-        "Authorized Access Only",
-        "Repository Security",
-        "Data Protection"
-      ],
-      fullDesc:
-        "Employees are responsible for protecting company devices, accounts, repositories, cloud resources, and client data. Unauthorized sharing of credentials, access, or confidential information is strictly prohibited."
-    }
-  },
-
-  {
-    id: 12,
-    icon: <Scale />,
-    title: "Conflict of Interest",
-    short: "Maintaining integrity and transparency.",
-    details: {
-      highlights: [
-        "Business Ethics",
-        "Client Protection",
-        "Transparency",
-        "Professional Conduct"
-      ],
-      fullDesc:
-        "Employees must avoid activities that create conflicts with the interests of Bright Future Soft, its clients, or its business operations. Potential conflicts must be disclosed to management immediately."
-    }
-  },
-
-  {
-    id: 13,
-    icon: <AlertTriangle />,
-    title: "Policy Violations",
-    short: "Accountability for misconduct.",
-    details: {
-      highlights: [
-        "Attendance Violations",
-        "Data Misuse",
-        "Harassment",
-        "Disciplinary Actions"
-      ],
-      fullDesc:
-        "Violations of company policies, misconduct, fraud, data theft, repeated attendance issues, insubordination, harassment, or actions that damage company interests may result in warnings, suspension, or termination of employment."
-    }
-  },
-
-  {
-    id: 14,
-    icon: <FileText />,
-    title: "Resignation & Exit Process",
-    short: "Professional separation procedures.",
-    details: {
-      highlights: [
-        "Written Resignation",
-        "Notice Period",
-        "Project Handover",
-        "Final Clearance"
-      ],
-      fullDesc:
-        "Employees intending to resign must submit a formal resignation letter and complete the applicable notice period. Before departure, all projects, source code, documentation, credentials, company assets, and responsibilities must be handed over. Experience letters, recommendation letters, and final settlements may be processed after successful completion of all clearance procedures."
-    }
-  },
-
-  {
-    id: 15,
-    icon: <Briefcase />,
-    title: "Project Ownership & Handover",
-    short: "Ensuring business continuity.",
-    details: {
-      highlights: [
-        "Documentation Required",
-        "Code Handover",
-        "Knowledge Transfer",
-        "Client Transition"
-      ],
-      fullDesc:
-        "Employees are responsible for maintaining proper documentation of their work. In the event of role changes, leave, or resignation, all project knowledge, source code, credentials, and relevant information must be transferred to the designated team member."
-    }
-  }
-];
+  ];
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const fetchJobs = async () => {
       try {
         const response = await fetch(`${base_url}/job-post/all-job`);
         const data = await response.json();
         setJobList(data.data || []);
-      } catch (err) { console.error(err); } 
-      finally { setLoading(false); }
+      } catch (err) { 
+        console.error("Failed to fetch jobs:", err); 
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchJobs();
   }, []);
 
-  // Animation Variants
-  const containerVars = {
-    animate: { transition: { staggerChildren: 0.1 } }
-  };
-
-  const itemVars = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-  };
-
-    useEffect(() => {
-      window.scrollTo(0, 0);
-
-      document.title =
-            "Bright Future Soft | Careers - Join Our Team of Innovators and Problem Solvers";
-
-      const description =
-            "Explore exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.";
-
-      const keywords =
-            "Bright Future Soft careers, software development jobs in Bangladesh, remote software jobs, SaaS careers, AI careers, ERP careers, software engineering jobs, tech jobs in Bangladesh, Sales jobs, marketing jobs, design jobs, HR jobs, internship opportunities at Bright Future Soft";
-
-      // Meta Description
-      let metaDescription = document.querySelector("meta[name='description']");
-      if (!metaDescription) {
-            metaDescription = document.createElement("meta");
-            metaDescription.name = "description";
-            document.head.appendChild(metaDescription);
-      }
-      metaDescription.setAttribute("content", description);
-
-      // Meta Keywords
-      let metaKeywords = document.querySelector("meta[name='keywords']");
-      if (!metaKeywords) {
-            metaKeywords = document.createElement("meta");
-            metaKeywords.name = "keywords";
-            document.head.appendChild(metaKeywords);
-      }
-      metaKeywords.setAttribute("content", keywords);
-
-      // OG Title
-      let ogTitle = document.querySelector("meta[property='og:title']");
-      if (!ogTitle) {
-            ogTitle = document.createElement("meta");
-            ogTitle.setAttribute("property", "og:title");
-            document.head.appendChild(ogTitle);
-      }
-      ogTitle.setAttribute(
-            "content",
-            "Careers at Bright Future Soft - Join Our Remote-First Team"
+  // Filter jobs by category
+  const filteredJobs = useMemo(() => {
+    if (activeCategory === "all") return jobList;
+    if (activeCategory === "engineering") {
+      return jobList.filter(j => 
+        /developer|engineer|fullstack|frontend|backend|devops|react|node|software|tech|qa|tester/i.test(j.job_position || "")
       );
+    }
+    if (activeCategory === "design") {
+      return jobList.filter(j => 
+        /designer|ui|ux|graphic|product designer|figma/i.test(j.job_position || "")
+      );
+    }
+    if (activeCategory === "operations") {
+      return jobList.filter(j => 
+        /manager|marketing|sales|hr|operations|business|scrum/i.test(j.job_position || "")
+      );
+    }
+    return jobList;
+  }, [jobList, activeCategory]);
 
-      // OG Description
-      let ogDesc = document.querySelector("meta[property='og:description']");
-      if (!ogDesc) {
-            ogDesc = document.createElement("meta");
-            ogDesc.setAttribute("property", "og:description");
-            document.head.appendChild(ogDesc);
+  // Dynamic Schema.org structured data for careers page
+  const pageSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Bright Future Soft",
+        "url": "https://brightfuturesoft.com",
+        "logo": "https://brightfuturesoft.com/assets/logo.png",
+        "description": "Bright Future Soft is a remote-first enterprise software engineering company based in Bangladesh, specializing in SaaS, AI, and ERP solutions.",
+        "sameAs": [
+          "https://www.linkedin.com/company/bright-future-soft",
+          "https://twitter.com/brightfuturesoft",
+          "https://www.facebook.com/brightfuturesoft"
+        ]
+      },
+      {
+        "@type": "ItemList",
+        "name": "Bright Future Soft Open Job Positions",
+        "numberOfItems": jobList.length,
+        "itemListElement": jobList.map((job, idx) => ({
+          "@type": "ListItem",
+          "position": idx + 1,
+          "item": {
+            "@type": "JobPosting",
+            "title": job.job_position,
+            "url": `https://brightfuturesoft.com/careers/${job._id}`,
+            "employmentType": job.job_type || "FULL_TIME",
+            "datePosted": job.createdAt || job.date || new Date().toISOString(),
+            "validThrough": job.dateline ? new Date(job.dateline + "T23:59:59").toISOString() : undefined,
+            "hiringOrganization": {
+              "@type": "Organization",
+              "name": "Bright Future Soft"
+            },
+            "jobLocation": {
+              "@type": "Place",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": job.location || "Dhaka",
+                "addressCountry": "BD"
+              }
+            }
+          }
+        }))
       }
-      ogDesc.setAttribute("content", description);
-
-      // OG Image (Logo or Banner)
-      let ogImage = document.querySelector("meta[property='og:image']");
-      if (!ogImage) {
-            ogImage = document.createElement("meta");
-            ogImage.setAttribute("property", "og:image");
-            document.head.appendChild(ogImage);
-      }
-      ogImage.setAttribute("content", "https://brightfuturesoft.com/logo.png");
-
-      // Canonical
-      let canonical = document.querySelector("link[rel='canonical']");
-      if (!canonical) {
-            canonical = document.createElement("link");
-            canonical.setAttribute("rel", "canonical");
-            document.head.appendChild(canonical);
-      }
-      canonical.setAttribute("href", window.location.href);
-
-}, []);
+    ]
+  };
 
   return (
- 
-  <div className="min-h-screen bg-[#020617] text-slate-200 selection:bg-[#1c65b4]/30 font-sans overflow-x-hidden ">
+    <div className="public-site careers-page mx-4 md:mx-0">
+      <MetaTitle
+        title="Careers at Bright Future Soft — Join Our Remote-First Engineering Team"
+        description="Explore engineering, design, and product opportunities at Bright Future Soft. Work on mission-critical enterprise software, SaaS, and AI systems with competitive benefits."
+        keywords="Bright Future Soft careers, software developer jobs Bangladesh, remote software engineer, React Node.js jobs, tech jobs Dhaka, remote engineering careers"
+        author="Bright Future Soft"
+        ogTitle="Careers at Bright Future Soft — Remote-First Tech Opportunities"
+        ogDescription="Join Bright Future Soft. We are building the next generation of enterprise software, ERPs, and AI tools with a high-trust, remote-first culture."
+        ogImage="https://brightfuturesoft.com/assets/logo.png"
+        ogUrl="https://brightfuturesoft.com/careers"
+        schema={pageSchema}
+      />
 
-       <MetaTitle
-                                    title={`Careers at Bright Future Soft}`}
-                                    description={`Explore exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.`}
-                                    keywords={`Bright Future Soft careers, software development jobs in Bangladesh, remote software jobs, SaaS careers, AI careers, ERP careers, software engineering jobs, tech jobs in Bangladesh`}
-                                    author="Bright Future Soft"
-                                    ogTitle={`Careers at Bright Future Soft - Join Our Remote-First Team`}
-                                    ogDescription={`Discover exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.`}
-                                    ogImage="https://www.brightfuturesoft.com/logo.png"
-                                    ogUrl={`https://www.brightfuturesoft.com/careers || ''}`}
-                                    schema={{
-                                          "@context": "https://schema.org",
-                                          "@type": "Organization",
-                                          "name": "Bright Future Soft",
-                                          "url": "https://www.brightfuturesoft.com",
-                                          "logo": "https://www.brightfuturesoft.com/logo.png",
-                                          "sameAs": [
-                                                "https://www.facebook.com/brightfuturesoft",
-                                                "https://www.linkedin.com/company/bright-future-soft",
-                                                "https://twitter.com/brightfuturesoft"
-                                          ],
-                                          "description": `Explore exciting career opportunities at Bright Future Soft, a leading software development company in Bangladesh. Join our remote-first team and build the future of SaaS, AI, and ERP solutions. Apply now to be part of our innovative and dynamic work environment.`
-                                    }}
-                              />
-      {/* 1. BACKGROUND TEXTURE (The "Glass" Grid) */}
-      <div className="fixed inset-0 z-0 p-4">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] opacity-[0.15] blur-[120px] rounded-full" style={{ backgroundColor: brandColor }} />
-      </div>
+      {/* 1. HERO SECTION */}
+      <section className="careers-hero">
+        <div className="max-w-7xl mx-auto text-center ">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#e1e9f2] text-xs font-semibold text-[#0a65b4] shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0a65b4] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0a65b4]"></span>
+            </span>
+            <span>We're Hiring Passionate Builders in Bangladesh & Beyond</span>
+          </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 ">
-        
-        {/* 2. HERO SECTION */}
-        <section className="pt-32 pb-24 text-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-slate-800 text-sm font-medium mb-8 backdrop-blur-md">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: brandColor }}></span>
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: brandColor }}></span>
-              </span>
-              <span className="text-slate-400">Join our growing team in Bangladesh</span>
+          <h1 className="careers-hero-title">
+            Build the Future of Enterprise & AI Software <span>Together with Us</span>
+          </h1>
+
+          <p className="careers-hero-subtitle">
+            Bright Future Soft is a remote-first software engineering company. We partner with ambitious global clients to architect resilient SaaS platforms, intelligent AI workflows, and mission-critical enterprise systems.
+          </p>
+
+          {/* Perks Strip */}
+          <div className="careers-perks-strip">
+            <div className="careers-perk-pill">
+              <span className="careers-perk-dot"></span>
+              <span>100% Remote-First</span>
             </div>
-            
-            <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-[0.9] text-white">
-              BUILD THE <br /> 
-              <span className="italic" style={{ color: brandColor }}>NEXT GEN</span>
-            </h1>
-            <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              We are a remote-first engineering powerhouse building world-class SaaS, AI, and ERP solutions. Your bright future starts here.
+            <div className="careers-perk-pill">
+              <span className="careers-perk-dot"></span>
+              <span>Provident Fund (5% + 5%)</span>
+            </div>
+            <div className="careers-perk-pill">
+              <span className="careers-perk-dot"></span>
+              <span>Dedicated Learning Budget</span>
+            </div>
+            <div className="careers-perk-pill">
+              <span className="careers-perk-dot"></span>
+              <span>Modern Tech Stack & AI</span>
+            </div>
+            <div className="careers-perk-pill">
+              <span className="careers-perk-dot"></span>
+              <span>High Trust & Autonomy</span>
+            </div>
+            <div className="careers-perk-pill">
+              <span className="careers-perk-dot"></span>
+              <span>Merit-Based Growth</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="max-w-7xl mx-auto py-20" id="open-positions">
+        <div className="careers-filter-bar">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#142235] tracking-tight">
+              Open Positions
+            </h2>
+            <p className="text-sm text-[#66758a] mt-1">
+              Find the role where you can make your most meaningful impact.
             </p>
-          </motion.div>
-        </section>
-
-        {/* 3. JOBS SECTION (Priority 1 for Users) */}
-        <section className="pb-32 p-4">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
-            <div className="space-y-2">
-              <h2 className="text-4xl font-bold text-white italic">Current Openings</h2>
-              <p className="text-slate-500">Explore roles across engineering, product, and design.</p>
-            </div>
-            <div className="flex gap-2">
-              <div className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-400">
-                {jobList.length} Opportunities
-              </div>
-            </div>
           </div>
 
-          <motion.div variants={containerVars} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid gap-4">
-            {console.log(jobList)}
-            {loading ? (
-              [1, 2].map(i => <div key={i} className="h-24 bg-slate-900/50 border border-slate-800 animate-pulse rounded-2xl" />)
-            ) : jobList.length > 0 ? (
-              jobList.map((job) => (
-                  <JobCard data={job} />
-              ))
-            ) : (
-              <div className="py-20 text-center bg-slate-900/20 border-2 border-dashed border-slate-800 rounded-[2rem]">
-                <Zap className="mx-auto mb-4 opacity-20" size={40} style={{ color: brandColor }} />
-                <p className="text-slate-500 font-medium italic">We're not actively hiring right now, but we'd love to see your CV.</p>
-              </div>
-            )}
-          </motion.div>
-        </section>
-
-        {/* 4. POLICY GRID SECTION (The "Why Join Us") */}
-        <section className="py-24 border-t border-slate-800/50 p-4">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">The BFS Standard</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Our culture is built on transparency and excellence. Click any card to explore our core policies.</p>
+          {/* Category Filter Pills */}
+          <div className="careers-filter-pills">
+            <button
+              onClick={() => setActiveCategory("all")}
+              className={`career-filter-btn ${activeCategory === "all" ? "active" : ""}`}
+            >
+              All Roles ({jobList.length})
+            </button>
+            <button
+              onClick={() => setActiveCategory("engineering")}
+              className={`career-filter-btn ${activeCategory === "engineering" ? "active" : ""}`}
+            >
+              Engineering
+            </button>
+            <button
+              onClick={() => setActiveCategory("design")}
+              className={`career-filter-btn ${activeCategory === "design" ? "active" : ""}`}
+            >
+              Design & UI/UX
+            </button>
+            <button
+              onClick={() => setActiveCategory("operations")}
+              className={`career-filter-btn ${activeCategory === "operations" ? "active" : ""}`}
+            >
+              Product & Operations
+            </button>
           </div>
+        </div>
 
-          <motion.div variants={containerVars} initial="initial" whileInView="animate" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {policies.map((policy) => (
-              <motion.div
-                key={policy.id}
-                variants={itemVars}
-                whileHover={{ y: -5 }}
-                onClick={() => setSelectedPolicy(policy)}
-                className="group cursor-pointer p-8 rounded-[2rem] bg-slate-900/30 border border-slate-800/50 hover:border-[#1c65b4]/50 hover:bg-slate-900/50 transition-all duration-300 backdrop-blur-sm relative overflow-hidden"
+        {/* Job List */}
+        <div className="careers-job-list">
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="bg-white border border-[#e1e9f2] rounded-lg p-6 animate-pulse">
+                  <div className="h-4 bg-slate-200 rounded w-1/4 mb-3"></div>
+                  <div className="h-6 bg-slate-200 rounded w-1/2 mb-3"></div>
+                  <div className="h-4 bg-slate-100 rounded w-1/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : filteredJobs.length > 0 ? (
+            filteredJobs.map((job) => (
+              <JobCard key={job._id} data={job} />
+            ))
+          ) : (
+            <div className="text-center py-16 px-6 bg-white border border-dashed border-[#cbd5e1] rounded-xl">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#eef6fc] text-[#0a65b4] flex items-center justify-center">
+                <Briefcase className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-[#142235] mb-2">
+                No active openings in this category right now
+              </h3>
+              <p className="text-sm text-[#66758a] max-w-md mx-auto mb-6">
+                We are continually growing. If you don't see an exact match today, submit an open application and we'll reach out when an opportunity fits.
+              </p>
+              <a
+                href="mailto:careers@brightfuturesoft.com?subject=Open%20Application%20-%20Bright%20Future%20Soft"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0a65b4] text-white rounded-md text-sm font-semibold hover:bg-[#084e8a] transition-colors"
               >
-                {/* Subtle Glow on Hover */}
-                <div className="absolute -right-4 -top-4 w-24 h-24 blur-3xl rounded-full opacity-0 group-hover:opacity-20 transition-opacity" style={{ backgroundColor: brandColor }} />
-                
-                <div className="mb-6 inline-flex p-4 rounded-2xl bg-slate-800/50 text-[#1c65b4] group-hover:scale-110 group-hover:bg-[#1c65b4] group-hover:text-white transition-all duration-300 shadow-inner">
+                <Mail className="w-4 h-4" />
+                Submit Open Application
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 3. BFS CULTURE & STANDARDS */}
+      <section className="">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#0a65b4]">
+              Culture & Values
+            </span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#142235] tracking-tight mt-2 mb-3">
+              The BFS Standard: How We Work & Grow
+            </h2>
+            <p className="text-sm md:text-base text-[#66758a]">
+              Craftsmanship, transparency, and deep mutual respect define our culture. Click any policy card below to inspect our full commitment.
+            </p>
+          </div>
+
+          <div className="careers-culture-grid">
+            {policies.map((policy) => (
+              <div
+                key={policy.id}
+                onClick={() => setSelectedPolicy(policy)}
+                className="career-culture-card"
+              >
+                <div className="career-culture-icon">
                   {policy.icon}
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-white group-hover:text-[#1c65b4] transition-colors">{policy.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-2">{policy.short}</p>
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-[#1c65b4] transition-all">
-                  Read Details <ChevronRight size={14} />
-                </div>
-              </motion.div>
+                <h4>{policy.title}</h4>
+                <p>{policy.short}</p>
+                <span className="career-culture-link">
+                  View Full Policy <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
             ))}
-          </motion.div>
-        </section>
-      </div>
+          </div>
+        </div>
+      </section>
 
-      {/* 5. MODAL SYSTEM */}
+      {/* 4. TRANSPARENT HIRING PROCESS */}
+      <section className="max-w-7xl mx-auto py-20">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#0a65b4]">
+            Candidate Experience
+          </span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#142235] tracking-tight mt-2 mb-3">
+            Our Transparent 4-Step Hiring Process
+          </h2>
+          <p className="text-sm md:text-base text-[#66758a]">
+            We value your time and energy. Here is what you can expect from the moment you submit your application to your first day.
+          </p>
+        </div>
+
+        <div className="careers-process-grid">
+          {hiringSteps.map((step, idx) => (
+            <div key={idx} className="career-process-card">
+              <div className="career-process-num">Step {step.number}</div>
+              <h4>{step.title}</h4>
+              <p>{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. OPEN APPLICATION STRIP */}
+      <section className="max-w-7xl mx-auto py-20">
+        <div className="bg-gradient-to-r from-[#0a65b4] to-[#142235] rounded-xl p-8 md:p-12  flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg">
+          <div className="max-w-xl text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 !text-white text-xs font-semibold mb-3">
+              <Sparkles className="w-3.5 h-3.5 !text-amber-300" />
+              General Inquiries
+            </span>
+            <h3 className="text-2xl md:text-3xl font-extrabold leading-tight !text-white tracking-tight">
+  Don't See Your Exact Role?
+</h3>
+
+           <p className="!text-white/80 text-sm md:text-base mt-2">
+  We are always excited to meet brilliant software engineers, architects, UI/UX designers, and leaders. Send your resume and portfolio directly to our talent team.
+</p>
+          </div>
+          <div className="flex-shrink-0">
+            <a
+              href="mailto:careers@brightfuturesoft.com?subject=Open%20Application%20-%20Bright%20Future%20Soft"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-[#0a65b4] hover:bg-[#f1f6fc] font-bold text-sm rounded-lg transition-all shadow-md active:scale-95"
+            >
+              <Mail className="w-4 h-4" />
+              Email careers@brightfuturesoft.com
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. POLICY DETAILS MODAL */}
       <AnimatePresence>
         {selectedPolicy && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedPolicy(null)} className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" />
-            
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden"
+          <div className="career-modal-backdrop" onClick={() => setSelectedPolicy(null)}>
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="career-modal-card"
             >
-              <div className="p-10 md:p-14">
-                <div className="flex justify-between items-center mb-10">
-                  <div className="p-4 bg-slate-800 rounded-2xl text-[#1c65b4]"> {selectedPolicy.icon} </div>
-                  <button onClick={() => setSelectedPolicy(null)} className="p-2 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-colors"><X /></button>
+              <div className="career-modal-head">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#eef6fc] text-[#0a65b4] flex items-center justify-center">
+                    {selectedPolicy.icon}
+                  </div>
+                  <h3 className="career-modal-title">{selectedPolicy.title}</h3>
                 </div>
+                <button
+                  onClick={() => setSelectedPolicy(null)}
+                  className="career-modal-close"
+                  aria-label="Close policy modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-                <h2 className="text-3xl font-bold mb-4 text-white italic">{selectedPolicy.title}</h2>
-                <p className="text-slate-400 text-lg leading-relaxed mb-10">{selectedPolicy.details.fullDesc}</p>
+              <div className="career-modal-body">
+                <p className="career-modal-desc">
+                  {selectedPolicy.details.fullDesc}
+                </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10">
+                <div className="career-modal-highlights">
                   {selectedPolicy.details.highlights.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-4 bg-slate-950/50 rounded-2xl border border-slate-800">
-                      <CheckCircle2 size={18} style={{ color: brandColor }} />
-                      <span className="text-sm font-medium">{item}</span>
+                    <div key={i} className="career-highlight-item">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
 
-                <button 
+                <button
                   onClick={() => setSelectedPolicy(null)}
-                  className="w-full py-4 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg"
-                  style={{ backgroundColor: brandColor }}
+                  className="w-full py-3 bg-[#0a65b4] hover:bg-[#084e8a] text-white font-bold text-sm rounded-md transition-colors"
                 >
-                  I Understand
+                  Close & Continue
                 </button>
               </div>
             </motion.div>
@@ -530,10 +556,9 @@ const policies = [
         )}
       </AnimatePresence>
 
-      <div className="relative z-10">
-        <News_Letter />
+      {/* Newsletter */}
+      <News_Letter />
     </div>
-</div>
   );
 };
 
