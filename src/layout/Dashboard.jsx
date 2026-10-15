@@ -3,7 +3,7 @@
 import { useContext, useState } from "react"
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom"
 
-import logo from "../Assctes/logo.png"
+import logo from "../Assctes/logo.webp"
 import { AuthContext } from "../context/UseContext/AuthProvider"
 import { Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
