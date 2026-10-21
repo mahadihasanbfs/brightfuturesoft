@@ -221,13 +221,13 @@ const ViewDetails = () => {
     return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), max - 25)).replace(/[\s,.;:-]+$/, '')}…`;
   };
 
-  // Title: "<Role> – We're Hiring | Bright Future Soft", kept near 60 characters so search results do not cut it.
+  // Title: "<Role> – We're Hiring | Bright Future Soft", kept to about 60-66 characters so search results do not cut it.
   // A closed role says so, matching the link preview that social crawlers get from api/seo.js.
   const metaTitle = job_data?.job_position
     ? (() => {
         const status = isDeadlinePassed ? 'Position Closed' : "We're Hiring";
         const full = `${job_data.job_position} – ${status} | Bright Future Soft`;
-        return full.length <= 62 ? full : `${truncate(job_data.job_position, 62 - status.length - 25)} – ${status} | Bright Future Soft`;
+        return full.length <= 66 ? full : `${truncate(job_data.job_position, 66 - status.length - 25)} – ${status} | Bright Future Soft`;
       })()
     : 'Career Opportunity | Bright Future Soft';
 
