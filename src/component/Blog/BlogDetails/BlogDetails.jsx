@@ -314,7 +314,7 @@ const BlogDetails = () => {
                                     "url": "https://brightfuturesoft.com",
                                     "logo": {
                                           "@type": "ImageObject",
-                                          "url": "https://brightfuturesoft.com/assets/logo.png"
+                                          "url": "https://brightfuturesoft.com/logo.png"
                                     }
                               },
                               "mainEntityOfPage": {

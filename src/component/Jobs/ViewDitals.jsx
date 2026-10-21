@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import MetaTitle, { base_url } from '../../layout/Title';
 import { Link, useParams } from 'react-router-dom';
+import NotFound from '../NotFound/NotFound';
 import uploadImage from '../../Hook/ImageUpload';
 import Swal from 'sweetalert2';
 import { country_code } from './country_code';
@@ -49,7 +50,7 @@ const ViewDetails = () => {
   }, [id]);
 
   const isDeadlinePassed = job_data?.dateline
-    ? new Date(job_data.dateline + "T23:59:59") < new Date()
+    ? new Date(job_data.dateline + "T23:59:59+06:00") < new Date()
     : false;
 
   const formatDate = (dateString) => {
@@ -209,82 +210,150 @@ const ViewDetails = () => {
     return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   };
 
-  const metaTitle = job_data?.job_position 
-    ? `${job_data.job_position} — Careers at Bright Future Soft` 
-    : 'Career Opportunity — Bright Future Soft';
+  /* ---------- SEO ---------- */
 
-  const metaDescription = job_data?.short_description || 
-    (job_data?.description ? stripHtml(job_data.description).slice(0, 160) : '') ||
-    'Join Bright Future Soft. Work on enterprise software, AI solutions, and SaaS with high autonomy and competitive benefits.';
+  const SITE = 'https://brightfuturesoft.com';
+  const pageUrl = `${SITE}/careers/${id}`;
 
-  // Schema.org structured data
+  const truncate = (text, max) => {
+    if (text.length <= max) return text;
+    const cut = text.slice(0, max);
+    return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), max - 25)).replace(/[\s,.;:-]+$/, '')}…`;
+  };
+
+  // Title: "<Role> – We're Hiring | Bright Future Soft", kept near 60 characters so search results do not cut it.
+  // A closed role says so, matching the link preview that social crawlers get from api/seo.js.
+  const metaTitle = job_data?.job_position
+    ? (() => {
+        const status = isDeadlinePassed ? 'Position Closed' : "We're Hiring";
+        const full = `${job_data.job_position} – ${status} | Bright Future Soft`;
+        return full.length <= 62 ? full : `${truncate(job_data.job_position, 62 - status.length - 25)} – ${status} | Bright Future Soft`;
+      })()
+    : 'Career Opportunity | Bright Future Soft';
+
+
+  const jobFacts = [job_data?.job_type, job_data?.workplace].filter(Boolean).join(' · ');
+  const deadlineLabel = job_data?.dateline
+    ? new Date(`${job_data.dateline}T12:00:00+06:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
+
+  // Description (≤155 chars): role facts + the start of the real description + the deadline.
+  const metaDescription = job_data?.job_position
+    ? truncate(
+        [
+          job_data.short_description || (jobFacts ? `${jobFacts} role at Bright Future Soft, Dhaka.` : 'Role at Bright Future Soft, Dhaka.'),
+          !job_data.short_description && job_data.description ? stripHtml(job_data.description) : '',
+        ].filter(Boolean).join(' ') + (isDeadlinePassed ? ' Applications closed.' : deadlineLabel ? ` Apply by ${deadlineLabel}.` : ' Apply now.'),
+        155,
+      )
+    : 'Join Bright Future Soft. Work on enterprise software, AI solutions, and SaaS with high autonomy and competitive benefits.';
+
+  // Schema.org: values Google's job rich results require. employmentType must be an enum value, and the
+  // deadline is end of day in Bangladesh time, so it does not shift with the visitor's timezone.
+  const EMPLOYMENT_TYPES = { 'full time': 'FULL_TIME', 'part time': 'PART_TIME', contract: 'CONTRACTOR', contractor: 'CONTRACTOR', internship: 'INTERN', intern: 'INTERN', temporary: 'TEMPORARY', freelance: 'CONTRACTOR' };
+  const employmentType = EMPLOYMENT_TYPES[String(job_data?.job_type || '').trim().toLowerCase()] || 'FULL_TIME';
+  const isRemote = /remote/i.test(job_data?.workplace || '');
+  const postedAt = Number(job_data?.timestamp) ? new Date(Number(job_data.timestamp)).toISOString() : undefined;
+  const validThrough = job_data?.dateline ? `${job_data.dateline}T23:59:59+06:00` : undefined;
+  const openings = parseInt(job_data?.vacancy, 10) || undefined;
+
   const jobSchema = job_data?.job_position ? {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "BreadcrumbList",
         "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://brightfuturesoft.com/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Careers",
-            "item": "https://brightfuturesoft.com/careers"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": job_data.job_position,
-            "item": `https://brightfuturesoft.com/careers/${id}`
-          }
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE}/` },
+          { "@type": "ListItem", "position": 2, "name": "Careers", "item": `${SITE}/careers` },
+          { "@type": "ListItem", "position": 3, "name": job_data.job_position, "item": pageUrl }
         ]
       },
       {
+        "@type": "WebPage",
+        "@id": pageUrl,
+        "url": pageUrl,
+        "name": metaTitle,
+        "description": metaDescription,
+        "inLanguage": "en",
+        "isPartOf": { "@type": "WebSite", "name": "Bright Future Soft", "url": `${SITE}/` },
+        "datePublished": postedAt,
+      },
+      // Google asks for JobPosting markup to be removed once a role has expired.
+      ...(isDeadlinePassed ? [] : [{
         "@type": "JobPosting",
+        "@id": `${pageUrl}#job`,
+        "url": pageUrl,
         "title": job_data.job_position,
         "description": job_data.description || metaDescription,
-        "datePosted": job_data.createdAt || job_data.date || new Date().toISOString(),
-        "validThrough": job_data.dateline ? new Date(job_data.dateline + 'T23:59:59').toISOString() : undefined,
-        "employmentType": job_data.job_type || "FULL_TIME",
+        "identifier": { "@type": "PropertyValue", "name": "Bright Future Soft", "value": id },
+        "datePosted": postedAt,
+        "validThrough": validThrough,
+        "employmentType": employmentType,
+        "totalJobOpenings": openings,
+        "industry": "Software Development",
         "directApply": true,
         "hiringOrganization": {
           "@type": "Organization",
           "name": "Bright Future Soft",
-          "sameAs": "https://brightfuturesoft.com",
-          "logo": "https://brightfuturesoft.com/assets/logo.png"
+          "sameAs": SITE,
+          "logo": `${SITE}/logo.png`
         },
         "jobLocation": {
           "@type": "Place",
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": job_data.location || 'Dhaka',
-            "addressCountry": 'BD'
+            "addressLocality": job_data.location || "Dhaka",
+            "addressCountry": "BD"
           }
-        }
-      }
+        },
+        ...(isRemote ? {
+          "jobLocationType": "TELECOMMUTE",
+          "applicantLocationRequirements": { "@type": "Country", "name": "Bangladesh" }
+        } : {})
+      }])
     ]
   } : null;
 
+  // A wrong or deleted job id has no data: show the not-found page instead of an empty job page.
+  if (!isLoading && (isError || !job_data?.job_position)) {
+    return (
+      <>
+        <MetaTitle
+          fullTitle
+          title="Job Not Found | Bright Future Soft"
+          description="This job opening does not exist or has been removed. Browse the open positions at Bright Future Soft."
+          ogUrl={pageUrl}
+          robots="noindex, follow"
+        />
+        <NotFound />
+      </>
+    );
+  }
+
   return (
     <div className="public-site career-details-page">
-      {jobSchema && (
-        <MetaTitle
-          title={metaTitle}
-          description={metaDescription}
-          keywords={`Bright Future Soft careers, ${job_data.job_position}, tech jobs Bangladesh, remote software engineer`}
-          author="Bright Future Soft"
-          ogTitle={metaTitle}
-          ogDescription={metaDescription}
-          ogImage="https://brightfuturesoft.com/assets/logo.png"
-          ogUrl={`https://brightfuturesoft.com/careers/${id}`}
-          schema={jobSchema}
-        />
-      )}
+      <MetaTitle
+        fullTitle
+        title={metaTitle}
+        description={metaDescription}
+        keywords={[
+          job_data?.job_position,
+          job_data?.job_position && `${job_data.job_position} job Bangladesh`,
+          job_data?.job_type && `${job_data.job_type} job Dhaka`,
+          job_data?.workplace && `${job_data.workplace} job`,
+          'Bright Future Soft careers',
+          'software company jobs Bangladesh',
+          'IT jobs Dhaka',
+        ].filter(Boolean).join(', ')}
+        author="Bright Future Soft"
+        ogTitle={metaTitle}
+        ogDescription={metaDescription}
+        ogImage="https://brightfuturesoft.com/og-default.jpg"
+        imageAlt="Bright Future Soft careers"
+        ogUrl={pageUrl}
+        robots={isDeadlinePassed ? 'noindex, follow' : 'index, follow, max-snippet:-1, max-image-preview:large'}
+        schema={jobSchema || undefined}
+      />
 
       {/* HEADER SECTION */}
       <header className="px-4 sm:px-6 lg:px-8 ">

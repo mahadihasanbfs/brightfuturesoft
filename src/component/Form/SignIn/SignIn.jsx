@@ -66,6 +66,7 @@ const SignIn = () => {
                                     showConfirmButton: false
                               });
                               localStorage.setItem('data', JSON.stringify(data.user));
+                              if (data.token) localStorage.setItem('token', data.token);
                               setUser(data.user);
                               navigate(from);
                         } else {

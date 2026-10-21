@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import vc1 from '../../../Assctes/vectors/1.png';
 import vc2 from '../../../Assctes/vectors/2.png';
 import vc3 from '../../../Assctes/vectors/3.png';
@@ -17,9 +17,22 @@ const phases = [
   { name: 'Support', title: 'Keep improving over time', description: 'After release, we help maintain, improve, and grow the product as your needs evolve.', pic: vc7 },
 ];
 
+const AUTO_CHANGE_INTERVAL = 3000;
+
 const OurRequrement = () => {
   const [activePhase, setActivePhase] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const active = phases[activePhase];
+
+  useEffect(() => {
+    if (isHovered) return;
+
+    const timer = setInterval(() => {
+      setActivePhase((prev) => (prev + 1) % phases.length);
+    }, AUTO_CHANGE_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [isHovered]);
 
   return (
     <section className="process-section px-4 py-20 sm:px-6 lg:px-8 lg:py-24" aria-labelledby="process-heading">
@@ -27,14 +40,16 @@ const OurRequrement = () => {
         <div className="section-heading-row">
           <div>
             <span className="site-eyebrow">A thoughtful process</span>
-            <h2 id="process-heading">From first conversation<br /><span>to lasting impact.</span></h2>
+            <h2 id="process-heading">How do we build software<br /><span>from idea to lasting impact?</span></h2>
           </div>
           <p>Good software is built through clear decisions, close collaboration, and steady progress at every stage.</p>
         </div>
         <div className="process-layout">
           <div className="process-feature">
-            <div className="process-art"><img src={active.pic} alt="" /></div>
-            <div className="process-copy">
+            <div className="process-art" key={`art-${activePhase}`}>
+              <img src={active.pic} alt={active.name} />
+            </div>
+            <div className="process-copy" key={`copy-${activePhase}`}>
               <span className="process-count">0{activePhase + 1} / 07</span>
               <h3>{active.title}</h3>
               <p>{active.description}</p>
@@ -42,7 +57,21 @@ const OurRequrement = () => {
           </div>
           <div className="process-steps" role="tablist" aria-label="Our development process">
             {phases.map((phase, index) => (
-              <button key={phase.name} type="button" role="tab" aria-selected={activePhase === index} onClick={() => setActivePhase(index)} className={`process-step ${activePhase === index ? 'is-active' : ''}`}>
+              <button 
+                key={phase.name} 
+                type="button" 
+                role="tab" 
+                aria-selected={activePhase === index} 
+                onClick={() => setActivePhase(index)}
+                onMouseEnter={() => {
+                  setIsHovered(true);
+                  setActivePhase(index);
+                }}
+                onMouseLeave={() => {
+                  setIsHovered(false);
+                }}
+                className={`process-step ${activePhase === index ? 'is-active' : ''}`}
+              >
                 <span>0{index + 1}</span><strong>{phase.name}</strong><i aria-hidden="true">↗</i>
               </button>
             ))}

@@ -1,12 +1,14 @@
 
 
 import { useContext, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom"
 
 import logo from "../Assctes/logo.webp"
 import { AuthContext } from "../context/UseContext/AuthProvider"
 import { Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
+import { mail } from "../pages/Eployee/Mail/mailApi"
 
 
 const navigationItems = [
@@ -72,9 +74,16 @@ const navigationItems = [
       },
       {
             title: "Web Mail",
-            path: "https://mail.google.com/mail/u/0/#inbox",
+            path: "/dashboard/mail",
             icon: (
                   <Mail className="h-5 w-5" />
+            ),
+      },
+      {
+            title: "My Payslips",
+            path: "/dashboard/my-payslips",
+            icon: (
+                  <FaFileInvoice />
             ),
       },
 ]
@@ -187,10 +196,32 @@ const commonNavigationItems = [
       },
 ]
 
+// Unread count next to "Web Mail". Shown only when this user has connected Gmail; shares query keys with
+// the Web Mail page so reading or refreshing mail there updates the badge here.
+const MailBadge = ({ active }) => {
+      const { data: status } = useQuery({ queryKey: ["gmail-status"], queryFn: mail.status, retry: false, staleTime: 60000 })
+      const { data: unread } = useQuery({
+            queryKey: ["gmail-unread"],
+            queryFn: mail.unread,
+            enabled: Boolean(status?.connected),
+            retry: false,
+            refetchInterval: 60000,
+      })
+      const count = unread?.inbox || 0
+      if (!status?.connected || count <= 0) return null
+      return (
+            <span
+                  className={`ml-auto min-w-[1.5rem] rounded-full px-2 py-0.5 text-center text-xs font-semibold ${active ? "bg-white text-[#1c65b4]" : "bg-[#1c65b4] text-white"}`}
+                  title={`${count} unread in your inbox`}
+            >
+                  {count > 999 ? "999+" : count}
+            </span>
+      )
+}
+
 // Navigation Item Component (declared at module scope to avoid recreating during render)
 const NavigationItem = ({ item, onClick }) => (
       <NavLink
-            target={item.title === "Web Mail" ? "_blank" : "_self"}
             to={item.path}
             className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${isActive ? "bg-[#1c65b4] text-white shadow-lg" : "text-gray-300 hover:bg-gray-800 hover:text-white"
@@ -198,8 +229,13 @@ const NavigationItem = ({ item, onClick }) => (
             }
             onClick={onClick}
       >
-            <span className="opacity-75">{item.icon}</span>
-            <span>{item.title}</span>
+            {({ isActive }) => (
+                  <>
+                        <span className="opacity-75">{item.icon}</span>
+                        <span>{item.title}</span>
+                        {item.title === "Web Mail" && <MailBadge active={isActive} />}
+                  </>
+            )}
       </NavLink>
 )
 
@@ -311,6 +347,7 @@ const Dashboard = () => {
       const handleLogout = () => {
             setUser(null)
             localStorage.removeItem("data")
+            localStorage.removeItem("token")
             navigate("/sign_in")
       }
 

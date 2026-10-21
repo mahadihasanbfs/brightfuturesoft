@@ -10,6 +10,8 @@ import Contact_management from "../../pages/Eployee/Contact/Contact_management";
 import SubscribersTable from "../../pages/Eployee/Contact/Subcriber_management";
 import EmployeeManagement from "../../pages/Eployee/EmployeeManagement/EmployeeManagement";
 import Invoice from "../../pages/Eployee/Invoice/Invoice";
+import MyPayslips from "../../pages/Eployee/Invoice/MyPayslips";
+import WebMail from "../../pages/Eployee/Mail/Mail";
 import Issue from "../../pages/Eployee/Issue/AddNewIssue";
 import IssueList from "../../pages/Eployee/Issue/IsueList";
 import Apply_List from "../../pages/Eployee/JobPost/ApplyList";
@@ -128,6 +130,14 @@ export const dashboardRouter = [
       {
             path: "invoice",
             element: <Invoice />
+      },
+      {
+            path: "my-payslips",
+            element: <MyPayslips />
+      },
+      {
+            path: "mail",
+            element: <WebMail />
       }
 
 ]

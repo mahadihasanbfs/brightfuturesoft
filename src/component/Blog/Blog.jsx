@@ -120,7 +120,7 @@ const Blog = () => {
                                     "@type": "Organization",
                                     "name": "Bright Future Soft",
                                     "url": "https://brightfuturesoft.com",
-                                    "logo": "https://brightfuturesoft.com/assets/logo.png"
+                                    "logo": "https://brightfuturesoft.com/logo.png"
                               }
                         },
                         {

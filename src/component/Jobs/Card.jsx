@@ -6,7 +6,7 @@ const JobCard = ({ data }) => {
       if (!data) return null;
 
       const isDeadlinePassed = data.dateline 
-            ? new Date(data.dateline + "T23:59:59") < new Date()
+            ? new Date(data.dateline + "T23:59:59+06:00") < new Date()
             : false;
 
       const formattedDeadline = data.dateline

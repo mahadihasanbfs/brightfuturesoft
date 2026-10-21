@@ -232,7 +232,7 @@ const Job = () => {
         "@type": "Organization",
         "name": "Bright Future Soft",
         "url": "https://brightfuturesoft.com",
-        "logo": "https://brightfuturesoft.com/assets/logo.png",
+        "logo": "https://brightfuturesoft.com/logo.png",
         "description": "Bright Future Soft is a remote-first enterprise software engineering company based in Bangladesh, specializing in SaaS, AI, and ERP solutions.",
         "sameAs": [
           "https://www.linkedin.com/company/bright-future-soft",
@@ -281,7 +281,7 @@ const Job = () => {
         author="Bright Future Soft"
         ogTitle="Careers at Bright Future Soft — Remote-First Tech Opportunities"
         ogDescription="Join Bright Future Soft. We are building the next generation of enterprise software, ERPs, and AI tools with a high-trust, remote-first culture."
-        ogImage="https://brightfuturesoft.com/assets/logo.png"
+        ogImage="https://brightfuturesoft.com/og-default.jpg"
         ogUrl="https://brightfuturesoft.com/careers"
         schema={pageSchema}
       />
