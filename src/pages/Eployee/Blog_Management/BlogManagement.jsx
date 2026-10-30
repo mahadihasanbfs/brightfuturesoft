@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link_Button from '../../shared/Link_Button';
 import DeleteModal from '../../../Hook/DeleteModal';
 import Swal from 'sweetalert2';
@@ -35,7 +35,8 @@ const BlogManagement = () => {
             setDeletId(id);
       };
 
-      if (isDelete) {
+      useEffect(() => {
+            if (!isDelete) return;
             fetch(`${base_url}/blog/delete-blog?blog_id=${deleteId}`, {
                   headers: {
                         'content-type': 'application/json',
@@ -47,15 +48,18 @@ const BlogManagement = () => {
                         if (data.success) {
                               Swal.fire(data.message, ' ', 'success')
                               refetch()
-                              setIsDelete(false);
-                              setDeletId("");
                         }
                         else {
                               Swal.fire(data.message, '', 'info')
                         }
                   })
-
-      }
+                  .catch(err => Swal.fire('Delete failed', err.message, 'error'))
+                  .finally(() => {
+                        setIsDelete(false);
+                        setDeletId("");
+                  })
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [isDelete]);
 
       return (
             <div>
@@ -105,12 +109,12 @@ const BlogManagement = () => {
                                                                               <div className=''>
                                                                                     <div className="flex gap-3 items-center  ">
 
-                                                                                          <button
-                                                                                                type="button"
+                                                                                          <Link
+                                                                                                to={`/dashboard/blog-management/edit/${encodeURIComponent(blog.url)}`}
                                                                                                 className="inline-flex whitespace-nowrap items-center justify-center px-6 py-3 text-sm font-semibold leading-5 text-white transition-all duration-200 bg-[#1c65b4] border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 hover:bg-indigo-500"
                                                                                           >
                                                                                                 Edit
-                                                                                          </button>
+                                                                                          </Link>
 
                                                                                           <button
                                                                                                 onClick={() => delete_meeting(blog._id)}

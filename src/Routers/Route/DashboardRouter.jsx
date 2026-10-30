@@ -83,6 +83,10 @@ export const dashboardRouter = [
             element: <AdminBlogForm />
       },
       {
+            path: "blog-management/edit/:url",
+            element: <AdminBlogForm />
+      },
+      {
             path: "project-management",
             element: <ProjectManagement />
       },
