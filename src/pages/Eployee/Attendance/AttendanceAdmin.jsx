@@ -2,7 +2,9 @@ import { useContext, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Download, Search, UserCheck, CalendarOff, UserX, Users } from 'lucide-react';
 import Swal from 'sweetalert2';
+import DiscordSettings from './DiscordSettings';
 import TeamPerformance from './TeamPerformance';
+import WorkReports from './WorkReports';
 import { AuthContext } from '../../../context/UseContext/AuthProvider';
 import { api } from './api';
 import Badge from './Badge';
@@ -106,7 +108,7 @@ function Daily() {
                         </div>
                   </div>
                   {error ? <Empty>{error.message}</Empty> : isPending || !data?.rows ? <Empty>Loading…</Empty> : shown.length === 0 ? <Empty>No employees match.</Empty> : (
-                        <Table head={['Employee', 'Status', 'First in', 'Last out', 'Sessions', 'Worked', 'Note']}>
+                        <Table head={['Employee', 'Status', 'First in', 'Last out', 'Sessions', 'Worked', 'Daily report', 'Note']}>
                               {shown.map((r) => (
                                     <Row key={r.userId} onClick={() => setEdit(r)}>
                                           <Td><p className="font-medium">{r.name}</p><p className="text-xs text-gray-500">{r.designation}</p></Td>
@@ -115,6 +117,7 @@ function Daily() {
                                           <Td>{r.open ? <span className="text-emerald-400">in office</span> : fmtTime(r.checkOut)}</Td>
                                           <Td>{r.sessions?.length || '-'}</Td>
                                           <Td>{fmtHours(r.workedMinutes)}</Td>
+                                          <Td className="max-w-sm truncate text-gray-300" title={r.report}>{r.report || '-'}</Td>
                                           <Td className="max-w-xs truncate text-gray-400">{r.note || '-'}</Td>
                                     </Row>
                               ))}
@@ -229,9 +232,11 @@ function Leaves() {
 
 const TABS = [
       { id: 'daily', label: 'Daily', Component: Daily },
+      { id: 'reports', label: 'Daily reports', Component: WorkReports },
       { id: 'performance', label: 'Performance', Component: TeamPerformance },
       { id: 'monthly', label: 'Monthly report', Component: Monthly },
       { id: 'leaves', label: 'Leave requests', Component: Leaves },
+      { id: 'discord', label: 'Discord', Component: DiscordSettings },
 ];
 
 // Admins only (the API enforces it again with the JWT).

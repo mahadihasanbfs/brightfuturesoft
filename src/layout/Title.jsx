@@ -120,5 +120,5 @@ export default MetaTitle;
 
 
 
-export const base_url = 'https://sever.brightfuturesoft.com/api/v1'
-// export const base_url = 'http://localhost:5010/api/v1'
+// export const base_url = 'https://sever.brightfuturesoft.com/api/v1'
+export const base_url = 'http://localhost:5010/api/v1'
