@@ -14,6 +14,7 @@ export const PAGE_GROUPS = [
                   ['/dashboard/meeting_management', 'Meeting'],
                   ['/dashboard/mail', 'Web Mail'],
                   ['/dashboard/my-payslips', 'My Payslips'],
+                  ['/dashboard/sales', 'Software Sales'],
             ],
       },
       {

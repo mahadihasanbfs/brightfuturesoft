@@ -6,7 +6,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-do
 
 import logo from "../Assctes/logo.webp"
 import { AuthContext } from "../context/UseContext/AuthProvider"
-import { CalendarCheck, Mail } from "lucide-react"
+import { CalendarCheck, Handshake, Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
 import { mail } from "../pages/Eployee/Mail/mailApi"
 import { ADMIN_DESIGNATIONS, DEFAULT_PAGES, accessApi, canOpen } from "./access"
@@ -31,6 +31,13 @@ const navigationItems = [
             path: "/dashboard/attendance",
             icon: (
                   <CalendarCheck className="h-5 w-5" />
+            ),
+      },
+      {
+            title: "Software Sales",
+            path: "/dashboard/sales",
+            icon: (
+                  <Handshake className="h-5 w-5" />
             ),
       },
       {

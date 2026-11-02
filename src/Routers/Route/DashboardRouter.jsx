@@ -27,6 +27,7 @@ import Notice_View from "../../pages/Eployee/Notice/Notice_View";
 import AddProject from "../../pages/Eployee/Project/AddProject";
 import ProjectManagement from "../../pages/Eployee/Project/ProjectManagement";
 import Task from "../../pages/Eployee/Task/Task";
+import Sales from "../../pages/Eployee/Sales/Sales";
 // import UploadNotice from "../../pages/Eployee/UplodNotice/UploadNotice";
 
 
@@ -99,6 +100,10 @@ export const dashboardRouter = [
       {
             path: "project-management/edit/:url",
             element: <AddProject />
+      },
+      {
+            path: "sales",
+            element: <Sales />
       },
       {
             path: "your-task",

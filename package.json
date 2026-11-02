@@ -20,6 +20,7 @@
     "firebase": "^12.9.0",
     "jodit-react": "^5.3.21",
     "jspdf": "^4.2.0",
+    "leaflet": "^1.9.4",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.563.0",
     "motion": "^12.34.3",
