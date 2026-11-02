@@ -11,6 +11,8 @@ import SubscribersTable from "../../pages/Eployee/Contact/Subcriber_management";
 import EmployeeManagement from "../../pages/Eployee/EmployeeManagement/EmployeeManagement";
 import Invoice from "../../pages/Eployee/Invoice/Invoice";
 import MyPayslips from "../../pages/Eployee/Invoice/MyPayslips";
+import MyAttendance from "../../pages/Eployee/Attendance/MyAttendance";
+import AttendanceAdmin from "../../pages/Eployee/Attendance/AttendanceAdmin";
 import WebMail from "../../pages/Eployee/Mail/Mail";
 import Issue from "../../pages/Eployee/Issue/AddNewIssue";
 import IssueList from "../../pages/Eployee/Issue/IsueList";
@@ -95,6 +97,10 @@ export const dashboardRouter = [
             element: <AddProject />
       },
       {
+            path: "project-management/edit/:url",
+            element: <AddProject />
+      },
+      {
             path: "your-task",
             element: <Task />
       },
@@ -138,6 +144,14 @@ export const dashboardRouter = [
       {
             path: "my-payslips",
             element: <MyPayslips />
+      },
+      {
+            path: "attendance",
+            element: <MyAttendance />
+      },
+      {
+            path: "attendance-management",
+            element: <AttendanceAdmin />
       },
       {
             path: "mail",

@@ -4,12 +4,26 @@ import Swal from 'sweetalert2';
 import { BASE_CURRENCY, money, todayISO } from './format';
 
 export const input =
-      'w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none';
+      'w-full rounded-xl border border-white/10 bg-transparent px-3.5 py-2.5 text-sm text-white placeholder-gray-500 transition focus:border-blue-500/70 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
 export const btn =
-      'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50';
-export const btnPrimary = `${btn} bg-blue-600 text-white hover:bg-blue-500`;
-export const btnGhost = `${btn} border border-gray-700 text-gray-300 hover:bg-gray-800`;
-export const btnDanger = `${btn} bg-red-600/90 text-white hover:bg-red-500`;
+      'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50';
+export const btnPrimary = `${btn} bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-600/20 hover:from-blue-400 hover:to-blue-500`;
+export const btnGhost = `${btn} border border-white/10 bg-white/[0.03] text-gray-200 hover:bg-white/[0.08]`;
+export const btnDanger = `${btn} bg-red-500/90 text-white shadow-lg shadow-red-600/20 hover:bg-red-500`;
+
+export const card = 'rounded-2xl border border-white/10';
+
+export function PageHeader({ title, subtitle, action }) {
+      return (
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                  <div>
+                        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{title}</h1>
+                        {subtitle && <p className="mt-1 text-sm text-gray-400">{subtitle}</p>}
+                  </div>
+                  {action}
+            </div>
+      );
+}
 
 export const toastError = (err) =>
       Swal.fire({ icon: 'error', title: 'Error', text: err.message, confirmButtonColor: '#0A65B4' });
@@ -27,7 +41,7 @@ export const confirm = async (text, confirmButtonText = 'Yes') =>
 export function Field({ label, children, className = '' }) {
       return (
             <label className={`block ${className}`}>
-                  <span className="mb-1 block text-xs font-medium text-gray-400">{label}</span>
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</span>
                   {children}
             </label>
       );
@@ -35,11 +49,11 @@ export function Field({ label, children, className = '' }) {
 
 export function Modal({ title, onClose, children, wide = false }) {
       return (
-            <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4">
-                  <div className={`my-8 w-full ${wide ? 'max-w-4xl' : 'max-w-xl'} rounded-2xl border border-gray-800 bg-gray-900`}>
-                        <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
+            <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+                  <div className={`my-8 w-full ${wide ? 'max-w-4xl' : 'max-w-xl'} rounded-2xl border border-white/10 bg-gray-900 shadow-2xl shadow-black/50`}>
+                        <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
                               <h2 className="text-lg font-semibold">{title}</h2>
-                              <button onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
+                              <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 transition hover:bg-white/10 hover:text-white" aria-label="Close">
                                     <X size={20} />
                               </button>
                         </div>
@@ -66,36 +80,39 @@ export function StatusBadge({ status }) {
       );
 }
 
-export function Stat({ label, value, tone = 'text-white', hint }) {
+export function Stat({ label, value, tone = 'text-white', hint, icon: Icon }) {
       return (
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">{label}</p>
-                  <p className={`mt-2 text-2xl font-bold ${tone}`}>{value}</p>
+            <div className={`${card} p-5 transition hover:border-white/20`}>
+                  <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+                        {Icon && <Icon size={16} className={tone === 'text-white' ? 'text-gray-500' : tone} />}
+                  </div>
+                  <p className={`mt-2 text-3xl font-bold tabular-nums tracking-tight ${tone}`}>{value}</p>
                   {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
             </div>
       );
 }
 
 export const Empty = ({ children }) => (
-      <div className="rounded-xl border border-dashed border-gray-800 p-10 text-center text-sm text-gray-500">{children}</div>
+      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center text-sm text-gray-500">{children}</div>
 );
 
 export const Table = ({ head, children }) => (
-      <div className="overflow-x-auto rounded-xl border border-gray-800">
+      <div className={`${card} overflow-x-auto`}>
             <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-900 text-xs uppercase text-gray-400">
-                        <tr>{head.map((h) => <th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr>
+                  <thead className="border-b border-white/10 text-[11px] uppercase tracking-wider text-gray-400">
+                        <tr>{head.map((h, i) => <th key={i} className="whitespace-nowrap px-4 py-3.5 font-semibold">{h}</th>)}</tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800">{children}</tbody>
+                  <tbody className="divide-y divide-white/5">{children}</tbody>
             </table>
       </div>
 );
 
 export const Row = ({ children, onClick }) => (
-      <tr onClick={onClick} className={`bg-gray-950 ${onClick ? 'cursor-pointer hover:bg-gray-900' : ''}`}>{children}</tr>
+      <tr onClick={onClick} className={`transition-colors ${onClick ? 'cursor-pointer hover:bg-white/[0.05]' : 'hover:bg-white/[0.02]'}`}>{children}</tr>
 );
 
-export const Td = ({ children, className = '' }) => <td className={`px-4 py-3 ${className}`}>{children}</td>;
+export const Td = ({ children, className = '' }) => <td className={`px-4 py-3.5 ${className}`}>{children}</td>;
 
 // Records a payment against an invoice or payslip and lists existing ones.
 export function PaymentsPanel({ payments = [], balance, canPay, onAdd, onRemove, types, currency = BASE_CURRENCY, rate = 1 }) {

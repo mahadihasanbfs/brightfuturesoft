@@ -1,14 +1,15 @@
 
 
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom"
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 
 import logo from "../Assctes/logo.webp"
 import { AuthContext } from "../context/UseContext/AuthProvider"
-import { Mail } from "lucide-react"
+import { CalendarCheck, Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
 import { mail } from "../pages/Eployee/Mail/mailApi"
+import { ADMIN_DESIGNATIONS, DEFAULT_PAGES, accessApi, canOpen } from "./access"
 
 
 const navigationItems = [
@@ -23,6 +24,13 @@ const navigationItems = [
                               d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                         />
                   </svg>
+            ),
+      },
+       {
+            title: "Attendance",
+            path: "/dashboard/attendance",
+            icon: (
+                  <CalendarCheck className="h-5 w-5" />
             ),
       },
       {
@@ -79,6 +87,7 @@ const navigationItems = [
                   <Mail className="h-5 w-5" />
             ),
       },
+     
       {
             title: "My Payslips",
             path: "/dashboard/my-payslips",
@@ -128,6 +137,13 @@ const adminNavigationItems = [
                               d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
                         />
                   </svg>
+            ),
+      },
+      {
+            title: "Attendance Management",
+            path: "/dashboard/attendance-management",
+            icon: (
+                  <CalendarCheck className="h-5 w-5" />
             ),
       },
       {
@@ -240,7 +256,7 @@ const NavigationItem = ({ item, onClick }) => (
 )
 
 // Sidebar Content Component (module scope)
-const SidebarContent = ({ onItemClick, searchValue, onSearchChange, isAdmin, user, handleLogout, logo }) => (
+const SidebarContent = ({ onItemClick, searchValue, onSearchChange, allowed, user, handleLogout, logo }) => (
       <div className="flex flex-col h-full">
             <div className="hidden lg:flex items-center justify-start px-6 py-8 border-b border-gray-800">
                   <Link to="/" className="flex items-start ">
@@ -261,20 +277,20 @@ const SidebarContent = ({ onItemClick, searchValue, onSearchChange, isAdmin, use
                         </div>
 
                         <div className="space-y-1">
-                              {navigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
+                              {navigationItems.filter((item) => allowed(item.path) && item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
                                     <NavigationItem key={item.path} item={item} onClick={onItemClick} />
                               ))}
                         </div>
 
 
-                        {isAdmin && (
+                        {adminNavigationItems.some((item) => allowed(item.path)) && (
                               <>
                                     <div className="pt-6">
                                           <div className="px-4 pb-2">
                                                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</h3>
                                           </div>
                                           <div className="space-y-1">
-                                                {adminNavigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
+                                                {adminNavigationItems.filter((item) => allowed(item.path) && item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
                                                       <NavigationItem key={item.path} item={item} onClick={onItemClick} />
                                                 ))}
                                           </div>
@@ -288,7 +304,7 @@ const SidebarContent = ({ onItemClick, searchValue, onSearchChange, isAdmin, use
                                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">General</h3>
                               </div>
                               <div className="space-y-1">
-                                    {commonNavigationItems.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
+                                    {commonNavigationItems.filter((item) => allowed(item.path) && item.title.toLowerCase().includes(searchValue.toLowerCase())).map((item) => (
                                           <NavigationItem key={item.path} item={item} onClick={onItemClick} />
                                     ))}
                               </div>
@@ -355,7 +371,42 @@ const Dashboard = () => {
             setMobileMenuOpen(false)
       }
 
-      const isAdmin = user?.designation === "Chief Executive Officer" || user?.designation === "manager"
+      const { pathname } = useLocation()
+      const fullAdmin = ADMIN_DESIGNATIONS.includes(user?.designation)
+
+      // What this person may open comes from their role (set by an admin); it can change while they work.
+      const { data: access, error: accessError } = useQuery({
+            queryKey: ["access-me"],
+            queryFn: () => accessApi("/me"),
+            enabled: Boolean(user),
+            staleTime: 30000,
+            refetchInterval: 60000,
+            retry: false,
+      })
+      const permissions = fullAdmin ? ["*"] : access?.permissions || DEFAULT_PAGES
+      const allowed = (path) => canOpen(permissions, path)
+
+      // Deactivated or expired sessions are signed out.
+      useEffect(() => {
+            if (accessError?.status === 401) handleLogout()
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [accessError])
+
+      // Presence: tell the server this person is active, once a minute while the tab is visible.
+      useEffect(() => {
+            if (!user) return undefined
+            const ping = () => { if (!document.hidden) accessApi("/heartbeat", { method: "POST" }).catch(() => {}) }
+            ping()
+            const t = setInterval(ping, 60000)
+            document.addEventListener("visibilitychange", ping)
+            return () => { clearInterval(t); document.removeEventListener("visibilitychange", ping) }
+      }, [user])
+
+      // Block pages this person's role does not include (the longest matching menu path wins).
+      const current = [...navigationItems, ...adminNavigationItems, ...commonNavigationItems]
+            .filter((item) => pathname === item.path || pathname.startsWith(`${item.path}/`))
+            .sort((a, b) => b.path.length - a.path.length)[0]
+      const blocked = current && !allowed(current.path)
 
       if (!user) {
             navigate("/sign_in")
@@ -373,7 +424,7 @@ const Dashboard = () => {
                   {/* Desktop Sidebar */}
                   <aside className="hidden lg:flex ">
                         <div className="flex flex-col w-80 bg-gray-900 border-r border-gray-800">
-                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} isAdmin={isAdmin} user={user} handleLogout={handleLogout} logo={logo} />
+                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} allowed={allowed} user={user} handleLogout={handleLogout} logo={logo} />
                         </div>
                   </aside>
 
@@ -396,7 +447,7 @@ const Dashboard = () => {
                               </button>
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} isAdmin={isAdmin} user={user} handleLogout={handleLogout} logo={logo} />
+                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} allowed={allowed} user={user} handleLogout={handleLogout} logo={logo} />
                         </div>
 
                   </div>
@@ -423,7 +474,12 @@ const Dashboard = () => {
                         {/* Page Content */}
                         <main className="flex-1 overflow-y-auto bg-gray-900">
                               <div className="h-full">
-                                    <Outlet />
+                                    {blocked ? (
+                                          <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center text-white">
+                                                <p className="text-2xl font-bold">No access to {current.title}</p>
+                                                <p className="text-sm text-gray-400">Ask an admin to turn this page on for your role.</p>
+                                          </div>
+                                    ) : <Outlet />}
                               </div>
                         </main>
                   </div>

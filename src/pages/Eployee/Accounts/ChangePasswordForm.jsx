@@ -96,7 +96,7 @@ const ChangePasswordForm = ({ user }) => {
 
       const renderPasswordInput = (label, name, value, error) => (
             <div>
-                  <label htmlFor={name} className="block text-sm font-medium text-gray-100 mb-1">
+                  <label htmlFor={name} className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                         {label}
                   </label>
                   <div className="relative">
@@ -106,7 +106,7 @@ const ChangePasswordForm = ({ user }) => {
                               name={name}
                               value={value}
                               onChange={handleChange}
-                              className={`w-full px-3 py-2 border border-gray-700 bg-gray-900 rounded-md  focus:ring-2 focus:ring-blue-500 ${error ? "border-red-500" : "border-gray-700"
+                              className={`w-full rounded-xl border bg-gray-900/70 px-3.5 py-2.5 text-sm text-white transition focus:outline-none focus:ring-4 focus:ring-blue-500/15 ${error ? "border-red-500" : "border-gray-700"
                                     }`}
                         />
                         <button
@@ -122,7 +122,7 @@ const ChangePasswordForm = ({ user }) => {
       )
 
       return (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-6">
+            <form onSubmit={handleSubmit} className="max-w-md space-y-6">
                   <h2 className="text-2xl font-bold text-gray-100 mb-4">Change Password</h2>
 
                   {message.text && (
@@ -144,7 +144,7 @@ const ChangePasswordForm = ({ user }) => {
                         <button
                               type="submit"
                               disabled={isLoading}
-                              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md font-medium transition-colors disabled:opacity-50"
+                              className="rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-400 hover:to-blue-500 disabled:opacity-50"
                         >
                               {isLoading ? "Changing..." : "Change Password"}
                         </button>

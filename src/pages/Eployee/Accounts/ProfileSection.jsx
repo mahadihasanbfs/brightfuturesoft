@@ -1,80 +1,51 @@
+import { useState } from "react";
+import { Briefcase, CalendarDays, Cake, Mail, Phone } from "lucide-react";
 
-
-import { useState } from "react"
+const Item = ({ icon: Icon, label, value }) => (
+      <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <span className="rounded-lg bg-blue-500/15 p-2 text-blue-400"><Icon size={16} /></span>
+            <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
+                  <p className="mt-0.5 truncate font-medium text-white">{value || "Not provided"}</p>
+            </div>
+      </div>
+);
 
 const ProfileSection = ({ user }) => {
-      const [imageLoaded, setImageLoaded] = useState(true)
-
-      const handleImageError = () => {
-            setImageLoaded(false)
-      }
+      const [imageLoaded, setImageLoaded] = useState(true);
+      const created = user?.timestamp
+            ? new Date(user.timestamp).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+            : "";
 
       return (
-            <div className="flex flex-col md:flex-row gap-8 ">
-                  <div className="flex flex-col items-center">
-                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-100 shadow-md mb-4">
+            <div className="space-y-8">
+                  <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+                        <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full border-4 border-white/10 shadow-xl">
                               {user?.image && imageLoaded ? (
-                                    <img
-                                          src={user?.image || "/placeholder.svg"}
-                                          alt={user?.name}
-                                          className="w-full h-full object-cover"
-                                          onError={handleImageError}
-                                    />
+                                    <img src={user.image} alt={user?.name} className="h-full w-full object-cover" onError={() => setImageLoaded(false)} />
                               ) : (
-                                    <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-500 text-2xl font-bold">
-                                          {user?.name ? user?.name.charAt(0).toUpperCase() : "U"}
+                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-4xl font-bold">
+                                          {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                                     </div>
+                              )}
+                        </div>
+                        <div>
+                              <h2 className="text-2xl font-bold tracking-tight">{user?.name || "Your name"}</h2>
+                              {user?.designation && (
+                                    <span className="mt-2 inline-block rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-300">{user.designation}</span>
                               )}
                         </div>
                   </div>
 
-                  <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-gray-100 mb-4">Profile Information</h2>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                    <p className="text-sm text-gray-200">Full Name</p>
-                                    <p className="font-medium">{user?.name || "Not provided"}</p>
-                              </div>
-
-                              <div>
-                                    <p className="text-sm text-gray-200">Email Address</p>
-                                    <p className="font-medium">{user?.email || "Not provided"}</p>
-                              </div>
-
-                              <div>
-                                    <p className="text-sm text-gray-200">Designation</p>
-                                    <p className="font-medium">{user?.designation || "Not provided"}</p>
-                              </div>
-                              <div>
-                                    <p className="text-sm text-gray-200">Phone</p>
-                                    <p className="font-medium">{user?.phone || "Not provided"}</p>
-                              </div>
-
-                              <div>
-                                    <p className="text-sm text-gray-200">Date of Birth</p>
-                                    <p className="font-medium">{user?.dob || "Not provided"}</p>
-                              </div>
-
-
-
-                              <div>
-                                    <p className="text-sm text-gray-200">Account Created</p>
-                                    <p className="font-medium">
-                                          {user?.timestamp
-                                                ? new Date(user.timestamp).toLocaleDateString("en-US", {
-                                                      year: "numeric",
-                                                      month: "long",
-                                                      day: "numeric",
-                                                })
-                                                : "Not available"}
-                                    </p>
-                              </div>
-
-                        </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                        <Item icon={Mail} label="Email" value={user?.email} />
+                        <Item icon={Phone} label="Phone" value={user?.phone} />
+                        <Item icon={Briefcase} label="Designation" value={user?.designation} />
+                        <Item icon={Cake} label="Date of birth" value={user?.dob} />
+                        <Item icon={CalendarDays} label="Member since" value={created} />
                   </div>
             </div>
-      )
-}
+      );
+};
 
-export default ProfileSection
+export default ProfileSection;

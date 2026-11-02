@@ -1,8 +1,8 @@
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import JoditEditor from 'jodit-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { base_url } from '../../../layout/Title';
 import uploadImage from '../../../Hook/ImageUpload';
 import Select from 'react-select';
@@ -428,9 +428,31 @@ const AddProject = () => {
       const [previewUrl, setPreviewUrl] = useState(null);
       const [fileName, setFileName] = useState('');
       const [loading, setLoading] = useState(false)
-
-
       const [selectedTechnologies, setSelectedTechnologies] = useState([]);
+      const { url: editUrl } = useParams();
+      const isEdit = Boolean(editUrl);
+      const [existing, setExisting] = useState(null);
+      const [loadError, setLoadError] = useState('');
+
+      useEffect(() => {
+            if (!isEdit) return;
+            fetch(`${base_url}/project/get-project-by-id?project_id=${encodeURIComponent(editUrl)}`, {
+                  headers: { 'content-type': 'application/json', 'author': 'bright_future_soft' },
+            })
+                  .then(res => res.json())
+                  .then(data => {
+                        if (data.success) {
+                              setExisting(data.data);
+                              setSelectedTechnologies(data.data.technologies || []);
+                              setPreviewUrl(data.data.image_url || null);
+                        } else {
+                              setLoadError(data.message || 'Project not found');
+                        }
+                  })
+                  .catch(() => setLoadError('Failed to load project'));
+      }, [editUrl, isEdit]);
+
+
 
       // Flatten the data for react-select and include category information
       const options = data.flatMap(category =>
@@ -491,7 +513,7 @@ const AddProject = () => {
             const image = form.photo.files[0]
             const meta_tag = title
             const message = form.message.value
-            const photo = await uploadImage(image);
+            const photo = image ? await uploadImage(image) : existing?.image_url;
             const formatTitleToURL = (title) => {
                   return title
                         .toLowerCase()
@@ -515,6 +537,34 @@ const AddProject = () => {
                   return doc.body.textContent || '';
             };
             const plainTextMessage = stripHtmlTags(message);
+
+            if (isEdit) {
+                  const updated = {
+                        project_name: title,
+                        description: message,
+                        projectType,
+                        meta_tag,
+                        meta_description: plainTextMessage,
+                        image_url: photo,
+                        technologies: selectedTechnologies,
+                  };
+                  fetch(`${base_url}/project/update-project?project_id=${existing._id}`, {
+                        method: 'PUT',
+                        headers: {
+                              'content-type': 'application/json',
+                              'author': 'bright_future_soft'
+                        },
+                        body: JSON.stringify(updated)
+                  })
+                        .then(res => res.json())
+                        .then(data => {
+                              setLoading(false)
+                              Swal.fire(data.message, ' ', data.success ? 'success' : 'error')
+                              if (data.success) navigate('/dashboard/project-management')
+                        })
+                        .catch(() => { setLoading(false); Swal.fire('Failed to update project', ' ', 'error') })
+                  return
+            }
 
             const project = {
                   project_name: title,
@@ -554,134 +604,112 @@ const AddProject = () => {
       }
 
 
+      if (isEdit && loadError) return <div className='py-20 text-center text-gray-300'>{loadError}</div>;
+      if (isEdit && !existing) return <div className='py-20 text-center text-gray-400'>Loading…</div>;
+
+      const editorConfig = {
+            readonly: false,
+            theme: "dark",
+            height: 320,
+            style: { backgroundColor: "#111827", color: "#ffffff" },
+            toolbarSticky: false,
+            toolbarAdaptive: false,
+            toolbarButtonSize: "small",
+            buttons: ["bold", "italic", "underline", "|", "ul", "ol", "|", "link", "|", "undo", "redo", "brush", "paragraph"],
+            uploader: { insertImageAsBase64URI: true },
+            removeButtons: ["source", "video", "fullsize", "about"],
+      };
+      const selectStyles = {
+            control: (b, st) => ({ ...b, backgroundColor: 'rgba(17,24,39,.7)', borderColor: st.isFocused ? 'rgba(59,130,246,.7)' : 'rgba(255,255,255,.1)', borderRadius: 12, minHeight: 44, boxShadow: st.isFocused ? '0 0 0 4px rgba(59,130,246,.15)' : 'none' }),
+            menu: (b) => ({ ...b, backgroundColor: '#111827', border: '1px solid rgba(255,255,255,.1)', borderRadius: 12, overflow: 'hidden' }),
+            option: (b, st) => ({ ...b, backgroundColor: st.isFocused ? 'rgba(255,255,255,.08)' : 'transparent', color: '#e5e7eb' }),
+            multiValue: (b) => ({ ...b, backgroundColor: 'rgba(255,255,255,.08)', borderRadius: 999 }),
+            multiValueLabel: (b) => ({ ...b, color: '#e5e7eb' }),
+            input: (b) => ({ ...b, color: '#fff' }),
+            placeholder: (b) => ({ ...b, color: '#6b7280' }),
+      };
+      const fieldCls = 'w-full rounded-xl border border-white/10 bg-transparent px-3.5 py-2.5 text-sm text-white placeholder-gray-500 transition focus:border-blue-500/70 focus:outline-none focus:ring-4 focus:ring-blue-500/15';
+      const cardCls = 'rounded-2xl border border-white/10 p-6';
+      const labelCls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400';
+
       return (
-            <div className='py-20 bg-gray-900 text-white '>
-                  <div className=' mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8'>
+            <main className='w-full p-4 text-white sm:p-8'>
+                  <button type='button' onClick={() => navigate('/dashboard/project-management')} className='mb-4 inline-flex items-center gap-1.5 text-sm text-gray-400 transition hover:text-white'>
+                        ← Back to projects
+                  </button>
+                  <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>{isEdit ? 'Edit project' : 'New project'}</h1>
+                  <p className='mt-1 text-sm text-gray-400'>{isEdit ? 'Changes go live on the website as soon as you save.' : 'Add a project to your portfolio.'}</p>
 
-                        <h1 className='text-2xl font-bold mt-10 text-center'>Publish a project for you and next</h1>
-                        <div className='p-10 border-2 border-gray-700 rounded-xl m-10' >
-                              <form onSubmit={dataSubmit} className="space-y-4 text-black">
-                                    <div>
-                                          <label className="text-white" htmlFor="title">
-                                                Title
-                                          </label>
-                                          <input required
-                                                className="w-full rounded-lg border border-gray-700 text-white p-3 text-sm"
-                                                placeholder="Title"
-                                                type="text"
-                                                id="title"
-                                                name='title'
-                                          />
+                  <form onSubmit={dataSubmit} className='mt-6 grid gap-6 lg:grid-cols-3'>
+                        <div className='space-y-6 lg:col-span-2'>
+                              <section className={cardCls}>
+                                    <h2 className='mb-4 text-base font-semibold'>Basic info</h2>
+                                    <div className='space-y-4'>
+                                          <div>
+                                                <label className={labelCls} htmlFor='title'>Title</label>
+                                                <input required className={fieldCls} placeholder='e.g. Restaurant booking app' type='text' id='title' name='title' defaultValue={existing?.project_name} />
+                                          </div>
+                                          <div>
+                                                <label className={labelCls} htmlFor='projectType'>Project type</label>
+                                                <select className={fieldCls} name='projectType' id='projectType' defaultValue={existing?.projectType}>
+                                                      <option value='website'>Website</option>
+                                                      <option value='app'>Software</option>
+                                                      <option value='uiDesign'>UI/UX</option>
+                                                </select>
+                                          </div>
                                     </div>
-                                    <div>
-                                          <label className="text-white" htmlFor="title">
-                                                Project Type
-                                          </label>
-                                          <select className="w-full rounded-lg  text-white placeholder:text-gray-600 border border-gray-700 p-3 text-sm" name="projectType" id="">
-                                                <option value="website">Website</option>
-                                                <option value="app">Software</option>
-                                                <option value="uiDesign">UI/UX</option>
-                                          </select>
+                              </section>
+
+                              <section className={cardCls}>
+                                    <h2 className='mb-4 text-base font-semibold'>Description</h2>
+                                    <div className='overflow-hidden rounded-xl'>
+                                          <JoditEditor config={editorConfig} value={existing?.description || ''} name='message' id='message' />
                                     </div>
-                                    <div>
+                              </section>
 
-                                          <label
-                                                htmlFor="dropzone-file"
-                                                className="flex flex-col items-center w-full  p-5 mx-auto mt-2 text-center bg-white border-2 border-gray-700 border-dashed cursor-pointer  rounded-xl"
-                                          >
-                                                {previewUrl ? <img src={previewUrl} alt="File Preview" className="mt-2 w-8 h-8" /> :
-                                                      <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            strokeWidth="1.5"
-                                                            stroke="currentColor"
-                                                            className="w-8 h-8 text-gray-500 dark:text-gray-400"
-                                                      >
-                                                            <path
-                                                                  strokeLinecap="round"
-                                                                  strokeLinejoin="round"
-                                                                  d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-                                                            />
-                                                      </svg>
-                                                }
-                                                <h2 className="mt-1 font-medium tracking-wide text-gray-700 dark:text-gray-200">
-                                                      {fileName ? fileName : ' Upload Picture'}
-                                                </h2>
-                                                <p className="mt-2 text-xs tracking-wide text-gray-500 dark:text-gray-400">
-                                                      Upload Your Photo Only.
-                                                </p>
-                                                <input required
-                                                      id="dropzone-file"
-                                                      type="file"
-                                                      accept='image/*,application/pdf'
-                                                      name='photo'
-                                                      className="hidden"
-                                                      onChange={handleFileChange}
-                                                />
-                                          </label>
-
-                                          {/* Display the file preview */}
-
-                                    </div>
-
-
-
-                                    <div>
-                                          <JoditEditor config={{
-                                                readonly: false,
-                                                theme: "dark",
-                                                height: 200,
-                                                style: {
-                                                      backgroundColor: "#1f2937",
-                                                      color: "#ffffff",
-                                                },
-                                                toolbarSticky: false,
-                                                toolbarAdaptive: false,
-                                                toolbarButtonSize: "small",
-                                                buttons: [
-                                                      "bold",
-                                                      "italic",
-                                                      "underline",
-                                                      "|",
-                                                      "ul",
-                                                      "ol",
-                                                      "|",
-                                                      "link",
-                                                      "|",
-                                                      "undo",
-                                                      "redo",
-                                                      "brush",
-                                                      "paragraph",
-                                                ],
-                                                uploader: {
-                                                      insertImageAsBase64URI: true,
-                                                },
-                                                removeButtons: ["source", "video", "fullsize", "about"],
-                                          }}
-                                                name='message'
-                                                id="message" rows={20} className='rounded jodit-bg  h-[510px] t jodit-editor' />
-                                    </div>
-                                    <br />
+                              <section className={cardCls}>
+                                    <h2 className='mb-1 text-base font-semibold'>Technologies</h2>
+                                    <p className='mb-4 text-sm text-gray-400'>Shown as chips on the project page.</p>
                                     <Select
                                           options={options}
                                           isMulti
-                                          placeholder="Select multiple technologies..."
+                                          styles={selectStyles}
+                                          value={options.filter(o => selectedTechnologies.some(t => t.name === o.value))}
+                                          placeholder='Search and select technologies…'
                                           onChange={handleChange}
                                     />
-                                    <div className="mt-4">
-                                          <button
-                                                type="submit"
-                                                className="inline-block w-full rounded-lg bg-[#1c65b4] px-5 py-3 font-medium text-white sm:w-auto"
-                                          >
-                                                {loading ? 'Loading..' : 'Publish Project'}
-                                          </button>
-                                    </div>
-                              </form>
-
+                              </section>
                         </div>
-                  </div>
-            </div>
+
+                        <aside className='space-y-6 lg:sticky lg:top-6 lg:self-start'>
+                              <section className={cardCls}>
+                                    <h2 className='mb-4 text-base font-semibold'>Cover image</h2>
+                                    <label htmlFor='dropzone-file' className='group relative flex aspect-[16/10] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-white/15 text-center transition hover:border-blue-500/60'>
+                                          {previewUrl ? (
+                                                <>
+                                                      <img src={previewUrl} alt='Preview' className='absolute inset-0 h-full w-full object-cover' />
+                                                      <span className='absolute inset-0 flex items-center justify-center bg-black/60 text-sm font-semibold opacity-0 transition group-hover:opacity-100'>Change image</span>
+                                                </>
+                                          ) : (
+                                                <div className='px-4'>
+                                                      <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth='1.5' stroke='currentColor' className='mx-auto h-9 w-9 text-gray-500'>
+                                                            <path strokeLinecap='round' strokeLinejoin='round' d='M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z' />
+                                                      </svg>
+                                                      <p className='mt-2 text-sm font-medium text-gray-300'>Click to upload</p>
+                                                      <p className='text-xs text-gray-500'>PNG or JPG, 16:10 looks best</p>
+                                                </div>
+                                          )}
+                                          <input required={!isEdit} id='dropzone-file' type='file' accept='image/*' name='photo' className='sr-only' onChange={handleFileChange} />
+                                    </label>
+                                    {fileName && <p className='mt-2 truncate text-xs text-gray-400'>{fileName}</p>}
+                              </section>
+
+                              <button type='submit' disabled={loading} className='w-full rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:from-blue-400 hover:to-blue-500 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60'>
+                                    {loading ? 'Saving…' : isEdit ? 'Update project' : 'Publish project'}
+                              </button>
+                        </aside>
+                  </form>
+            </main>
       );
 };
 

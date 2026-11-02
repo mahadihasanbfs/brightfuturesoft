@@ -129,7 +129,7 @@ const UpdateProfileForm = ({ user }) => {
 
                         <div className="md:w-2/3 space-y-4">
                               <div>
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-100 mb-1">
+                                    <label htmlFor="name" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                                           Full Name
                                     </label>
                                     <input
@@ -143,7 +143,7 @@ const UpdateProfileForm = ({ user }) => {
                               </div>
 
                               <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-100 mb-1">
+                                    <label htmlFor="email" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                                           Email Address
                                     </label>
                                     <input
@@ -157,7 +157,7 @@ const UpdateProfileForm = ({ user }) => {
                               </div>
 
                               <div>
-                                    <label htmlFor="designation" className="block text-sm font-medium text-gray-100 mb-1">
+                                    <label htmlFor="designation" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                                           Designation
                                     </label>
                                     <input
@@ -170,7 +170,7 @@ const UpdateProfileForm = ({ user }) => {
                                     />
                               </div>
                               <div>
-                                    <label htmlFor="linkedin" className="block text-sm font-medium text-gray-100 mb-1">
+                                    <label htmlFor="linkedin" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                                           Linkedin
                                     </label>
                                     <input
@@ -183,7 +183,7 @@ const UpdateProfileForm = ({ user }) => {
                                     />
                               </div>
                               <div>
-                                    <label htmlFor="phone" className="block text-sm font-medium text-gray-100 mb-1">
+                                    <label htmlFor="phone" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                                           Phone
                                     </label>
                                     <input
@@ -196,7 +196,7 @@ const UpdateProfileForm = ({ user }) => {
                                     />
                               </div>
                               <div>
-                                    <label htmlFor="dob" className="block text-sm font-medium text-gray-100 mb-1">
+                                    <label htmlFor="dob" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-400">
                                           Date of Birth
                                     </label>
                                     <input
@@ -215,7 +215,7 @@ const UpdateProfileForm = ({ user }) => {
                         <button
                               type="submit"
                               disabled={isLoading}
-                              className="bg-[#1c65b4] hover:bg-[#0875e9] text-white py-2 px-6 rounded-md font-medium transition-colors disabled:opacity-50"
+                              className="rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-400 hover:to-blue-500 disabled:opacity-50"
                         >
                               {isLoading ? "Updating..." : "Update Profile"}
                         </button>

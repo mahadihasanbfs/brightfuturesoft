@@ -1,57 +1,50 @@
 import { useContext, useState } from "react";
+import { Landmark, KeyRound, Pencil, User } from "lucide-react";
 
 import ProfileSection from "./ProfileSection";
 import UpdateProfileForm from "./UpdateProfileForm";
 import ChangePasswordForm from "./ChangePasswordForm";
+import BankInfoForm from "./BankInfoForm";
 import { AuthContext } from "../../../context/UseContext/AuthProvider";
+import { PageHeader, card } from "../Invoice/ui";
 
-
+const TABS = [
+      { id: "profile", label: "Profile", icon: User },
+      { id: "update", label: "Edit profile", icon: Pencil },
+      { id: "bank", label: "Bank info", icon: Landmark },
+      { id: "password", label: "Password", icon: KeyRound },
+];
 
 const Account_management = () => {
-      const { user } = useContext(AuthContext)
-      const [activeTab, setActiveTab] = useState("profile")
+      const { user } = useContext(AuthContext);
+      const [activeTab, setActiveTab] = useState("profile");
 
       return (
-            <div className="min-h-screen  py-8 text-white">
-                  <div className="max-w-5xl px-4">
-                        <h1 className="text-3xl font-bold mb-6">Account Management</h1>
+            <main className="w-full space-y-6 p-4 text-white sm:p-8">
+                  <PageHeader title="Account" subtitle="Manage your profile, bank details and password." />
 
-                        {/* Tabs */}
-                        <div className="flex border-b border-gray-700 mb-6">
+                  <nav className="inline-flex max-w-full gap-1 overflow-x-auto rounded-xl border border-white/10 p-1" role="tablist">
+                        {TABS.map(({ id, label, icon: Icon }) => (
                               <button
-                                    onClick={() => setActiveTab("profile")}
-                                    className={`py-2 px-4 font-medium text-sm ${activeTab === "profile" ? "border-b-2 border-[#1c65b4] text-[#1c65b4]" : "text-gray-200 hover:text-gray-700"
-                                          }`}
+                                    key={id}
+                                    role="tab"
+                                    aria-selected={activeTab === id}
+                                    onClick={() => setActiveTab(id)}
+                                    className={`inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === id ? "bg-blue-600 text-white shadow" : "text-gray-400 hover:bg-white/5 hover:text-gray-200"}`}
                               >
-                                    Profile
+                                    <Icon size={15} /> {label}
                               </button>
-                              <button
-                                    onClick={() => setActiveTab("update")}
-                                    className={`py-2 px-4 font-medium text-sm ${activeTab === "update" ? "border-b-2 border-[#1c65b4] text-[#1c65b4]" : "text-gray-200 hover:text-gray-700"
-                                          }`}
-                              >
-                                    Update Profile
-                              </button>
-                              <button
-                                    onClick={() => setActiveTab("password")}
-                                    className={`py-2 px-4 font-medium text-sm ${activeTab === "password"
-                                          ? "border-b-2 border-[#1c65b4] text-[#1c65b4]"
-                                          : "text-gray-200 hover:text-gray-700"
-                                          }`}
-                              >
-                                    Change Password
-                              </button>
-                        </div>
+                        ))}
+                  </nav>
 
-                        {/* Content based on active tab */}
-                        <div className="border border-gray-700 rounded-lg shadow-sm p-6">
-                              {activeTab === "profile" && <ProfileSection user={user} />}
-                              {activeTab === "update" && <UpdateProfileForm user={user} />}
-                              {activeTab === "password" && <ChangePasswordForm user={user} />}
-                        </div>
+                  <div className={`${card} p-6 sm:p-8`}>
+                        {activeTab === "profile" && <ProfileSection user={user} />}
+                        {activeTab === "update" && <UpdateProfileForm user={user} />}
+                        {activeTab === "bank" && <BankInfoForm />}
+                        {activeTab === "password" && <ChangePasswordForm user={user} />}
                   </div>
-            </div>
-      )
-}
+            </main>
+      );
+};
 
 export default Account_management;
