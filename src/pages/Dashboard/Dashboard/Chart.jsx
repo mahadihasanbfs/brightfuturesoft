@@ -173,45 +173,18 @@ export default function TaskReport() {
 
 
 
-      const CALENDLY_TOKEN = "Bearer eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzUxMDIzMDQ4LCJqdGkiOiI3OWMzZDE3NS1hYjJkLTRiOTMtOWUwMS1lM2E5MGE2ZTQ0YmYiLCJ1c2VyX3V1aWQiOiJiMTgxNmZlZi1kYWEyLTRhMWItYmM1NS03MjM0OGRjODA2ZWEifQ.fqFBxpZJcdkp7d4yHaB8_54B5_zpFGSKcKGXQlExAE4psCUv-amJMaIMddsLaQdvkMlra0OtKh6pLajwbKpdXQ";
-
+      
       const getDateString = (date) => date.toISOString().split("T")[0];
 
-      function useCalendlyUser() {
-            return useQuery({
-                  queryKey: ["calendly-user"],
-                  queryFn: async () => {
-                        const res = await fetch("https://api.calendly.com/users/me", {
-                              headers: { Authorization: CALENDLY_TOKEN },
-                        });
-                        const data = await res.json();
-                        return data.resource.uri;
-                  },
-            });
-      }
+      const { data: meetings = [] } = useQuery({
+            queryKey: ["appointments"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/appointment/list`);
+                  const data = await res.json();
+                  return Array.isArray(data.data) ? data.data.filter(a => a.status !== "cancelled") : [];
+            },
+      });
 
-      function useCalendlyMeetings(userUri) {
-            return useQuery({
-                  queryKey: ["calendly-meetings", userUri],
-                  enabled: !!userUri,
-                  queryFn: async () => {
-                        let events = [];
-                        let nextPage = `https://api.calendly.com/scheduled_events?user=${userUri}`;
-                        while (nextPage) {
-                              const res = await fetch(nextPage, {
-                                    headers: { Authorization: CALENDLY_TOKEN },
-                              });
-                              const data = await res.json();
-                              events = [...events, ...(data.collection || [])];
-                              nextPage = data.pagination?.next_page || null;
-                        }
-                        return events;
-                  },
-            });
-      }
-
-      const { data: userUri } = useCalendlyUser();
-      const { data: meetings } = useCalendlyMeetings(userUri);
 
       const todayString = getDateString(new Date());
       const todaysMeetings = meetings?.filter(

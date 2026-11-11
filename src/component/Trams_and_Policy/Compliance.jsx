@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import MetaTitle from "../../layout/Title";
 import { 
   Award, ShieldCheck, CheckCircle2, Server, 
   Lock, FileCheck, Layers, Cpu, Mail, Download, ArrowRight
 } from "lucide-react";
-import { CallSchedule } from "../../pages/shared/Header/Header";
 
 const Compliance = () => {
-  const [schedule, setSchedule] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -322,18 +320,17 @@ const Compliance = () => {
                   Schedule a direct conversation with our engineering leads to review your architectural requirements and compliance safeguards.
                 </p>
               </div>
-              <button
-                onClick={() => setSchedule(true)}
+              <Link to="/book?type=technical"
+                
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0a65b4] text-white rounded-md text-xs font-bold hover:bg-[#084e8a] transition-colors whitespace-nowrap"
               >
                 Schedule Technical Review
-              </button>
+              </Link>
             </div>
           </main>
         </div>
       </div>
 
-      {schedule && <CallSchedule setModalOpen={setSchedule} isModalOpen={schedule} />}
     </div>
   );
 };

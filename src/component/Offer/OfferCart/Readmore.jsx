@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 import mahadi from '../../../Assctes/teamMember/mahadi.jpg';
 import hadi from '../../../Assctes/teamMember/mohotasimhadi.jpeg';
@@ -7,7 +7,6 @@ import maruf from '../../../Assctes/teamMember/mahady.png'
 
 const Read_more = () => {
       const location = useLocation();
-      const [schedule, setSchedule] = useState(false)
 
 
       const offerData = [
@@ -282,19 +281,17 @@ const Read_more = () => {
                                                       Can't find the answer you're looking for? Please chat with our friendly team.
                                                 </p>
                                                 <div className="mt-6">
-                                                      <button
-                                                            onClick={() => setSchedule(true)}
+                                                      <Link to="/book?type=estimation"
+                                                            
                                                             className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700"
-                                                            role="button"
                                                       >
                                                             Start free for consultancy
-                                                      </button>
+                                                      </Link>
                                                 </div>
                                           </div>
                                     </div>
                               </div>
 
-                              {schedule && <CallSchedule setModalOpen={setSchedule} isModalOpen={schedule} />}
                         </div>
                   </section>
 
@@ -303,31 +300,3 @@ const Read_more = () => {
 };
 
 export default Read_more;
-
-
-const CallSchedule = ({ isModalOpen, setModalOpen }) => {
-      if (!isModalOpen) return null; // Modal won't render if it's closed
-
-      return (
-            <div className="fixed inset-0 z-50 flex items-center h-screen pt-20 justify-center backdrop-blur-xs">
-                  <div className="relative mx-6 w-full max-w-4xl  p-4 bg-white rounded-lg shadow-lg">
-
-                        {/* Calendly iframe with modifications */}
-                        <iframe
-                              src="https://calendly.com/brightfuturesoft-bd"
-                              title="Calendly Schedule"
-                              className="w-full h-[80vh]  rounded-lg    "
-                        // allow="camera; microphone"
-                        />
-
-                        {/* Close button */}
-                        <button
-                              onClick={() => setModalOpen(false)}
-                              className="absolute top-3 bg-[#2463eb] hover:bg-[#315bb6]  size-10 rounded-full right-3 flex justify-center items-center text-gray-100 hover:text-gray-300"
-                        >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-x"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
-                        </button>
-                  </div>
-            </div>
-      );
-};

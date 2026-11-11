@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import React, { useState, useRef } from 'react';
 import { 
       HiArrowSmallRight, 
@@ -10,7 +11,6 @@ import {
       HiPlay,
       HiPause
 } from "react-icons/hi2";
-import { CallSchedule } from '../../../pages/shared/Header/Header';
 import headerPoster from '../../../Assctes/backgrounds/header.png';
 
 // High-speed CDN video streams (Software engineering, programming code & enterprise tech matrix)
@@ -49,7 +49,6 @@ const capabilities = [
 ];
 
 const HeadSection = () => {
-      const [schedule, set_schedule] = useState(false);
       const [isPlaying, setIsPlaying] = useState(true);
       const videoRef = useRef(null);
 
@@ -140,14 +139,13 @@ const HeadSection = () => {
 
                               {/* Direct Conversion Actions */}
                               <div className="hero-actions">
-                                    <button
-                                          type="button"
+                                    <Link to="/book?type=consultation"
                                           className="hero-primary-btn group"
-                                          onClick={() => set_schedule(true)}
+                                          
                                     >
                                           <span>Book an appointment</span>
                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                    </button>
+                                    </Link>
                                     <a
                                           className="hero-secondary-btn group"
                                           href="/company-profile.pdf"
@@ -196,9 +194,6 @@ const HeadSection = () => {
                         </div>
                   </div>
 
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={set_schedule} />
-                  )}
             </section>
       );
 };

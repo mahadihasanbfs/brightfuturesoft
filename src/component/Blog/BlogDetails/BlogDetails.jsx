@@ -17,13 +17,11 @@ import {
 import { FaXTwitter, FaLinkedinIn, FaFacebookF } from "react-icons/fa6";
 
 import { base_url } from '../../../layout/Title';
-import { CallSchedule } from '../../../pages/shared/Header/Header';
 import BlogCart from '../BlogCart/BlogCart';
 
 const BlogDetails = () => {
       const { id } = useParams();
       const loaderData = useLoaderData();
-      const [schedule, setSchedule] = useState(false);
       const [copied, setCopied] = useState(false);
       const [scrollProgress, setScrollProgress] = useState(0);
       const [activeSection, setActiveSection] = useState("");
@@ -596,13 +594,12 @@ const BlogDetails = () => {
                                           <p className="text-sm text-[#55667c] leading-relaxed mb-4">
                                                 We engineer enterprise web applications, cross-platform mobile apps, ERP systems, and cloud infrastructure with predictable velocity and 100% IP ownership.
                                           </p>
-                                          <button
-                                                type="button"
-                                                onClick={() => setSchedule(true)}
+                                          <Link to="/book?type=technical"
+                                                
                                                 className="service-btn-primary w-full text-center"
                                           >
                                                 Book Engineering Call
-                                          </button>
+                                          </Link>
                                     </div>
 
                                     {/* Trending & Recent Articles */}
@@ -736,22 +733,18 @@ const BlogDetails = () => {
                                     Our software architects help technology leaders evaluate architectural trade-offs, scope custom software builds, and build resilient systems.
                               </p>
                               <div className="mt-6">
-                                    <button
-                                          type="button"
-                                          onClick={() => setSchedule(true)}
+                                    <Link to="/book?type=consultation"
+                                          
                                           className="service-btn-primary"
                                     >
                                           <HiCalendarDays className="text-lg" aria-hidden="true" />
                                           <span>Schedule a Free Technical Consultation</span>
-                                    </button>
+                                    </Link>
                               </div>
                         </div>
                   </div>
 
                   {/* Consultation Modal */}
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </main>
       );
 };

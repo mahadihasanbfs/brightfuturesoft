@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base_url } from "../../../layout/Title";
-import { CallSchedule } from "../../../pages/shared/Header/Header";
 import { HiChevronDown, HiArrowSmallRight } from "react-icons/hi2";
 
 const FaqItem = ({ question, answer, isOpen, onToggle, id }) => {
@@ -37,7 +36,6 @@ const FaqItem = ({ question, answer, isOpen, onToggle, id }) => {
 
 export const Faq = () => {
       const [openIndex, setOpenIndex] = useState(0);
-      const [schedule, setSchedule] = useState(false);
 
       const { data: teamMembers = [] } = useQuery({
             queryKey: ["all_users"],
@@ -139,22 +137,20 @@ export const Faq = () => {
                                     </p>
 
                                     <div className="about-faq-cta-actions">
-                                          {/* <button
-                                                type="button"
-                                                onClick={() => setSchedule(true)}
+                                          {/* <Link to="/book?type=consultation"
+                                                
                                                 className="hero-primary"
                                           >
                                                 Schedule a consultation
-                                          </button> */}
+                                          </Link> */}
 
-                                           <button
-                                          type="button"
+                                           <Link to="/book?type=consultation"
                                           className="hero-primary-btn group"
-                                           onClick={() => setSchedule(true)}
+                                           
                                     >
                                           <span>Book an appointment</span>
                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                    </button>
+                                    </Link>
                                           <Link to="/contacts" className="site-outline-button">
                                                 Send us a message <span aria-hidden="true">→</span>
                                           </Link>
@@ -163,9 +159,6 @@ export const Faq = () => {
                         </div>
                   </div>
 
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </section>
       );
 };

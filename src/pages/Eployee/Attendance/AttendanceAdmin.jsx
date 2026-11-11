@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Download, Search, UserCheck, CalendarOff, UserX, Users } from 'lucide-react';
 import Swal from 'sweetalert2';
 import DiscordSettings from './DiscordSettings';
+import LeavePolicy from './LeavePolicy';
+import Payroll from './Payroll';
 import TeamPerformance from './TeamPerformance';
 import WorkReports from './WorkReports';
 import { AuthContext } from '../../../context/UseContext/AuthProvider';
@@ -236,6 +238,8 @@ const TABS = [
       { id: 'performance', label: 'Performance', Component: TeamPerformance },
       { id: 'monthly', label: 'Monthly report', Component: Monthly },
       { id: 'leaves', label: 'Leave requests', Component: Leaves },
+      { id: 'payroll', label: 'Payroll', Component: Payroll },
+      { id: 'policy', label: 'Leave policy', Component: LeavePolicy },
       { id: 'discord', label: 'Discord', Component: DiscordSettings },
 ];
 

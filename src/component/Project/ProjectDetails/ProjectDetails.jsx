@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { HiArrowSmallRight, HiArrowLeft } from "react-icons/hi2";
 import { base_url } from "../../../layout/Title";
-import { CallSchedule } from "../../../pages/shared/Header/Header";
 
 const ProjectDetails = () => {
-      const [schedule, setSchedule] = useState(false);
       const { id } = useParams();
 
       const { data: project = {}, isLoading } = useQuery({
@@ -276,23 +274,21 @@ const ProjectDetails = () => {
                                                       <p className="text-xs text-[#66758A] leading-relaxed mb-4">
                                                             Our engineering architects can help design, build, and deploy an enterprise platform tailored to your workflows.
                                                       </p>
-                                                      {/* <button
-                                                            type="button"
-                                                            onClick={() => setSchedule(true)}
+                                                      {/* <Link to="/book?type=demo"
+                                                            
                                                             className="hero-primary w-full text-xs py-2.5 flex items-center justify-center gap-2 mb-2"
                                                       >
                                                             Schedule a consultation
                                                             <HiArrowSmallRight aria-hidden="true" />
-                                                      </button> */}
+                                                      </Link> */}
 
-                                                          <button
-                                          type="button"
+                                                          <Link to="/book?type=demo"
                                           className="hero-primary-btn group w-full mb-2"
-                                          onClick={() => setSchedule(true)}
+                                          
                                     >
                                           <span>Book an appointment</span>
                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                    </button>
+                                    </Link>
 
                                                       <Link
                                                             to="/contacts"
@@ -329,23 +325,21 @@ const ProjectDetails = () => {
                                                 Talk directly with our development team in Dhaka to discuss technical architecture, feasibility, and timelines.
                                           </p>
                                           <div className="about-faq-cta-actions">
-                                                {/* <button
-                                                      type="button"
-                                                      onClick={() => setSchedule(true)}
+                                                {/* <Link to="/book?type=demo"
+                                                      
                                                       className="hero-primary group inline-flex items-center gap-2 px-4 py-2.5 border border-[#bfd0e0]  font-semibold text-[13px] font-weight: 650; transition: .2s ease; text-xs py-2.5 text-center"
                                                 >
                                                       Schedule a consultation
                                                       <HiArrowSmallRight className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                                </button> */}
+                                                </Link> */}
 
-                                                 <button
-                                          type="button"
+                                                 <Link to="/book?type=demo"
                                           className="hero-primary-btn group"
-                                          onClick={() => setSchedule(true)}
+                                          
                                     >
                                           <span>Schedule a consultation</span>
                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                    </button>
+                                    </Link>
                                                 <Link to="/contacts" className="site-outline-button">
                                                       Contact our team <span aria-hidden="true">→</span>
                                                 </Link>
@@ -355,9 +349,6 @@ const ProjectDetails = () => {
                         )}
                   </div>
 
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </div>
       );
 };

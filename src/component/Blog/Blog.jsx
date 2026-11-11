@@ -13,12 +13,10 @@ import { useQuery } from '@tanstack/react-query';
 import BlogCart from './BlogCart/BlogCart';
 import { base_url } from '../../layout/Title';
 import moduleName from '../../Assctes/logo.png';
-import { CallSchedule } from '../../pages/shared/Header/Header';
 
 const Blog = () => {
       const [searchTerm, setSearchTerm] = useState("");
       const [selectedCategory, setSelectedCategory] = useState("all");
-      const [schedule, setSchedule] = useState(false);
 
       // Caching: use dedicated queryKey ["public_blogs"] with 15 min staleTime
       const {
@@ -377,21 +375,17 @@ const Blog = () => {
                               <p>
                                     Our senior engineers and software architects are ready to help you plan, design, and develop scalable digital products.
                               </p>
-                              <button
-                                    type="button"
-                                    onClick={() => setSchedule(true)}
+                              <Link to="/book?type=consultation"
+                                    
                                     className="service-consultation-btn"
                               >
                                     <HiCalendarDays className="text-xl" aria-hidden="true" />
                                     <span>Schedule a Technical Consultation</span>
-                              </button>
+                              </Link>
                         </div>
                   </div>
 
                   {/* Consultation Booking Modal */}
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </main>
       );
 };

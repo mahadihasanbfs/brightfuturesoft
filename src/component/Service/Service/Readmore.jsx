@@ -14,7 +14,6 @@ import {
 } from "react-icons/hi2";
 
 import { base_url } from "../../../layout/Title";
-import { CallSchedule } from "../../../pages/shared/Header/Header";
 import moduleName from "../../../Assctes/logo.png";
 
 // Service Vector Illustrations
@@ -692,7 +691,6 @@ const serviceInfo = [
 
 const Read_more_service = () => {
       const { id } = useParams();
-      const [schedule, setSchedule] = useState(false);
       const [openQuestionId, setOpenQuestionId] = useState(0);
 
       const { data: teamMembers = [] } = useQuery({
@@ -932,14 +930,13 @@ const Read_more_service = () => {
 
                                     {/* CTA Row */}
                                     <div className="service-details-cta-row">
-                                          <button
-                                                type="button"
-                                                onClick={() => setSchedule(true)}
+                                          <Link to="/book?type=discovery"
+                                                
                                                 className="service-btn-primary"
                                           >
                                                 <HiCalendarDays className="text-lg" aria-hidden="true" />
                                                 <span>Book Technical Scoping Call</span>
-                                          </button>
+                                          </Link>
                                           <a href="#core-deliverables" className="service-btn-secondary">
                                                 <span>Explore Deliverables</span>
                                                 <HiArrowSmallRight aria-hidden="true" />
@@ -1125,14 +1122,13 @@ const Read_more_service = () => {
                                                 Can't find the exact technical specification you need? Connect directly with our senior solutions engineers for a free 30-minute scoping session.
                                           </p>
                                           <div className="mt-6">
-                                                <button
-                                                      onClick={() => setSchedule(true)}
+                                                <Link to="/book?type=consultation"
+                                                      
                                                       className="service-btn-primary"
-                                                      type="button"
                                                 >
                                                       <HiCalendarDays className="text-lg" aria-hidden="true" />
                                                       <span>Start Free Technical Consultation</span>
-                                                </button>
+                                                </Link>
                                           </div>
                                     </div>
                               </div>
@@ -1185,10 +1181,6 @@ const Read_more_service = () => {
                         </section>
                   )}
 
-                  {/* Calendly Booking Modal */}
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </main>
       );
 };

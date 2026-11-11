@@ -5,6 +5,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import UseContext from './context/UseContext/UseContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { installAuthFetch } from './authFetch';
+
+installAuthFetch();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient = new QueryClient()

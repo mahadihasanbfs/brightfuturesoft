@@ -44,6 +44,8 @@ import Read_more_service from '../../component/Service/Service/Readmore';
 import TermsAndConditions from '../../component/Trams_and_Policy/Trams_and_condition';
 import PrivacyISMSPolicy from '../../component/Trams_and_Policy/Privecy_policy';
 import Compliance from '../../component/Trams_and_Policy/Compliance';
+import BookingPage from '../../component/Booking/BookingPage';
+import ManagePage from '../../component/Booking/ManagePage';
 import CompanyProfile from '../../pages/CompanyProfile/CompanyProfile';
 
 export const route = createBrowserRouter([
@@ -51,6 +53,14 @@ export const route = createBrowserRouter([
             path: '/',
             element: <Main></Main>,
             children: [
+                  {
+                        path: "/book",
+                        element: <BookingPage />
+                  },
+                  {
+                        path: "/book/manage/:id",
+                        element: <ManagePage />
+                  },
                   {
                         path: "/",
                         element: <>

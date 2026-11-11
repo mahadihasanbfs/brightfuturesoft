@@ -15,7 +15,7 @@ const sharePreviews = () => ({
                   if (!SHARE_CRAWLERS.test(req.headers['user-agent'] || '') || NOT_A_PAGE.test(url.pathname)) return next()
                   try {
                         const { default: handler } = await server.ssrLoadModule('/api/seo.js')
-                        req.query = { path: url.pathname }
+                        req.query = { path: url.pathname, type: url.searchParams.get('type') || undefined }
                         res.status = (code) => { res.statusCode = code; return res }
                         res.send = (body) => res.end(body)
                         await handler(req, res)

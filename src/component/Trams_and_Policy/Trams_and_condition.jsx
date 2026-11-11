@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import MetaTitle from "../../layout/Title";
 import { 
   FileText, ShieldCheck, Award, Calendar, 
   CheckCircle2, ArrowRight, ExternalLink, HelpCircle, Mail
 } from "lucide-react";
-import { CallSchedule } from "../../pages/shared/Header/Header";
 
 const TermsAndConditions = () => {
-  const [schedule, setSchedule] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -314,12 +312,12 @@ const TermsAndConditions = () => {
               <p className="text-xs text-[#66758a] leading-relaxed mb-4">
                 100% of custom code, designs, and database architectures developed for your project belong exclusively to your business.
               </p>
-              <button
-                onClick={() => setSchedule(true)}
+              <Link to="/book?type=consultation"
+                
                 className="w-full py-2.5 px-3 bg-[#eef6fc] hover:bg-[#ddebfa] text-[#0a65b4] font-bold text-xs rounded transition-colors text-center"
               >
                 Schedule Contract Consultation
-              </button>
+              </Link>
             </div>
           </aside>
 
@@ -354,7 +352,6 @@ const TermsAndConditions = () => {
         </div>
       </div>
 
-      {schedule && <CallSchedule setModalOpen={setSchedule} isModalOpen={schedule} />}
     </div>
   );
 };

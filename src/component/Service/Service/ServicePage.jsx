@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { 
       HiShieldCheck, 
@@ -23,11 +24,9 @@ import crm from '../../../Assctes/vectors/CRM.gif';
 import ServiceCart from '../../ServiceCart/ServiceCart';
 import Contact from '../../Contact/Contact/Contact';
 import moduleName from '../../../Assctes/logo.png';
-import { CallSchedule } from '../../../pages/shared/Header/Header';
 
 const ServicePage = () => {
       const [activeCategory, setActiveCategory] = useState("all");
-      const [schedule, setSchedule] = useState(false);
       const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
       const serviceInfo = [
@@ -510,14 +509,13 @@ const ServicePage = () => {
                               <p>
                                     Schedule a 30-minute discovery call with our senior engineering architects. We will evaluate your technical requirements and outline a concrete execution roadmap.
                               </p>
-                              <button
-                                    type="button"
-                                    onClick={() => setSchedule(true)}
+                              <Link to="/book?type=consultation"
+                                    
                                     className="service-consultation-btn"
                               >
                                     <HiCalendarDays className="text-xl" aria-hidden="true" />
                                     <span>Schedule Technical Consultation</span>
-                              </button>
+                              </Link>
                         </div>
                   </section>
 
@@ -525,9 +523,6 @@ const ServicePage = () => {
                   <Contact />
 
                   {/* Consultation Booking Modal */}
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </main>
       );
 };

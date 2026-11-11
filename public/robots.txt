@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /dashboard/
 Disallow: /admin/
+Disallow: /book/manage/
 Allow: /
 
 Sitemap: https://www.brightfuturesoft.com/sitemap.xml

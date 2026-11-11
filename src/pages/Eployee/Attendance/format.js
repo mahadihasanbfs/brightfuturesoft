@@ -16,4 +16,4 @@ export const fmtHours = (min) => (min ? `${Math.floor(min / 60)}h ${String(min %
 export const fmtDay = (date) =>
       new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', { timeZone: 'UTC', weekday: 'short', day: '2-digit', month: 'short' });
 
-export const LEAVE_TYPES = ['casual', 'sick', 'annual', 'unpaid', 'other'];
+export const LEAVE_TYPES = ['casual', 'sick', 'annual', 'unpaid'];

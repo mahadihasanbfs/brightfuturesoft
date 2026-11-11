@@ -4,38 +4,6 @@ import { Link } from "react-router-dom";
 import { base_url } from "../../../layout/Title";
 import { AuthContext } from "../../../context/UseContext/AuthProvider";
 
-const sampleHolidays = [
-      { date: "2026-02-04", name: "Shab e-Barat (Night of Records)" },
-      { date: "2026-02-21", name: "Shahid Dibosh (International Mother Language Day)" },
-      { date: "2026-03-17", name: "Shab-e-Qadar (Night of Destiny)" },
-      { date: "2026-03-19", name: "Eid-ul-Fitr Holiday" },
-      { date: "2026-03-20", name: "Jumatul Bidah" },
-      { date: "2026-03-20", name: "Eid-ul-Fitr Holiday" },
-      { date: "2026-03-21", name: "Eid-ul-Fitr (End of Ramadan)" },
-      { date: "2026-03-22", name: "Eid-ul-Fitr Holiday" },
-      { date: "2026-03-23", name: "Eid-ul-Fitr Holiday" },
-      { date: "2026-03-26", name: "Independence Day (National Day)" },
-      { date: "2026-04-14", name: "Pahela Baishakh (Bangla New Year)" },
-      { date: "2026-05-01", name: "May Day" },
-      { date: "2026-05-01", name: "Buddha Purnima (Buddha Day)" },
-      { date: "2026-05-26", name: "Eid-ul-Azha Holiday" },
-      { date: "2026-05-27", name: "Eid-ul-Azha Holiday" },
-      { date: "2026-05-28", name: "Eid-ul-Azha (Feast of Sacrifice)" },
-      { date: "2026-05-29", name: "Eid-ul-Azha Holiday" },
-      { date: "2026-05-30", name: "Eid-ul-Azha Holiday" },
-      { date: "2026-05-31", name: "Eid-ul-Azha Holiday" },
-      { date: "2026-06-26", name: "Ashura (Muharram)" },
-      { date: "2026-07-01", name: "July Bank Holiday" },
-      { date: "2026-08-05", name: "July Mass Uprising Day" },
-      { date: "2026-08-26", name: "Eid-e-Milad-un-Nabi (Prophet’s Birthday)" },
-      { date: "2026-09-04", name: "Sri Krishna Janmashtami" },
-      { date: "2026-10-20", name: "Durga Puja Holiday" },
-      { date: "2026-10-21", name: "Durga Puja (Bijoya Dashami)" },
-      { date: "2026-12-16", name: "Bijoy Dibosh (Victory Day)" },
-      { date: "2026-12-25", name: "Christmas Day" },
-      { date: "2025-12-16", name: "Victory Day" },
-      { date: "2025-12-25", name: "Christmas Day" },
-];
 
 
 
@@ -43,10 +11,8 @@ const sampleHolidays = [
 
 
 
-const specialDays = [
-      { month: 1, day: 1, name: "New Year Celebrations" },
-      { month: 1, day: 3, name: "Company Anniversary" }
-];
+
+
 
 const ChevronLeftIcon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -179,8 +145,7 @@ export default function CalendarPage() {
       });
 
 
-      const CALENDLY_TOKEN = "Bearer eyJraWQiOiIxY2UxZTEzNjE3ZGNmNzY2YjNjZWJjY2Y4ZGM1YmFmYThhNjVlNjg0MDIzZjdjMzJiZTgzNDliMjM4MDEzNWI0IiwidHlwIjoiUEFUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJodHRwczovL2F1dGguY2FsZW5kbHkuY29tIiwiaWF0IjoxNzUxMDIzMDQ4LCJqdGkiOiI3OWMzZDE3NS1hYjJkLTRiOTMtOWUwMS1lM2E5MGE2ZTQ0YmYiLCJ1c2VyX3V1aWQiOiJiMTgxNmZlZi1kYWEyLTRhMWItYmM1NS03MjM0OGRjODA2ZWEifQ.fqFBxpZJcdkp7d4yHaB8_54B5_zpFGSKcKGXQlExAE4psCUv-amJMaIMddsLaQdvkMlra0OtKh6pLajwbKpdXQ";
-
+      
       const getLocalDateKey = (value) => {
             const date = new Date(value)
             if (Number.isNaN(date.getTime())) return null
@@ -202,41 +167,24 @@ export default function CalendarPage() {
             })
       }
 
-      function useCalendlyUser() {
-            return useQuery({
-                  queryKey: ["calendly-user"],
-                  queryFn: async () => {
-                        const res = await fetch("https://api.calendly.com/users/me", {
-                              headers: { Authorization: CALENDLY_TOKEN },
-                        });
-                        const data = await res.json();
-                        return data.resource.uri;
-                  },
-            });
-      }
+      const { data: sampleHolidays = [] } = useQuery({
+            queryKey: ["company-holidays"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/appointment/holidays`);
+                  const data = await res.json();
+                  return Array.isArray(data.data) ? data.data : [];
+            },
+      });
 
-      function useCalendlyMeetings(userUri) {
-            return useQuery({
-                  queryKey: ["calendly-meetings", userUri],
-                  enabled: !!userUri,
-                  queryFn: async () => {
-                        let events = [];
-                        let nextPage = `https://api.calendly.com/scheduled_events?user=${userUri}`;
-                        while (nextPage) {
-                              const res = await fetch(nextPage, {
-                                    headers: { Authorization: CALENDLY_TOKEN },
-                              });
-                              const data = await res.json();
-                              events = [...events, ...(data.collection || [])];
-                              nextPage = data.pagination?.next_page || null;
-                        }
-                        return events;
-                  },
-            });
-      }
+      const { data: meetings = [] } = useQuery({
+            queryKey: ["appointments"],
+            queryFn: async () => {
+                  const res = await fetch(`${base_url}/appointment/list`);
+                  const data = await res.json();
+                  return Array.isArray(data.data) ? data.data.filter(a => a.status !== "cancelled") : [];
+            },
+      });
 
-        const { data: userUri } = useCalendlyUser();
-      const { data: meetings } = useCalendlyMeetings(userUri);
 
 
       const employeeBirthdays = teamMembers
@@ -307,7 +255,7 @@ export default function CalendarPage() {
             }
       }
 
-      const normalizeCalendlyItem = (meeting) => {
+      const normalizeAppointmentItem = (meeting) => {
             const dateKey = getLocalDateKey(meeting?.start_time)
             if (!dateKey) return null
 
@@ -325,7 +273,7 @@ export default function CalendarPage() {
             ...(contacts.map(normalizeContactItem).filter(Boolean)),
             ...(notice_data.map(normalizeNoticeItem).filter(Boolean)),
             ...(issue_data.map(normalizeIssueItem).filter(Boolean)),
-            ...(Array.isArray(meetings) ? meetings.map(normalizeCalendlyItem).filter(Boolean) : []),
+            ...(Array.isArray(meetings) ? meetings.map(normalizeAppointmentItem).filter(Boolean) : []),
       ]
 
             
@@ -364,13 +312,9 @@ export default function CalendarPage() {
                         raw: b,
                   })
             );
-            specialDays.forEach(s =>
-                  s.month === currentMonth && s.day === day &&
-                  events.push({ name: s.name, type: "special", title: s.name, summary: "Special day" })
-            );
             sampleHolidays.forEach(h =>
                   h.date === dateKey &&
-                  events.push({ name: h.name, type: "holiday", title: h.name, summary: "Holiday" })
+                  events.push({ name: h.name, type: h.type === "special" ? "special" : "holiday", title: h.name, summary: h.type === "special" ? "Special day" : "Holiday" })
             );
 
             calendarItems

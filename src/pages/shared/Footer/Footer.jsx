@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import logo from "../../../Assctes/logo.png";
 import { Link } from "react-router-dom";
 import { BsFacebook, BsLinkedin, BsTwitter, BsWhatsapp } from "react-icons/bs";
@@ -9,10 +9,8 @@ import {
       HiOutlinePhone, 
       HiOutlineMapPin 
 } from "react-icons/hi2";
-import { CallSchedule } from "../Header/Header";
 
 const Footer = () => {
-      const [schedule, setSchedule] = useState(false);
 
       return (
             <footer className="site-footer px-4 sm:px-6 lg:px-8" aria-labelledby="footer-heading">
@@ -30,14 +28,13 @@ const Footer = () => {
                                     </p>
                               </div>
                               <div className="footer-cta-actions">
-                                    <button
-                                          type="button"
+                                    <Link to="/book?type=consultation"
                                           className="footer-primary-btn group !py-3"
-                                          onClick={() => setSchedule(true)}
+                                          
                                     >
                                           <span>Book a consultation</span>
                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                    </button>
+                                    </Link>
                                     <Link to="/contacts" className="footer-secondary-btn group !py-3">
                                           <span>Contact our team</span>
                                           <HiArrowUpRight className="text-base transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
@@ -166,9 +163,6 @@ const Footer = () => {
                         </div>
                   </div>
 
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </footer>
       );
 };

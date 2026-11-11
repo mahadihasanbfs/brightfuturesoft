@@ -24,7 +24,6 @@ const navigationItems = [
 
 const Header = () => {
       const [isMenuOpen, setIsMenuOpen] = useState(false);
-      const [schedule, setSchedule] = useState(false);
       const [profileOpen, setProfileOpen] = useState(false);
       const [profileOpen_sm, setProfileOpen_sm] = useState(false);
 
@@ -124,13 +123,13 @@ const Header = () => {
                               {/* Desktop Right Actions */}
                               <div className="hidden items-center justify-end xl:flex">
                                     {!user ? (
-                                          <button 
-                                                onClick={() => setSchedule(true)} 
+                                          <Link to="/book" 
+                                                 
                                                 className="header-primary inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold shadow-xs transition-all hover:brightness-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#0A65B4]/30"
                                           >
                                                 <span>Book a call</span>
                                                 <HiOutlineArrowUpRight className="text-sm" aria-hidden="true" />
-                                          </button>
+                                          </Link>
                                     ) : (
                                           <div className="relative" ref={dropdownRef}>
                                                 <button
@@ -334,16 +333,13 @@ const Header = () => {
                                     {/* Bottom Action Area */}
                                     {!user ? (
                                           <div className="space-y-2.5">
-                                                <button
-                                                      onClick={() => {
-                                                            setSchedule(true);
-                                                            setIsMenuOpen(false);
-                                                      }}
+                                                <Link to="/book"
+                                                      onClick={() => setIsMenuOpen(false)}
                                                       className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0A65B4] hover:bg-[#084F8D] active:scale-[0.99] py-3 px-4 text-sm font-bold text-white shadow-sm transition-all"
                                                 >
                                                       <span>Book a call</span>
                                                       <HiOutlineArrowUpRight className="text-base" />
-                                                </button>
+                                                </Link>
 
                                                 <div className="grid grid-cols-2 gap-2 text-center pt-1">
                                                       <a
@@ -406,38 +402,10 @@ const Header = () => {
                         </div>
                   </nav>
 
-                  {schedule && (
-                        <CallSchedule
-                              isModalOpen={schedule}
-                              setModalOpen={setSchedule}
-                        />
-                  )}
             </div>
       );
 };
 
 export default Header;
 
-/* ------------------ MODAL ------------------ */
 
-export const CallSchedule = ({ isModalOpen, setModalOpen }) => {
-      if (!isModalOpen) return null;
-
-      return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40 p-4">
-                  <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden">
-                        <iframe
-                              src="https://calendly.com/brightfuturesoft-bd"
-                              title="Calendly Schedule"
-                              className="w-full h-[80vh]"
-                        />
-                        <button
-                              onClick={() => setModalOpen(false)}
-                              className="absolute top-4 right-4 bg-[#2463eb] hover:bg-[#315bb6] w-10 h-10 rounded-full flex items-center justify-center text-white"
-                        >
-                              ✕
-                        </button>
-                  </div>
-            </div>
-      );
-};

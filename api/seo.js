@@ -32,6 +32,7 @@ const PAGES = {
       '/all_project': ['All Projects | Bright Future Soft', 'Browse every software project delivered by Bright Future Soft.'],
       '/careers': ['Careers | Bright Future Soft', 'Open positions at Bright Future Soft. Build your career with a growing Bangladesh software company.'],
       '/contacts': ['Contact Us | Bright Future Soft', 'Talk to Bright Future Soft about your next software project. Call, email or send us a message.'],
+      '/book': ['Book an Appointment | Free Consultation, Demo & Workshops | Bright Future Soft', 'Book a free consultation, live application demo, project discovery workshop, technical review or support session with the Bright Future Soft team. Pick a time online in under a minute.'],
       '/blog': ['Blog | Bright Future Soft', 'Articles on software development, design, cloud and business technology from the Bright Future Soft team.'],
       '/trams-and-conditions': ['Terms and Conditions | Bright Future Soft', 'The terms and conditions for using Bright Future Soft services.'],
       '/terms': ['Terms of Service | Bright Future Soft', 'The terms of service for Bright Future Soft.'],
@@ -117,13 +118,28 @@ const getJson = async (url) => {
 /* ---------- per-page metadata ---------- */
 
 // Returns { title, description, image?, type?, notFound?, degraded? } for a path, using live data where the page has any.
-const resolve = async (path) => {
+const resolve = async (path, query = {}) => {
       const parts = path.split('/').filter(Boolean);
       const [section, slug] = parts;
       const isDetail = Boolean(slug) && parts.length === 2;
       const missing = { title: `Page not found | ${SITE_NAME}`, description: DEFAULT_DESCRIPTION, notFound: true };
       const fallback = PAGES[`/${parts.join('/')}`] || PAGES['/'];
       const degraded = { title: fallback[0], description: fallback[1], degraded: true };
+
+      if (section === 'book' && parts.length === 1) {
+            const base = PAGES['/book'];
+            const out = { title: base[0], description: base[1], image: '/og/book.jpg' };
+            const wanted = String(query.type || '');
+            if (!/^[a-z-]{1,40}$/.test(wanted)) return out;
+            const r = await getJson(`${API}/appointment/types`);
+            const type = (Array.isArray(r.data) ? r.data : []).find((t) => t.id === wanted);
+            if (!type) return out;
+            return {
+                  title: `Book a ${type.name} (${type.duration} min) | ${SITE_NAME}`,
+                  description: plainText(`${type.description} ${type.duration}-minute session. Choose a time online and get confirmed instantly.`),
+                  image: '/og/book.jpg',
+            };
+      }
 
       if (section === 'blog' && isDetail) {
             const r = await getJson(`${API}/blog/get-blog-by-id?blog_id=${encodeURIComponent(safeDecode(slug))}`);
@@ -239,11 +255,13 @@ export default async function handler(req, res) {
       const proto = String(req.headers['x-forwarded-proto'] || (/^(localhost|127\.)/.test(host) ? 'http' : 'https')).split(',')[0];
       const origin = `${proto}://${host}`;
 
-      const meta = await resolve(path);
+      const query = { type: req.query?.type };
+      const meta = await resolve(path, query);
+      const canonicalQuery = path === '/book' && /^[a-z-]{1,40}$/.test(String(query.type || '')) && !meta.notFound ? `?type=${query.type}` : '';
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       // Edge-cache per URL: the first share builds it, later shares are served instantly; stale copies refresh in the background.
       // A degraded answer (API unreachable) is only cached briefly so the real preview replaces it quickly.
       res.setHeader('Cache-Control', meta.degraded ? 'public, s-maxage=60' : 'public, s-maxage=3600, stale-while-revalidate=86400');
-      res.status(meta.notFound ? 404 : 200).send(render(meta, `${origin}${encodeURI(safeDecode(path))}`, origin));
+      res.status(meta.notFound ? 404 : 200).send(render(meta, `${origin}${encodeURI(safeDecode(path))}${canonicalQuery}`, origin));
 }

@@ -68,7 +68,21 @@ export default function WorkReports() {
                                                             <Badge status={r.status} />
                                                       </header>
                                                       <p className="text-xs text-gray-400">In {fmtTime(r.checkIn)} · Out {r.open ? <b className="text-emerald-400">in office</b> : fmtTime(r.checkOut)} · Worked {fmtHours(r.workedMinutes)}</p>
+                                                      {r.hasReport && r.reportAt && <p className="-mt-2 text-xs text-gray-500">Written at {fmtTime(r.reportAt)}</p>}
                                                       {r.hasReport ? <ReportView parts={r.reportParts} report={r.report} /> : <p className="rounded-xl border border-dashed border-amber-500/40 px-3 py-3 text-sm text-amber-300">Has not ended the day yet, so no report. It is required when they end their day.</p>}
+                                                      {r.reportHistory?.length > 0 && (
+                                                            <details className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+                                                                  <summary className="cursor-pointer text-xs font-semibold text-gray-400">Earlier versions ({r.reportHistory.length}) · replaced when they ended the day again</summary>
+                                                                  <div className="mt-3 space-y-4">
+                                                                        {[...r.reportHistory].reverse().map((h, i) => (
+                                                                              <div key={h.at || i} className="border-t border-white/10 pt-3 first:border-0 first:pt-0">
+                                                                                    <p className="mb-2 text-xs text-gray-500">Written at {fmtTime(h.at)}</p>
+                                                                                    <ReportView parts={h.parts} />
+                                                                              </div>
+                                                                        ))}
+                                                                  </div>
+                                                            </details>
+                                                      )}
                                                 </article>
                                           ))}
                                     </div>

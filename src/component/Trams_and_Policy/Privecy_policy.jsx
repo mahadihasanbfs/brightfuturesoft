@@ -5,11 +5,9 @@ import {
   ShieldCheck, Lock, Eye, Server, 
   CheckCircle2, AlertTriangle, KeyRound, Mail, FileText
 } from "lucide-react";
-import { CallSchedule } from "../../pages/shared/Header/Header";
 
 const PrivacyISMSPolicy = () => {
   const [activeTab, setActiveTab] = useState("all"); // 'all', 'privacy', 'isms'
-  const [schedule, setSchedule] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -350,12 +348,12 @@ const PrivacyISMSPolicy = () => {
               <p className="text-xs text-[#66758a] leading-relaxed mb-4">
                 We sign bilateral NDAs before discussing your project architecture, database models, or proprietary code.
               </p>
-              <button
-                onClick={() => setSchedule(true)}
+              <Link to="/book?type=technical"
+                
                 className="w-full py-2.5 px-3 bg-[#eef6fc] hover:bg-[#ddebfa] text-[#0a65b4] font-bold text-xs rounded transition-colors text-center"
               >
                 Request Security Briefing
-              </button>
+              </Link>
             </div>
           </aside>
 
@@ -390,7 +388,6 @@ const PrivacyISMSPolicy = () => {
         </div>
       </div>
 
-      {schedule && <CallSchedule setModalOpen={setSchedule} isModalOpen={schedule} />}
     </div>
   );
 };

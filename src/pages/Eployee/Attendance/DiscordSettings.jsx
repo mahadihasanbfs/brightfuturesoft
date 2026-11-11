@@ -76,6 +76,10 @@ export default function DiscordSettings() {
                                     <Toggle checked={s.sections.sales} onChange={(v) => patch({ sections: { ...s.sections, sales: v } })} label="Software sales" hint="Visits, deals won and follow-ups due." />
                               </div>
                               <Toggle checked={s.checkoutReports} onChange={(v) => patch({ checkoutReports: v })} label="Post each daily report when someone checks out" hint="Name, in and out times, hours worked and the report they wrote, sent the moment they check out." />
+                              <Toggle checked={s.reminder} onChange={(v) => patch({ reminder: v })} label="Remind people to end their day" hint="Names everyone who checked in but has not pressed End day or written a report." />
+                              <Field label="Reminder time (Bangladesh time)">
+                                    <input type="time" className={`${input} !w-auto`} value={s.reminderTime} onChange={(e) => patch({ reminderTime: e.target.value })} />
+                              </Field>
                               <Toggle checked={s.leaveEvents} onChange={(v) => patch({ leaveEvents: v })} label="Instant leave notices" hint="Post right away when someone requests leave and when it is approved or rejected." />
                         </fieldset>
                         <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">

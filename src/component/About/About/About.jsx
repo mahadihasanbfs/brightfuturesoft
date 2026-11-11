@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -19,10 +19,8 @@ import { base_url } from '../../../layout/Title';
 import { Faq } from './Faq';
 import { OurProjects } from '../Projects';
 import logo from '../../../Assctes/logo.png';
-import { CallSchedule } from '../../../pages/shared/Header/Header';
 
 const About = () => {
-      const [schedule, setSchedule] = useState(false);
 
       const { data: teamMembers = [], isLoading: isTeamLoading } = useQuery({
             queryKey: ["all_users"],
@@ -216,23 +214,21 @@ const About = () => {
                                           </div>
 
                                           <div className="about-hero-actions">
-                                                {/* <button
-                                                      type="button"
-                                                      onClick={() => setSchedule(true)}
+                                                {/* <Link to="/book?type=consultation"
+                                                      
                                                       className="hero-primary group inline-flex items-center gap-3"
                                                 >
                                                       Schedule a consultation
                                                       <HiArrowSmallRight className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                                </button> */}
+                                                </Link> */}
 
-                                                 <button
-                                                                                          type="button"
+                                                 <Link to="/book?type=consultation"
                                                                                           className="hero-primary-btn group"
-                                                                                          onClick={() => setSchedule(true)}
+                                                                                          
                                                                                     >
                                                                                           <span>Book an appointment</span>
                                                                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                                                                    </button>
+                                                                                    </Link>
                                                 <a
                                                       className="site-outline-button"
                                                       href="/company-profile.pdf"
@@ -550,9 +546,6 @@ const About = () => {
                   <Contact />
 
                   {/* Appointment Modal */}
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </div>
       );
 };

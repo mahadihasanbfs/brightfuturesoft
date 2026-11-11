@@ -12,8 +12,9 @@ const dayList = (from, to) => {
       for (let t = Date.parse(from); t <= Date.parse(to); t += 86400000) out.push(new Date(t));
       return out;
 };
-// Friday and Saturday are the weekend, so they are not leave days.
-const workingDays = (from, to) => (from && to && from <= to ? dayList(from, to).filter((d) => ![5, 6].includes(d.getUTCDay())).length : 0);
+// Friday, Saturday and company holidays are not leave days.
+const workingDays = (from, to, holidays = new Set()) =>
+      from && to && from <= to ? dayList(from, to).filter((d) => ![5, 6].includes(d.getUTCDay()) && !holidays.has(d.toISOString().slice(0, 10))).length : 0;
 const fmtDate = (d) => new Date(`${d.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' });
 const fmtStamp = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { timeZone: 'Asia/Dhaka', day: '2-digit', month: 'short' }) : '');
 
@@ -48,7 +49,10 @@ export default function MyLeave() {
       const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
       const { data: leaves = [], isPending, error } = useQuery({ queryKey: ['att-my-leaves'], queryFn: () => api('/my-leaves') });
 
-      const done = () => { qc.invalidateQueries({ queryKey: ['att-my-leaves'] }); qc.invalidateQueries({ queryKey: ['att-my'] }); };
+      const { data: bal } = useQuery({ queryKey: ['att-balance'], queryFn: () => api('/balance') });
+      const holidays = useMemo(() => new Set((bal?.holidays ?? []).map((h) => h.date)), [bal]);
+
+      const done = () => { qc.invalidateQueries({ queryKey: ['att-my-leaves'] }); qc.invalidateQueries({ queryKey: ['att-balance'] }); qc.invalidateQueries({ queryKey: ['att-my'] }); };
       const submit = useMutation({
             mutationFn: () => api('/leaves', { method: 'POST', body: form }),
             onSuccess: () => {
@@ -62,12 +66,13 @@ export default function MyLeave() {
       const year = localDate().slice(0, 4);
       const stats = useMemo(() => {
             const inYear = leaves.filter((l) => l.from.startsWith(year));
-            const days = (status) => inYear.filter((l) => l.status === status).reduce((n, l) => n + workingDays(l.from, l.to), 0);
-            const byType = LEAVE_TYPES.map((t) => [t, inYear.filter((l) => l.status === 'approved' && l.type === t).reduce((n, l) => n + workingDays(l.from, l.to), 0)]).filter(([, n]) => n > 0);
-            return { pending: leaves.filter((l) => l.status === 'pending').length, approved: days('approved'), rejected: inYear.filter((l) => l.status === 'rejected').length, byType };
-      }, [leaves, year]);
+            const days = (status) => inYear.filter((l) => l.status === status).reduce((n, l) => n + workingDays(l.from, l.to, holidays), 0);
+            return { pending: leaves.filter((l) => l.status === 'pending').length, approved: days('approved'), rejected: inYear.filter((l) => l.status === 'rejected').length };
+      }, [leaves, year, holidays]);
 
-      const requestDays = workingDays(form.from, form.to);
+      const requestDays = workingDays(form.from, form.to, holidays);
+      const picked = bal?.types.find((t) => t.type === form.type);
+      const overLimit = Boolean(picked && picked.left !== null && requestDays > picked.left);
       const shown = leaves.filter((l) => filter === 'all' || l.status === filter);
 
       return (
@@ -85,27 +90,41 @@ export default function MyLeave() {
                                                 <button type="button" key={t} onClick={() => setForm((f) => ({ ...f, type: t }))} className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition ${form.type === t ? 'bg-blue-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>{t}</button>
                                           ))}
                                     </div>
+                                    {picked && (
+                                          <p className={`mt-2 text-xs ${overLimit ? 'text-red-400' : 'text-gray-500'}`}>
+                                                {picked.left === 0 ? `Your ${picked.type} leave limit is used up for this year.` : `${picked.left} of ${picked.cap} days left this year.`}{picked.type === 'unpaid' && ' Unpaid days are deducted from salary.'}
+                                          </p>
+                                    )}
                               </Field>
                               <Field label="Reason"><textarea rows={3} className={input} maxLength={500} placeholder="Tell your approver why (optional)" value={form.reason} onChange={set('reason')} /></Field>
                               <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3 text-sm">
                                     <span className="text-gray-400">Working days</span>
                                     <b className="text-lg tabular-nums">{requestDays}</b>
                               </div>
-                              {requestDays === 0 && form.from <= form.to && <p className="text-xs text-amber-400">Those dates are all weekend (Fri/Sat), nothing to request.</p>}
+                              {requestDays === 0 && form.from <= form.to && <p className="text-xs text-amber-400">Those dates are all weekend (Fri/Sat) or a holiday, nothing to request.</p>}
                               <p className="flex items-start gap-2 text-xs text-gray-400"><Info size={14} className="mt-0.5 shrink-0" />Leave is not valid until your manager or the CEO approves it. Until then those days count as absent.</p>
-                              <button className={`${btnPrimary} w-full`} disabled={submit.isPending || requestDays === 0}><Send size={15} /> {submit.isPending ? 'Sending…' : 'Send for approval'}</button>
+                              <button className={`${btnPrimary} w-full`} disabled={submit.isPending || requestDays === 0 || overLimit}><Send size={15} /> {submit.isPending ? 'Sending…' : 'Send for approval'}</button>
                         </form>
 
-                        <div className={`${card} p-5`}>
-                              <h3 className="font-semibold">Approved leave in {year}</h3>
-                              <p className="mt-2 text-3xl font-bold tabular-nums text-emerald-400">{stats.approved}<span className="ml-1 text-sm font-medium text-gray-400">days</span></p>
-                              {stats.byType.length === 0 ? <p className="mt-2 text-sm text-gray-500">No approved leave yet.</p> : (
-                                    <ul className="mt-3 space-y-2">
-                                          {stats.byType.map(([t, n]) => (
-                                                <li key={t} className="flex items-center justify-between text-sm"><span className={`capitalize ${TYPE_TONE[t]}`}>{t}</span><b className="tabular-nums">{n}</b></li>
-                                          ))}
-                                    </ul>
-                              )}
+                        <div className={`${card} space-y-4 p-5`}>
+                              <h3 className="font-semibold">Leave balance · {bal?.year ?? year}</h3>
+                              {!bal ? <p className="text-sm text-gray-500">Loading…</p> : bal.types.map((t) => {
+                                    const pct = t.cap ? Math.min(100, Math.round(((t.used + t.pending) / t.cap) * 100)) : 0;
+                                    return (
+                                          <div key={t.type}>
+                                                <div className="flex items-baseline justify-between text-sm">
+                                                      <span className={`font-medium capitalize ${TYPE_TONE[t.type]}`}>{t.type}</span>
+                                                      <span className="tabular-nums text-gray-300"><b>{t.used}</b>{t.cap !== null && <span className="text-gray-500"> / {t.cap}</span>} days{t.pending > 0 && <span className="text-amber-400"> · {t.pending} pending</span>}</span>
+                                                </div>
+                                                {t.cap !== null && (
+                                                      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
+                                                            <div className={`h-full rounded-full ${pct >= 100 ? 'bg-red-500' : pct >= 75 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${pct}%` }} />
+                                                      </div>
+                                                )}
+                                          </div>
+                                    );
+                              })}
+                              <p className="text-xs text-gray-500">Used = approved. You cannot ask for more than the yearly limit. Weekends and holidays are not counted.</p>
                         </div>
                   </div>
 
@@ -129,7 +148,7 @@ export default function MyLeave() {
                                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                                       <div>
                                                             <p className="font-semibold">{l.from === l.to ? fmtDate(l.from) : `${fmtDate(l.from)} → ${fmtDate(l.to)}`}</p>
-                                                            <p className="mt-0.5 text-sm text-gray-400"><span className={`font-medium capitalize ${TYPE_TONE[l.type]}`}>{l.type}</span> · {workingDays(l.from, l.to)} working day{workingDays(l.from, l.to) === 1 ? '' : 's'}</p>
+                                                            <p className="mt-0.5 text-sm text-gray-400"><span className={`font-medium capitalize ${TYPE_TONE[l.type]}`}>{l.type}</span> · {workingDays(l.from, l.to, holidays)} working day{workingDays(l.from, l.to, holidays) === 1 ? '' : 's'}</p>
                                                       </div>
                                                       <div className="flex items-center gap-2">
                                                             <Badge status={l.status} />

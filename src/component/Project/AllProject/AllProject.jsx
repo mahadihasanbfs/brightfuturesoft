@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { HiArrowSmallRight } from "react-icons/hi2";
 import { base_url } from '../../../layout/Title';
-import { CallSchedule } from '../../../pages/shared/Header/Header';
 
 const AllProject = () => {
-      const [schedule, setSchedule] = useState(false);
       const [searchValue, setSearchValue] = useState("all");
 
       const {
@@ -218,14 +216,13 @@ const AllProject = () => {
                                           Schedule a 30-minute discovery consultation with our technical team to discuss architecture, timeline, and budget.
                                     </p>
                                     <div className="about-faq-cta-actions">
-                                          <button
-                                          type="button"
+                                          <Link to="/book?type=demo"
                                           className="hero-primary-btn group"
-                                          onClick={() => setSchedule(true)}
+                                          
                                     >
                                           <span>Book an appointment</span>
                                           <HiArrowSmallRight className="text-lg transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                                    </button>
+                                    </Link>
                                           <Link to="/contacts" className="site-outline-button">
                                                 Send project requirements <span aria-hidden="true">→</span>
                                           </Link>
@@ -234,9 +231,6 @@ const AllProject = () => {
                         </div>
                   </main>
 
-                  {schedule && (
-                        <CallSchedule isModalOpen={schedule} setModalOpen={setSchedule} />
-                  )}
             </div>
       );
 };
