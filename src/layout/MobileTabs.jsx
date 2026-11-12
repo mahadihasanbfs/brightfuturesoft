@@ -19,6 +19,7 @@ export function TabBar({ items, paths, sheetOpen, onMore, badge }) {
       const tabs = paths.map((p) => items.find((i) => i.path === p)).filter(Boolean)
       return (
             <nav className="dash-tabbar lg:hidden" aria-label="Shortcuts">
+                  <div className="dash-tabbar-in">
                   {tabs.map((item) => (
                         <NavLink key={item.path} to={item.path} className={({ isActive }) => `dash-tab ${isActive && !sheetOpen ? "is-active" : ""}`}>
                               <span className="dash-tab-icon">
@@ -32,6 +33,7 @@ export function TabBar({ items, paths, sheetOpen, onMore, badge }) {
                         <span className="dash-tab-icon"><LayoutGrid /></span>
                         <span className="dash-tab-label">All</span>
                   </button>
+            </div>
             </nav>
       )
 }

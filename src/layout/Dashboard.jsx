@@ -459,7 +459,7 @@ const Dashboard = () => {
       
 
       return (
-            <div className={`flex h-screen h-[100dvh] bg-gray-100 ${theme === "light" ? "dash-light" : ""}`}>
+            <div className={`dash-root fixed inset-0 flex bg-gray-100 ${theme === "light" ? "dash-light" : ""}`}>
                   {/* Mobile Menu Overlay */}
                   {mobileMenuOpen && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={closeMobileMenu} />

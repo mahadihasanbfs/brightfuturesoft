@@ -332,20 +332,21 @@
 .ml-empty { color: var(--tk-mute); }
 
 /* ---- Phone app shell: floating tab bar + all-pages sheet ---- */
-.dash-tabbar { --tb-bg:#101c2e; --tb-line:#26395280; --tb-ink:#8fa4bb; --tb-act:#fff; --tb-pill:#0A65B4;
-      position: relative; z-index: 30; flex: none; display: flex; align-items: stretch; gap: 2px; margin: 0 12px calc(10px + env(safe-area-inset-bottom)); padding: 6px;
-      background: var(--tb-bg); border: 1px solid var(--tb-line); border-radius: 22px; box-shadow: 0 14px 30px -14px rgba(0,0,0,.65); }
-.dash-light .dash-tabbar { --tb-bg:#FFFFFF; --tb-line:#E1E9F2; --tb-ink:#7a8aa0; --tb-act:#fff; --tb-pill:#0A65B4; box-shadow: 0 14px 30px -16px rgba(10,44,77,.35); }
-.dash-tab { position: relative; flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 0; height: 46px; padding: 0 4px; border: 0; border-radius: 16px;
-      background: transparent; color: var(--tb-ink); font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .18s, color .18s, flex-grow .22s; }
-.dash-tab-icon { position: relative; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex: none; }
+.dash-tabbar { --tb-bg:#16263c; --tb-line:#2b4361; --tb-ink:#93a6bc; --tb-act:#ffffff;
+      position: relative; z-index: 30; flex: none; background: #111827; padding: 6px 14px max(env(safe-area-inset-bottom), 22px); }
+.dash-light .dash-tabbar { --tb-bg:#FFFFFF; --tb-line:#E1E9F2; --tb-ink:#6b7c92; background: var(--dl-page); }
+.dash-tabbar-in { display: flex; align-items: center; gap: 2px; height: 62px; padding: 6px; background: var(--tb-bg); border: 1px solid var(--tb-line); border-radius: 26px; box-shadow: 0 16px 30px -16px rgba(0,0,0,.7); }
+.dash-light .dash-tabbar-in { box-shadow: 0 16px 30px -18px rgba(10,44,77,.4); }
+.dash-tab { position: relative; flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: center; justify-content: center; gap: 0; padding: 0 6px; border: 0; border-radius: 20px; background: transparent;
+      color: var(--tb-ink); font-size: 13px; font-weight: 700; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .2s, color .2s, flex-grow .25s; }
+.dash-tab-icon { position: relative; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; flex: none; }
 .dash-tab-icon svg { width: 22px; height: 22px; }
-.dash-tab-label { max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width .22s, opacity .18s, margin .22s; }
-.dash-tab.is-active { flex-grow: 2.1; background: var(--tb-pill); color: var(--tb-act); gap: 6px; }
-.dash-tab.is-active .dash-tab-label { max-width: 90px; opacity: 1; }
-.dash-tab:active { transform: scale(.96); }
+.dash-tab-label { max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width .25s, opacity .2s, margin .25s; }
+.dash-tab.is-active { flex-grow: 2.3; background: linear-gradient(135deg, #1479d4, #0A65B4); color: #fff; box-shadow: 0 8px 16px -8px rgba(10,101,180,.9); }
+.dash-tab.is-active .dash-tab-label { max-width: 84px; opacity: 1; margin-left: 7px; }
+.dash-tab:active { transform: scale(.95); }
 .dash-tab:focus-visible { outline: 2px solid #5aa9ea; outline-offset: 2px; }
-.dash-dot { position: absolute; top: -6px; right: -9px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #E11D48; color: #fff; font-size: 10px; font-weight: 700; line-height: 16px; text-align: center; box-shadow: 0 0 0 2px var(--tb-bg, #101c2e); }
+.dash-dot { position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #E11D48; color: #fff; font-size: 10px; font-weight: 700; line-height: 16px; text-align: center; box-shadow: 0 0 0 2px var(--tb-bg, #101c2e); }
 @media (prefers-reduced-motion: reduce) { .dash-tab, .dash-tab-label, .dash-sheet { transition: none !important; } }
 @media (min-width: 1024px) { .dash-tabbar, .dash-sheet-root { display: none !important; } }
 
@@ -397,3 +398,4 @@
 .dash-sheet-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
 .dash-sheet-foot button { height: 44px; border: 1px solid var(--sh-line); border-radius: 14px; background: var(--sh-card); color: var(--sh-ink); font-size: 13px; font-weight: 600; cursor: pointer; }
 .dash-sheet-foot .is-danger { color: #e11d48; }
+.dash-tab.is-active .dash-dot { right: -10px; box-shadow: 0 0 0 2px #0A65B4; }
