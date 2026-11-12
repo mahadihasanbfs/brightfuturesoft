@@ -115,10 +115,10 @@ export default function MessageView({ id, ownEmail, onBack, onForward, onExpandR
             URL.revokeObjectURL(url);
       };
       const startReply = (all) => setDraft({ ...buildReply(msg, ownEmail, all), quote: quoteText(msg) });
-      const pill = 'inline-flex items-center gap-2 rounded-full border border-gray-700 px-4 py-2 text-sm text-gray-200 transition hover:bg-gray-800';
+      const pill = 'ml-pill inline-flex items-center gap-2 px-4 py-2 text-sm';
 
       return (
-            <div className="flex h-full flex-col">
+            <div className="ml-reader flex h-full flex-col">
                   {backBar}
                   <header className="border-b border-gray-800 px-6 py-5">
                         <div className="flex items-start justify-between gap-4">
@@ -133,7 +133,7 @@ export default function MessageView({ id, ownEmail, onBack, onForward, onExpandR
                               <Avatar name={from.name} email={from.email} />
                               <div className="min-w-0">
                                     <p className="truncate text-sm font-semibold">{from.name}</p>
-                                    <p className="break-all text-sm text-blue-300">{from.email}</p>
+                                    <p className="ml-link break-all text-sm">{from.email}</p>
                                     <p className="truncate text-xs text-gray-500" title={msg.to}>to {msg.to}{msg.cc ? ` · cc ${msg.cc}` : ''}</p>
                               </div>
                               <time className="ml-auto shrink-0 text-xs text-gray-500">{fullDate(msg.date)}</time>
@@ -143,7 +143,7 @@ export default function MessageView({ id, ownEmail, onBack, onForward, onExpandR
                   {msg.attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2 border-b border-gray-800 px-6 py-3">
                               {msg.attachments.map((a, i) => a.id ? (
-                                    <button key={a.id} onClick={() => download(a)} className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">
+                                    <button key={a.id} onClick={() => download(a)} className="ml-att inline-flex items-center gap-2 px-3 py-1.5 text-xs">
                                           <Paperclip size={14} /> {a.filename} <span className="text-gray-500">{sizeLabel(a.size)}</span>
                                     </button>
                               ) : (
@@ -166,7 +166,7 @@ export default function MessageView({ id, ownEmail, onBack, onForward, onExpandR
                                           <iframe title="Message" sandbox="allow-popups allow-popups-to-escape-sandbox" srcDoc={frameDoc(msg.html, showImages)} className="h-[55vh] w-full bg-white" />
                                     </div>
                               ) : (
-                                    <pre className="whitespace-pre-wrap rounded-xl bg-gray-900 p-5 font-sans text-sm text-gray-200">{msg.text || '(empty message)'}</pre>
+                                    <pre className="ml-text whitespace-pre-wrap rounded-xl p-5 font-sans text-sm leading-relaxed">{msg.text || '(empty message)'}</pre>
                               )}
                         </div>
 

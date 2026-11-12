@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { base_url } from "../../../layout/Title"
 import { useQuery } from "@tanstack/react-query"
 import JoditEditor from "jodit-react"
+import { confirmDialog } from "../../../Hook/confirmDialog";
 
 const SubscribersTable = () => {
       const [error, setError] = useState(null)
@@ -83,7 +84,7 @@ const SubscribersTable = () => {
       }
 
       const delete_subscriber = async (id) => {
-            if (window.confirm("Are you sure you want to delete this subscriber?")) {
+            if (await confirmDialog({ title: "Delete this subscriber?", message: "They will no longer receive your emails.", confirmText: "Delete", tone: "danger" })) {
                   try {
                         await fetch(`${base_url}/subscriber/delete-subscriber?subscriber_id=${id}`, {
                               method: 'DELETE',

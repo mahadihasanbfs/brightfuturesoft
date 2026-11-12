@@ -5,6 +5,7 @@ import { base_url } from "../../../layout/Title";
 import MeetingModal from "./MeetingModal";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/UseContext/AuthProvider";
+import { confirmDialog } from "../../../Hook/confirmDialog";
 
 const statusOptions = [
       "Interested", "Not Interested", "Almost Own", "Good Lead", "Bad Lead",
@@ -81,7 +82,7 @@ export default function MeetingDetails() {
 
       // Delete
       const handleDelete = async (id) => {
-            if (window.confirm("Are you sure you want to delete this meeting?")) {
+            if (await confirmDialog({ title: "Delete this meeting?", message: "This cannot be undone.", confirmText: "Delete", tone: "danger" })) {
                   await fetch(
                         `${base_url}/meeting/delete-client-meeting?client_meeting_id=${id}`,
                         {

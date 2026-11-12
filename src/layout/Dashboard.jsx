@@ -4,7 +4,11 @@ import { useContext, useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 
-import logo from "../Assctes/logo.webp"
+import logoOnDark from "../Assctes/logo.webp" // white lettering
+import logoOnLight from "../Assctes/logo.png" // dark lettering
+import "./dashboard-theme.css"
+import useDashTheme from "./useDashTheme"
+import DashTopBar from "./DashTopBar"
 import { AuthContext } from "../context/UseContext/AuthProvider"
 import { CalendarCheck, Handshake, Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
@@ -262,12 +266,21 @@ const NavigationItem = ({ item, onClick }) => (
       </NavLink>
 )
 
+// Dashboard logo: white lettering on dark surfaces, dark lettering on light ones. Both images are rendered and the
+// theme CSS (dashboard-theme.css) shows the right one, so the sidebar, mobile menu and header can never disagree.
+const DashLogo = ({ className = "" }) => (
+      <>
+            <img src={logoOnDark || "/placeholder.svg"} alt="Bright Future Soft" className={`dash-logo-on-dark ${className}`} />
+            <img src={logoOnLight || "/placeholder.svg"} alt="Bright Future Soft" className={`dash-logo-on-light ${className}`} />
+      </>
+)
+
 // Sidebar Content Component (module scope)
-const SidebarContent = ({ onItemClick, searchValue, onSearchChange, allowed, user, handleLogout, logo }) => (
+const SidebarContent = ({ onItemClick, searchValue, onSearchChange, allowed, user, handleLogout }) => (
       <div className="flex flex-col h-full">
             <div className="hidden lg:flex items-center justify-start px-6 py-8 border-b border-gray-800">
                   <Link to="/" className="flex items-start ">
-                        <img src={logo || "/placeholder.svg"} alt="Logo" className="w-40" />
+                        <DashLogo className="w-40" />
                   </Link>
             </div>
 
@@ -415,6 +428,8 @@ const Dashboard = () => {
             .sort((a, b) => b.path.length - a.path.length)[0]
       const blocked = current && !allowed(current.path)
 
+      const { theme, toggle } = useDashTheme()
+
       if (!user) {
             navigate("/sign_in")
       }
@@ -422,7 +437,7 @@ const Dashboard = () => {
       
 
       return (
-            <div className="flex h-screen bg-gray-100">
+            <div className={`flex h-screen bg-gray-100 ${theme === "light" ? "dash-light" : ""}`}>
                   {/* Mobile Menu Overlay */}
                   {mobileMenuOpen && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={closeMobileMenu} />
@@ -431,7 +446,7 @@ const Dashboard = () => {
                   {/* Desktop Sidebar */}
                   <aside className="hidden lg:flex ">
                         <div className="flex flex-col w-80 bg-gray-900 border-r border-gray-800">
-                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} allowed={allowed} user={user} handleLogout={handleLogout} logo={logo} />
+                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} allowed={allowed} user={user} handleLogout={handleLogout} />
                         </div>
                   </aside>
 
@@ -442,7 +457,7 @@ const Dashboard = () => {
                   >
                         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-800">
                               <Link to="/" className="flex items-center">
-                                    <img src={logo || "/placeholder.svg"} alt="Logo" className="h-8 w-auto" />
+                                    <DashLogo className="h-8 w-auto" />
                               </Link>
                               <button
                                     onClick={closeMobileMenu}
@@ -454,29 +469,24 @@ const Dashboard = () => {
                               </button>
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} allowed={allowed} user={user} handleLogout={handleLogout} logo={logo} />
+                              <SidebarContent onItemClick={closeMobileMenu} searchValue={searchValue} onSearchChange={setSearchValue} allowed={allowed} user={user} handleLogout={handleLogout} />
                         </div>
 
                   </div>
 
                   {/* Main Content */}
                   <div className="flex-1 flex flex-col overflow-hidden">
-                        {/* Mobile Header */}
-                        <header className="lg:hidden bg-gray-900 shadow-sm border-b border-gray-700">
-                              <div className="flex items-center justify-between px-4 py-3">
-                                    <Link to="/" className="flex items-center">
-                                          <img src={logo || "/placeholder.svg"} alt="Logo" className="h-12 w-auto" />
-                                    </Link>
-                                    <button
-                                          onClick={() => setMobileMenuOpen(true)}
-                                          className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-                                    >
-                                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                          </svg>
-                                    </button>
-                              </div>
-                        </header>
+                        <DashTopBar
+                              title={current?.title}
+                              user={user}
+                              theme={theme}
+                              onToggleTheme={toggle}
+                              onOpenMenu={() => setMobileMenuOpen(true)}
+                              onLogout={handleLogout}
+                              canOpen={allowed}
+                              isCeo={user?.designation === "Chief Executive Officer"}
+                              pages={[...navigationItems, ...adminNavigationItems, ...commonNavigationItems].filter((item) => allowed(item.path))}
+                        />
 
                         {/* Page Content */}
                         <main className="flex-1 overflow-y-auto bg-gray-900">

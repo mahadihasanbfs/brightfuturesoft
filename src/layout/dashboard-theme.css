@@ -1,0 +1,332 @@
+/* Dashboard light theme. Applied by adding `dash-light` to the dashboard root (see Dashboard.jsx).
+   The dashboard pages are written with dark Tailwind utilities; in light mode this layer remaps those
+   utilities to the Bright Future Soft light palette. Dark mode is the untouched default. */
+/* Chart tooltips follow the theme (dark by default, light in light mode). */
+:root { --dash-tip-bg:#111827; --dash-tip-line:rgba(255,255,255,.12); --dash-tip-ink:#F8FAFC; }
+.dash-light { --dash-tip-bg:#FFFFFF; --dash-tip-line:#E1E9F2; --dash-tip-ink:#142235; }
+:root { --dl-page:#F7FAFF; --dl-card:#FFFFFF; --dl-soft:#F1F8FF; --dl-soft2:#E1E9F2; --dl-line:#E1E9F2; --dl-line2:#D3DEEA; --dl-ink:#142235; --dl-body:#66758A; --dl-mute:#8794A4; --dl-brand:#0A65B4; --dl-brand-hover:#084F8D; }
+.dash-light { color-scheme: light; color: var(--dl-ink); }
+.dash-light [class~="bg-gray-950"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/10"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/20"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/30"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/40"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/50"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/60"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/70"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/80"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-950/90"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/10"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/20"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/30"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/40"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/50"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/60"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/70"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/80"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-900/90"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-gray-800"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/10"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/20"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/30"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/40"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/50"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/60"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/70"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/80"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-800/90"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-gray-700"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/10"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/20"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/30"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/40"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/50"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/60"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/70"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/80"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-700/90"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-gray-600"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/10"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/20"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/30"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/40"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/50"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/60"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/70"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/80"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-600/90"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-500"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/10"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/20"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/30"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/40"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/50"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/60"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/70"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/80"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/90"] { background-color:#D5DDE8 !important }
+.dash-light .hover\:bg-gray-700:hover { background-color:var(--dl-soft) !important }
+.dash-light .hover\:bg-gray-600:hover { background-color:var(--dl-soft2) !important }
+.dash-light .hover\:bg-gray-800:hover { background-color:var(--dl-soft) !important }
+.dash-light .hover\:bg-gray-700\/30:hover { background-color:var(--dl-soft) !important }
+.dash-light .hover\:bg-gray-700\/50:hover { background-color:var(--dl-soft) !important }
+.dash-light [class~="border-gray-800"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-gray-700"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-gray-600"] { border-color:var(--dl-line2) !important }
+.dash-light .divide-gray-700 > * { border-color:var(--dl-line) !important }
+.dash-light [class*="border-gray-700/"] { border-color:var(--dl-line) !important }
+.dash-light [class*="border-indigo-100/"] { border-color:var(--dl-line2) !important }
+.dash-light .text-white:not(:is([class^="bg-indigo-"],[class*=" bg-indigo-"],[class^="bg-blue-"],[class*=" bg-blue-"],[class^="bg-green-"],[class*=" bg-green-"],[class^="bg-emerald-"],[class*=" bg-emerald-"],[class^="bg-red-"],[class*=" bg-red-"],[class^="bg-amber-"],[class*=" bg-amber-"],[class^="bg-yellow-"],[class*=" bg-yellow-"],[class^="bg-sky-"],[class*=" bg-sky-"],[class^="bg-purple-"],[class*=" bg-purple-"],[class^="bg-violet-"],[class*=" bg-violet-"],[class^="bg-pink-"],[class*=" bg-pink-"],[class^="bg-orange-"],[class*=" bg-orange-"],[class^="bg-teal-"],[class*=" bg-teal-"],[class^="bg-cyan-"],[class*=" bg-cyan-"],[class^="bg-rose-"],[class*=" bg-rose-"],[class^="bg-lime-"],[class*=" bg-lime-"],[class^="bg-fuchsia-"],[class*=" bg-fuchsia-"],[class^="bg-gradient"],[class*=" bg-gradient"],[class^="bg-[#1c65b4]"],[class*=" bg-[#1c65b4]"],[class^="bg-[#0A65B4]"],[class*=" bg-[#0A65B4]"],[class^="bg-[#1e3d8d]"],[class*=" bg-[#1e3d8d]"],[class^="bg-[#1795F0]"],[class*=" bg-[#1795F0]"],a[class~="bg-gray-600"][class~="text-white"],a[class~="bg-gray-700"][class~="text-white"],a[class~="bg-gray-800"][class~="text-white"],a[class~="bg-slate-700"][class~="text-white"],a[class~="bg-slate-800"][class~="text-white"],button[class~="bg-gray-600"][class~="text-white"],button[class~="bg-gray-700"][class~="text-white"],button[class~="bg-gray-800"][class~="text-white"],button[class~="bg-slate-700"][class~="text-white"],button[class~="bg-slate-800"][class~="text-white"])):not(:is([class^="bg-indigo-"] *,[class*=" bg-indigo-"] *,[class^="bg-blue-"] *,[class*=" bg-blue-"] *,[class^="bg-green-"] *,[class*=" bg-green-"] *,[class^="bg-emerald-"] *,[class*=" bg-emerald-"] *,[class^="bg-red-"] *,[class*=" bg-red-"] *,[class^="bg-amber-"] *,[class*=" bg-amber-"] *,[class^="bg-yellow-"] *,[class*=" bg-yellow-"] *,[class^="bg-sky-"] *,[class*=" bg-sky-"] *,[class^="bg-purple-"] *,[class*=" bg-purple-"] *,[class^="bg-violet-"] *,[class*=" bg-violet-"] *,[class^="bg-pink-"] *,[class*=" bg-pink-"] *,[class^="bg-orange-"] *,[class*=" bg-orange-"] *,[class^="bg-teal-"] *,[class*=" bg-teal-"] *,[class^="bg-cyan-"] *,[class*=" bg-cyan-"] *,[class^="bg-rose-"] *,[class*=" bg-rose-"] *,[class^="bg-lime-"] *,[class*=" bg-lime-"] *,[class^="bg-fuchsia-"] *,[class*=" bg-fuchsia-"] *,[class^="bg-gradient"] *,[class*=" bg-gradient"] *,[class^="bg-[#1c65b4]"] *,[class*=" bg-[#1c65b4]"] *,[class^="bg-[#0A65B4]"] *,[class*=" bg-[#0A65B4]"] *,[class^="bg-[#1e3d8d]"] *,[class*=" bg-[#1e3d8d]"] *,[class^="bg-[#1795F0]"] *,[class*=" bg-[#1795F0]"] *,a[class~="bg-gray-600"][class~="text-white"] *,a[class~="bg-gray-700"][class~="text-white"] *,a[class~="bg-gray-800"][class~="text-white"] *,a[class~="bg-slate-700"][class~="text-white"] *,a[class~="bg-slate-800"][class~="text-white"] *,button[class~="bg-gray-600"][class~="text-white"] *,button[class~="bg-gray-700"][class~="text-white"] *,button[class~="bg-gray-800"][class~="text-white"] *,button[class~="bg-slate-700"][class~="text-white"] *,button[class~="bg-slate-800"][class~="text-white"] *)) { color:var(--dl-ink) !important }
+.dash-light [class~="text-gray-100"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-gray-200"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-gray-300"] { color:#334155 !important }
+.dash-light [class~="text-gray-400"] { color:var(--dl-body) !important }
+.dash-light [class~="text-gray-500"] { color:var(--dl-mute) !important }
+.dash-light [class~="text-gray-600"] { color:var(--dl-body) !important }
+.dash-light [class~="text-indigo-300"] { color:#4338CA !important }
+.dash-light [class~="text-indigo-400"] { color:#4338CA !important }
+.dash-light [class~="text-emerald-300"] { color:#047857 !important }
+.dash-light [class~="text-emerald-400"] { color:#047857 !important }
+.dash-light [class~="text-amber-300"] { color:#B45309 !important }
+.dash-light [class~="text-amber-400"] { color:#B45309 !important }
+.dash-light [class~="text-red-300"] { color:#B91C1C !important }
+.dash-light [class~="text-red-400"] { color:#B91C1C !important }
+.dash-light [class~="text-sky-300"] { color:#0369A1 !important }
+.dash-light [class~="text-sky-400"] { color:#0369A1 !important }
+.dash-light [class~="text-yellow-500"] { color:#A16207 !important }
+.dash-light [class~="text-green-400"] { color:#15803D !important }
+.dash-light [class~="text-blue-400"] { color:#1D4ED8 !important }
+.dash-light .hover\:text-white:hover { color:var(--dl-ink) !important }
+.dash-light ::placeholder { color:var(--dl-mute) }
+.dash-light ::selection { background:#cfe3f7;color:var(--dl-ink) }
+
+/* ---- coverage for the other dashboard modules (slate palette, arbitrary dark hex, translucent whites, gradients, charts) ---- */
+.dash-light [class~="bg-slate-950"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/10"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/20"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/30"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/40"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/50"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/60"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/70"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/80"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-950/90"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/10"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/20"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/30"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/40"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/50"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/60"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/70"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/80"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-900/90"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-slate-800"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/10"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/20"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/30"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/40"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/50"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/60"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/70"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/80"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-800/90"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-slate-700"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/10"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/20"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/30"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/40"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/50"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/60"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/70"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/80"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-700/90"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-slate-600"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/10"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/20"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/30"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/40"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/50"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/60"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/70"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/80"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-slate-600/90"] { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-gray-500"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/10"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/20"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/30"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/40"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/50"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/60"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/70"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/80"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-gray-500/90"] { background-color:#D5DDE8 !important }
+.dash-light [class~="bg-[#131c33]"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-[#1A2644]"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-[#111827]"] { background-color:var(--dl-page) !important }
+.dash-light [class~="bg-[#0e1526]"] { background-color:var(--dl-card) !important }
+.dash-light [class~="bg-[#0b0a2238]"] { background-color:var(--dl-soft) !important }
+.dash-light [class~="bg-[#00000034]"] { background-color:var(--dl-soft) !important }
+.dash-light .hover\:bg-\[\#1A2644\]:hover { background-color:var(--dl-soft2) !important }
+.dash-light [class~="bg-white/5"] { background-color:rgba(20,34,53,.04) !important }
+.dash-light [class~="bg-white/10"] { background-color:rgba(20,34,53,.06) !important }
+.dash-light [class~="bg-white/20"] { background-color:rgba(20,34,53,.10) !important }
+.dash-light .hover\:bg-white\/5:hover { background-color:rgba(20,34,53,.05) !important }
+.dash-light .hover\:bg-white\/10:hover { background-color:rgba(20,34,53,.08) !important }
+.dash-light .hover\:bg-white\/20:hover { background-color:rgba(20,34,53,.12) !important }
+.dash-light [class~="border-white/5"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-white/10"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-white/20"] { border-color:var(--dl-line2) !important }
+.dash-light [class~="border-slate-900"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-slate-800"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-slate-700"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-slate-600"] { border-color:var(--dl-line2) !important }
+.dash-light [class~="border-gray-500"] { border-color:var(--dl-line2) !important }
+.dash-light [class~="border-slate-800/50"] { border-color:var(--dl-line) !important }
+.dash-light [class~="border-slate-700/50"] { border-color:var(--dl-line) !important }
+.dash-light .divide-gray-800 > * { border-color:var(--dl-line) !important }
+.dash-light .divide-slate-800 > * { border-color:var(--dl-line) !important }
+.dash-light .divide-slate-700 > * { border-color:var(--dl-line) !important }
+.dash-light [class~="ring-white/10"], .dash-light [class~="ring-white/5"] { --tw-ring-color:var(--dl-line) !important }
+.dash-light [class~="text-gray-50"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-slate-50"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-slate-100"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-slate-200"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-slate-300"] { color:#334155 !important }
+.dash-light [class~="text-slate-400"] { color:var(--dl-body) !important }
+.dash-light [class~="text-slate-500"] { color:var(--dl-mute) !important }
+.dash-light [class~="text-slate-600"] { color:var(--dl-body) !important }
+.dash-light [class~="text-[#f0f0f0]"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-[#e5e7eb]"] { color:var(--dl-ink) !important }
+.dash-light [class~="text-white/50"] { color:var(--dl-body) !important }
+.dash-light [class~="text-white/60"] { color:var(--dl-body) !important }
+.dash-light [class~="text-white/70"] { color:var(--dl-body) !important }
+.dash-light [class~="text-white/80"] { color:var(--dl-body) !important }
+.dash-light [class~="text-white/90"] { color:var(--dl-body) !important }
+.dash-light [class*="from-slate-9"], .dash-light [class*="from-gray-9"] { --tw-gradient-from:var(--dl-page) !important }
+.dash-light [class*="via-slate-9"], .dash-light [class*="via-gray-9"] { --tw-gradient-via:var(--dl-page) !important }
+.dash-light [class*="to-slate-9"], .dash-light [class*="to-slate-8"], .dash-light [class*="to-gray-9"] { --tw-gradient-to:var(--dl-card) !important }
+.dash-light .recharts-cartesian-grid line, .dash-light .recharts-polar-grid-concentric-polygon { stroke:var(--dl-line) !important }
+.dash-light .recharts-legend-item-text { color:var(--dl-body) !important }
+.dash-light hr { border-color:var(--dl-line) }
+.dash-light ::-webkit-scrollbar-thumb { background:#C3CCD8 }
+.dash-light input[type="date"], .dash-light input[type="datetime-local"], .dash-light input[type="time"] { color-scheme:light }
+
+/* Logo: white lettering on the dark theme, dark lettering on the light theme. */
+.dash-logo-on-light { display: none; }
+.dash-light .dash-logo-on-dark { display: none; }
+.dash-light .dash-logo-on-light { display: block; }
+
+/* Neutral dark buttons (bg-gray-600/700 + white text) stay solid slate in light mode instead of fading into the page. */
+.dash-light a[class~="bg-gray-600"][class~="text-white"], .dash-light button[class~="bg-gray-600"][class~="text-white"],
+.dash-light a[class~="bg-gray-700"][class~="text-white"], .dash-light button[class~="bg-gray-700"][class~="text-white"],
+.dash-light a[class~="bg-gray-800"][class~="text-white"], .dash-light button[class~="bg-gray-800"][class~="text-white"] { background-color:#334155 !important; border-color:#334155 !important; color:#fff !important }
+.dash-light a[class~="bg-gray-600"][class~="text-white"]:hover, .dash-light button[class~="bg-gray-600"][class~="text-white"]:hover { background-color:#1E293B !important }
+
+/* ---- Bright Future Soft design system (see SKILL.md): one accent, brand blue ---- */
+/* Primary actions: solid brand blue with white text. */
+.dash-light a[class~="bg-gray-600"][class~="text-white"], .dash-light button[class~="bg-gray-600"][class~="text-white"],
+.dash-light a[class~="bg-gray-700"][class~="text-white"], .dash-light button[class~="bg-gray-700"][class~="text-white"],
+.dash-light a[class~="bg-gray-800"][class~="text-white"], .dash-light button[class~="bg-gray-800"][class~="text-white"],
+.dash-light [class~="bg-[#1c65b4]"], .dash-light [class~="bg-[#0A65B4]"],
+.dash-light [class~="bg-indigo-600"], .dash-light [class~="bg-indigo-500"], .dash-light [class~="bg-blue-600"], .dash-light [class~="bg-blue-500"], .dash-light [class~="bg-blue-700"] { background-color: var(--dl-brand) !important; border-color: var(--dl-brand) !important; color: #fff !important }
+.dash-light a[class~="bg-gray-600"][class~="text-white"]:hover, .dash-light button[class~="bg-gray-600"][class~="text-white"]:hover,
+.dash-light a[class~="bg-gray-700"][class~="text-white"]:hover, .dash-light button[class~="bg-gray-700"][class~="text-white"]:hover,
+.dash-light button[class~="bg-indigo-600"]:hover, .dash-light a[class~="bg-indigo-600"]:hover, .dash-light button[class~="bg-blue-600"]:hover, .dash-light a[class~="bg-blue-600"]:hover { background-color: var(--dl-brand-hover) !important }
+.dash-light [class~="hover:bg-indigo-500"]:hover, .dash-light [class~="hover:bg-blue-700"]:hover, .dash-light [class~="hover:bg-blue-500"]:hover, .dash-light [class~="hover:bg-indigo-700"]:hover { background-color: var(--dl-brand-hover) !important }
+/* Accent text and soft accent surfaces use the same blue. */
+.dash-light [class~="text-indigo-300"], .dash-light [class~="text-indigo-400"], .dash-light [class~="text-blue-300"], .dash-light [class~="text-blue-400"], .dash-light [class~="text-blue-500"] { color: var(--dl-brand) !important }
+.dash-light [class*="bg-indigo-500/"], .dash-light [class*="bg-blue-500/"], .dash-light [class*="bg-blue-600/"] { background-color: var(--dl-soft) !important }
+.dash-light [class~="ring-blue-500"], .dash-light [class~="ring-indigo-500"] { --tw-ring-color: var(--dl-brand) !important }
+.dash-light [class~="border-blue-500"], .dash-light [class~="border-indigo-500"] { border-color: var(--dl-brand) !important }
+/* Inputs: white surface, fine border, clear blue focus. */
+.dash-light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .dash-light select, .dash-light textarea { background-color: #fff; border-color: var(--dl-line2); color: var(--dl-ink) }
+.dash-light input:focus, .dash-light select:focus, .dash-light textarea:focus { outline: none; border-color: var(--dl-brand) !important; box-shadow: 0 0 0 3px rgba(10,101,180,.15) }
+.dash-light :focus-visible { outline: 2px solid var(--dl-brand); outline-offset: 2px }
+/* Cards: white surface, thin border, light blue-gray shadow. */
+.dash-light [class~="bg-gray-800"][class~="rounded-xl"], .dash-light [class~="bg-gray-800"][class~="rounded-2xl"] { box-shadow: 0 1px 2px rgba(20,34,53,.04), 0 12px 28px -18px rgba(10,101,180,.18) }
+
+/* ---- Task board: its own tokens, dark by default and light under .dash-light ---- */
+:root {
+      --tk-page:#0B1220; --tk-col:rgba(17,26,46,.6); --tk-col-line:rgba(148,163,184,.14);
+      --tk-card:#111A2E; --tk-card-hover:#16213A; --tk-card-line:rgba(148,163,184,.16);
+      --tk-ink:#E8EDF5; --tk-body:#9AA8BC; --tk-mute:#6B7A90; --tk-chip:rgba(148,163,184,.14); --tk-field:#0F172A; --tk-field-line:rgba(148,163,184,.25);
+      --tk-shadow:0 1px 2px rgba(0,0,0,.35); --tk-shadow-hover:0 14px 28px -16px rgba(0,0,0,.7);
+      --tk-low-bg:rgba(34,211,238,.13); --tk-low-fg:#67E8F9; --tk-low-bd:rgba(34,211,238,.32); --tk-low:#22D3EE;
+      --tk-med-bg:rgba(251,191,36,.13); --tk-med-fg:#FCD34D; --tk-med-bd:rgba(251,191,36,.32); --tk-med:#FBBF24;
+      --tk-high-bg:rgba(251,146,60,.14); --tk-high-fg:#FDBA74; --tk-high-bd:rgba(251,146,60,.34); --tk-high:#FB923C;
+      --tk-crit-bg:rgba(251,113,133,.14); --tk-crit-fg:#FDA4AF; --tk-crit-bd:rgba(251,113,133,.34); --tk-crit:#FB7185;
+}
+.dash-light {
+      --tk-page:#F7FAFF; --tk-col:#EEF3FA; --tk-col-line:#E1E9F2;
+      --tk-card:#FFFFFF; --tk-card-hover:#FFFFFF; --tk-card-line:#E1E9F2;
+      --tk-ink:#142235; --tk-body:#5B6B80; --tk-mute:#8794A4; --tk-chip:#EEF2F7; --tk-field:#FFFFFF; --tk-field-line:#D3DEEA;
+      --tk-shadow:0 1px 2px rgba(20,34,53,.05); --tk-shadow-hover:0 14px 28px -16px rgba(10,101,180,.35);
+      --tk-low-bg:#E3F6FA; --tk-low-fg:#0E7490; --tk-low-bd:#B5E5EF; --tk-low:#06B6D4;
+      --tk-med-bg:#FEF3C7; --tk-med-fg:#92400E; --tk-med-bd:#FCE29A; --tk-med:#F59E0B;
+      --tk-high-bg:#FFEDD5; --tk-high-fg:#9A3412; --tk-high-bd:#FDCFA0; --tk-high:#F97316;
+      --tk-crit-bg:#FFE4E8; --tk-crit-fg:#BE123C; --tk-crit-bd:#FBC0CB; --tk-crit:#E11D48;
+}
+.tk-page { background: var(--tk-page); color: var(--tk-ink); }
+.tk-ink { color: var(--tk-ink); } .tk-body { color: var(--tk-body); } .tk-mute { color: var(--tk-mute); }
+.tk-col { background: var(--tk-col); border: 1px solid var(--tk-col-line); }
+.tk-col-over { outline: 2px solid #3B82F6; outline-offset: -2px; background: color-mix(in srgb, var(--tk-col) 80%, #3B82F6 20%); }
+.tk-card { background: var(--tk-card); border: 1px solid var(--tk-card-line); border-left: 4px solid var(--p, var(--tk-card-line)); box-shadow: var(--tk-shadow); transition: transform .15s, box-shadow .15s, background .15s; }
+.tk-card:hover { background: var(--tk-card-hover); box-shadow: var(--tk-shadow-hover); transform: translateY(-1px); }
+.tk-p-low { --p: var(--tk-low); } .tk-p-medium { --p: var(--tk-med); } .tk-p-high { --p: var(--tk-high); } .tk-p-critical { --p: var(--tk-crit); }
+.tk-prio { border: 1px solid; border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 600; line-height: 1.5; white-space: nowrap; }
+.tk-prio-low { background: var(--tk-low-bg); color: var(--tk-low-fg); border-color: var(--tk-low-bd); }
+.tk-prio-medium { background: var(--tk-med-bg); color: var(--tk-med-fg); border-color: var(--tk-med-bd); }
+.tk-prio-high { background: var(--tk-high-bg); color: var(--tk-high-fg); border-color: var(--tk-high-bd); }
+.tk-prio-critical { background: var(--tk-crit-bg); color: var(--tk-crit-fg); border-color: var(--tk-crit-bd); }
+.tk-chip { background: var(--tk-chip); color: var(--tk-body); border-radius: 6px; padding: 1px 7px; font-size: 11px; font-weight: 500; }
+.tk-due { display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; padding: 2px 7px; font-size: 11px; font-weight: 600; background: var(--tk-chip); color: var(--tk-body); white-space: nowrap; }
+.tk-due-late { background: var(--tk-crit-bg); color: var(--tk-crit-fg); }
+.tk-due-soon { background: var(--tk-med-bg); color: var(--tk-med-fg); }
+.tk-avatar { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 999px; overflow: hidden; font-size: 9px; font-weight: 700; background: var(--tk-chip); color: var(--tk-ink); border: 2px solid var(--tk-card); margin-left: -6px; }
+.tk-avatar:first-child { margin-left: 0; }
+.tk-field { background: var(--tk-field); border: 1px solid var(--tk-field-line); color: var(--tk-ink); border-radius: 10px; }
+.tk-field:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+.tk-seg { background: var(--tk-field); border: 1px solid var(--tk-field-line); border-radius: 12px; padding: 4px; }
+.tk-seg button { color: var(--tk-body); border-radius: 8px; }
+.tk-seg button[aria-pressed="true"] { background: #1c65b4; color: #fff; }
+.tk-add { color: var(--tk-body); border: 1px dashed var(--tk-field-line); border-radius: 10px; transition: background .15s, color .15s; }
+.tk-add:hover { background: var(--tk-chip); color: var(--tk-ink); }
+.tk-icon-btn { color: var(--tk-body); border-radius: 8px; } .tk-icon-btn:hover { background: var(--tk-chip); color: var(--tk-ink); }
+.tk-rich { color: var(--tk-body); line-height: 1.7; font-size: 15px; }
+.tk-rich p { margin: 0 0 .8em; } .tk-rich ul { list-style: disc; padding-left: 1.4em; margin: 0 0 .8em; } .tk-rich ol { list-style: decimal; padding-left: 1.4em; margin: 0 0 .8em; }
+.tk-rich li { margin: 0 0 .25em; } .tk-rich a { color: #3B82F6; text-decoration: underline; } .tk-rich strong, .tk-rich b { color: var(--tk-ink); }
+.tk-rich h1, .tk-rich h2, .tk-rich h3, .tk-rich h4 { color: var(--tk-ink); font-weight: 700; margin: 1em 0 .4em; line-height: 1.3; }
+.tk-rich blockquote { border-left: 3px solid var(--tk-card-line); padding-left: 1em; margin: 0 0 .8em; } .tk-rich img { max-width: 100%; height: auto; border-radius: 8px; }
+.tk-rich table { border-collapse: collapse; width: 100%; } .tk-rich td, .tk-rich th { border: 1px solid var(--tk-card-line); padding: .4em .7em; }
+
+/* Elements on a soft blue tint (bg-blue-500/15 and the like) use dark text in light mode, even when written with text-white. */
+.dash-light [class*="bg-blue-500/"], .dash-light [class*="bg-indigo-500/"], .dash-light [class*="bg-blue-600/"] { color: var(--dl-ink) !important }
+
+/* ---- Mail: own tokens (reuses the --tk-* palette), dark by default, light under .dash-light ---- */
+:root { --ml-accent: #60A5FA; --ml-sel: rgba(59,130,246,.16); --ml-seg-on: #1E293B; }
+.dash-light { --ml-accent: #0A65B4; --ml-sel: rgba(10,101,180,.09); --ml-seg-on: #FFFFFF; }
+.ml-app { background: var(--tk-page); color: var(--tk-ink); }
+.ml-side { background: var(--tk-card); border-right: 1px solid var(--tk-col-line); }
+.ml-list { background: var(--tk-page); border-right: 1px solid var(--tk-col-line); }
+.ml-reader { background: var(--tk-card); color: var(--tk-ink); }
+.ml-bar { border-bottom: 1px solid var(--tk-col-line); }
+.ml-folder { color: var(--tk-body); border-radius: 10px; transition: background .15s, color .15s; }
+.ml-folder:hover { background: var(--tk-chip); color: var(--tk-ink); }
+.ml-folder-on, .ml-folder-on:hover { background: var(--ml-sel); color: var(--ml-accent); font-weight: 600; }
+.ml-row { position: relative; border-bottom: 1px solid var(--tk-col-line); transition: background .12s; }
+.ml-row:hover { background: var(--tk-chip); }
+.ml-row-sel, .ml-row-sel:hover { background: var(--ml-sel); box-shadow: inset 3px 0 0 var(--ml-accent); }
+.ml-name { color: var(--tk-body); } .ml-subject { color: var(--tk-body); } .ml-snippet { color: var(--tk-mute); }
+.ml-unread .ml-name, .ml-unread .ml-subject { color: var(--tk-ink); font-weight: 700; }
+.ml-link { color: var(--ml-accent); }
+.ml-pill { border: 1px solid var(--tk-field-line); color: var(--tk-ink); border-radius: 999px; transition: background .15s; }
+.ml-pill:hover { background: var(--tk-chip); }
+.ml-att { border: 1px solid var(--tk-field-line); color: var(--tk-body); border-radius: 8px; }
+.ml-att:hover { background: var(--tk-chip); color: var(--tk-ink); }
+.ml-text { background: var(--tk-page); border: 1px solid var(--tk-col-line); color: var(--tk-ink); }
+.ml-seg { background: var(--tk-chip); border-radius: 10px; padding: 3px; }
+.ml-seg button { color: var(--tk-body); border-radius: 8px; }
+.ml-seg button[aria-pressed="true"] { background: var(--ml-seg-on); color: var(--tk-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.ml-empty { color: var(--tk-mute); }

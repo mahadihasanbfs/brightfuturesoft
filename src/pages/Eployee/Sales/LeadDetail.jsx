@@ -8,6 +8,7 @@ import { api } from './api';
 import { OUTCOMES, STAGES, bdt, fmtWhen, mapUrl, stageOf } from './constants';
 import LeadForm from './LeadForm';
 import { useLiveGps } from './gps';
+import { promptDialog } from '../../../Hook/confirmDialog';
 
 function GpsBadge({ gps }) {
       return gps ? (
@@ -116,9 +117,9 @@ export default function LeadDetail({ id, me, admin, onClose }) {
             mutationFn: async (stage) => {
                   let lostReason;
                   if (stage === 'lost') {
-                        const r = await Swal.fire({ title: 'Why was this deal lost?', input: 'text', inputValidator: (v) => (!v?.trim() ? 'A reason helps the team learn' : undefined), showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Mark lost' });
-                        if (!r.isConfirmed) return null;
-                        lostReason = r.value;
+                        const reason = await promptDialog({ title: 'Why was this deal lost?', label: 'Reason', placeholder: 'What happened?', requiredMessage: 'A reason helps the team learn', confirmText: 'Mark lost', tone: 'danger' });
+                        if (reason === null) return null;
+                        lostReason = reason;
                   }
                   return api(`/leads/${id}`, { method: 'PUT', body: { stage, lostReason } });
             },

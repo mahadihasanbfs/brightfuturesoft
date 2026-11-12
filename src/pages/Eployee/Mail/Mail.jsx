@@ -9,6 +9,7 @@ import Avatar from './Avatar';
 import MessageView from './MessageView';
 import ComposeModal from './ComposeModal';
 import SendSettingsModal from './SendSettingsModal';
+import { confirmDialog } from '../../../Hook/confirmDialog';
 
 const FOLDERS = [
       { id: 'all', label: 'All mail', icon: Mails },
@@ -160,7 +161,7 @@ export default function WebMail() {
       };
 
       const disconnect = async () => {
-            const { isConfirmed } = await Swal.fire({ icon: 'question', title: `Disconnect ${status?.email}?`, text: 'You can reconnect any time.', showCancelButton: true, confirmButtonText: 'Disconnect' });
+            const isConfirmed = await confirmDialog({ title: `Disconnect ${status?.email}?`, message: 'You can reconnect any time.', confirmText: 'Disconnect', tone: 'warning' });
             if (!isConfirmed) return;
             await mail.disconnect();
             setSelected(null);
@@ -202,11 +203,7 @@ export default function WebMail() {
 
       const markAllRead = async () => {
             const name = FOLDERS.find((f) => f.id === folder)?.label;
-            const { isConfirmed } = await Swal.fire({
-                  ...DARK_DIALOG, icon: 'question', title: 'Mark all as read?',
-                  text: `Every unread message in ${name} will be marked as read, not only the ones on screen.`,
-                  showCancelButton: true, confirmButtonText: 'Mark all as read', confirmButtonColor: '#2563eb',
-            });
+            const isConfirmed = await confirmDialog({ title: 'Mark all as read?', message: `Every unread message in ${name} will be marked as read, not only the ones on screen.`, confirmText: 'Mark all as read' });
             if (!isConfirmed) return;
             setMarking(true);
             try {
@@ -232,14 +229,14 @@ export default function WebMail() {
       if (!connected) return <main className="min-h-screen bg-gray-950 p-4 text-white"><ConnectScreen status={status} onConnected={() => qc.invalidateQueries({ queryKey: ['gmail-status'] })} /></main>;
 
       return (
-            <main className="flex h-screen overflow-hidden bg-gray-950 text-white">
-                  <aside className="hidden w-60 shrink-0 flex-col border-r border-gray-800 bg-gray-900/60 p-4 lg:flex">
-                        <button onClick={() => setCompose({})} className="mb-5 flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold shadow-lg shadow-blue-600/20 transition hover:bg-blue-500"><Pencil size={16} /> Compose</button>
+            <main className="ml-app flex h-screen overflow-hidden">
+                  <aside className="ml-side hidden w-60 shrink-0 flex-col p-4 lg:flex">
+                        <button onClick={() => setCompose({})} className="mb-5 flex items-center justify-center gap-2 rounded-xl bg-[#0A65B4] py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-[#084F8D]"><Pencil size={16} /> Compose</button>
                         <nav className="space-y-1">
                               {FOLDERS.map(({ id, label, icon: Icon }) => (
-                                    <button key={id} onClick={() => changeFolder(id)} className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${folder === id ? 'bg-blue-600/15 font-medium text-blue-300' : 'text-gray-300 hover:bg-gray-800'}`}>
+                                    <button key={id} onClick={() => changeFolder(id)} className={`ml-folder ${folder === id ? 'ml-folder-on' : ''} flex w-full items-center justify-between px-3 py-2.5 text-sm`}>
                                           <span className="flex items-center gap-3"><Icon size={17} /> {label}</span>
-                                          {id === 'inbox' && unread?.inbox > 0 && <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-semibold text-white">{unread.inbox > 999 ? '999+' : unread.inbox}</span>}
+                                          {id === 'inbox' && unread?.inbox > 0 && <span className="rounded-full bg-[#0A65B4] px-2 py-0.5 text-xs font-semibold text-white">{unread.inbox > 999 ? '999+' : unread.inbox}</span>}
                                     </button>
                               ))}
                         </nav>
@@ -251,7 +248,7 @@ export default function WebMail() {
                         </div>
                   </aside>
 
-                  <section className={`${selected ? 'hidden md:flex' : 'flex'} w-full shrink-0 flex-col border-r border-gray-800 md:w-96`}>
+                  <section className={`${selected ? 'hidden md:flex' : 'flex'} ml-list w-full shrink-0 flex-col md:w-96`}>
                         <div className="flex items-center gap-2 border-b border-gray-800 p-3 lg:hidden">
                               <select value={folder} onChange={(e) => changeFolder(e.target.value)} className="rounded-lg border border-gray-700 bg-gray-800 px-2 py-2 text-sm">
                                     {FOLDERS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
@@ -262,7 +259,7 @@ export default function WebMail() {
                         <form onSubmit={(e) => { e.preventDefault(); setQ(search.trim()); setSelected(null); }} className="flex gap-2 border-b border-gray-800 p-3">
                               <div className="relative flex-1">
                                     <Search size={15} className="absolute left-3 top-3 text-gray-500" />
-                                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search mail" className="w-full rounded-xl border border-gray-700 bg-gray-900 py-2.5 pl-9 pr-3 text-sm placeholder-gray-500 focus:border-blue-500 focus:outline-none" />
+                                    <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search mail" className="tk-field w-full py-2.5 pl-9 pr-3 text-sm placeholder-gray-500" />
                               </div>
                               <button type="button" title="Refresh" onClick={refreshLists} className="rounded-xl border border-gray-700 px-3 text-gray-400 transition hover:bg-gray-800 hover:text-white"><RefreshCw size={15} className={list.isFetching ? 'animate-spin' : ''} /></button>
                         </form>
@@ -288,9 +285,9 @@ export default function WebMail() {
                                     ) : (
                                           <>
                                                 {filterable ? (
-                                                      <div className="flex rounded-lg bg-gray-900 p-0.5 text-sm">
+                                                      <div className="ml-seg flex text-sm">
                                                             {[['unread', `Unread${folder === 'inbox' && unread?.inbox > 0 ? ` · ${unread.inbox > 999 ? '999+' : unread.inbox}` : ''}`], ['all', 'All']].map(([id, label]) => (
-                                                                  <button key={id} onClick={() => setView(id)} className={`rounded-md px-3 py-1 transition ${view === id ? 'bg-gray-700 font-medium text-white' : 'text-gray-400 hover:text-white'}`}>{label}</button>
+                                                                  <button key={id} onClick={() => setView(id)} aria-pressed={view === id} className="px-3 py-1 transition">{label}</button>
                                                             ))}
                                                       </div>
                                                 ) : <span className="text-sm font-medium text-gray-300">{FOLDERS.find((f) => f.id === folder)?.label}</span>}
@@ -320,8 +317,7 @@ export default function WebMail() {
                               {messages.map((m) => {
                                     const who = parseAddress(folder === 'sent' || folder === 'drafts' ? m.to : m.from);
                                     return (
-                                          <div key={m.id} onClick={() => setSelected(m.id)} className={`group relative flex cursor-pointer gap-3 border-b border-gray-800/70 px-4 py-3.5 transition hover:bg-gray-900 ${checked.includes(m.id) ? 'bg-blue-600/15' : selected === m.id ? 'bg-blue-600/10' : ''}`}>
-                                                {selected === m.id && <span className="absolute inset-y-0 left-0 w-0.5 bg-blue-500" />}
+                                          <div key={m.id} onClick={() => setSelected(m.id)} className={`ml-row ${m.unread ? 'ml-unread' : ''} ${checked.includes(m.id) || selected === m.id ? 'ml-row-sel' : ''} group flex cursor-pointer gap-3 px-4 py-3`}>
                                                 <div className="relative h-10 w-10 shrink-0">
                                                       <div className={selectable && (checked.includes(m.id) || checked.length) ? 'invisible' : selectable ? 'group-hover:invisible' : ''}><Avatar name={who.name} email={who.email} /></div>
                                                       {selectable && (
@@ -336,18 +332,16 @@ export default function WebMail() {
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                       <div className="flex items-baseline justify-between gap-2">
-                                                            <span className={`truncate text-sm ${m.unread ? 'font-bold text-white' : 'text-gray-300'}`}>{who.name || '(unknown)'}</span>
-                                                            <span className={`shrink-0 text-xs ${m.unread ? 'font-semibold text-blue-300' : 'text-gray-500'}`}>{shortDate(m.timestamp)}</span>
+                                                            <span className="ml-name flex min-w-0 items-center gap-1.5 text-sm" title={who.email}>{m.unread && <span className="h-2 w-2 shrink-0 rounded-full bg-[#0A65B4]" aria-label="Unread" />}<span className="truncate">{who.name || '(unknown)'}</span></span>
+                                                            <span className={`shrink-0 text-xs ${m.unread ? 'ml-link font-semibold' : 'ml-snippet'}`}>{shortDate(m.timestamp)}</span>
                                                       </div>
-                                                      <p className="truncate text-xs text-blue-300/80" title={who.email}>{who.email}</p>
-                                                      <p className={`truncate text-sm ${m.unread ? 'font-semibold text-gray-100' : 'text-gray-400'}`}>{m.subject}</p>
-                                                      <div className="flex items-center gap-2">
-                                                            <p className="min-w-0 flex-1 truncate text-xs text-gray-500">{m.snippet}</p>
+                                                      <p className="ml-subject mt-0.5 truncate text-[13px]">{m.subject}</p>
+                                                      <div className="mt-0.5 flex items-center gap-2">
+                                                            <p className="ml-snippet min-w-0 flex-1 truncate text-xs">{m.snippet}</p>
                                                             <button onClick={(e) => toggleStar(e, m)} title={m.starred ? 'Remove star' : 'Star'} aria-label="Toggle star" className={`shrink-0 transition ${m.starred ? 'text-amber-400' : 'text-transparent group-hover:text-gray-600 hover:!text-amber-400'}`}><Star size={14} fill={m.starred ? 'currentColor' : 'none'} /></button>
                                                       </div>
                                                 </div>
-                                                {m.unread && <span className="absolute right-3 top-9 h-2 w-2 rounded-full bg-blue-500" />}
-                                          </div>
+                                                                                          </div>
                                     );
                               })}
                               {list.hasNextPage && (
@@ -356,7 +350,7 @@ export default function WebMail() {
                         </div>
                   </section>
 
-                  <section className={`${selected ? 'block' : 'hidden md:block'} min-w-0 flex-1`}>
+                  <section className={`${selected ? 'block' : 'hidden md:block'} ml-reader min-w-0 flex-1`}>
                         {selected ? (
                               <MessageView
                                     key={selected}
@@ -370,7 +364,7 @@ export default function WebMail() {
                                     onGone={() => setSelected(null)}
                               />
                         ) : (
-                              <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-600">
+                              <div className="ml-empty flex h-full flex-col items-center justify-center gap-3">
                                     <MailIcon size={44} />
                                     <p className="text-sm">Select a message to read</p>
                               </div>

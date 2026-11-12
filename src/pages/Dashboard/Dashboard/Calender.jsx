@@ -41,8 +41,8 @@ const CalendarIcon = () => (
 export default function CalendarPage() {
       const today = new Date()
       const [currentDate, setCurrentDate] = useState(today)
-      const [modalOpen, setModalOpen] = useState(false)
-      const [selectedDayInfo, setSelectedDayInfo] = useState(null)
+      const [selectedKey, setSelectedKey] = useState(null) // YYYY-MM-DD of the day shown in the agenda panel
+      const [hidden, setHidden] = useState([]) // event categories switched off in the legend
       const { user } = useContext(AuthContext)
 
       const { data: teamMembers = [], } = useQuery({
@@ -99,8 +99,6 @@ export default function CalendarPage() {
             enabled: !!user?.email,
       });
 
-      console.log(meting_data);
-
       const {
             data: notice_data = [],
             refetch: _refetchNotice,
@@ -153,18 +151,6 @@ export default function CalendarPage() {
             const monthValue = String(date.getMonth() + 1).padStart(2, "0")
             const dayValue = String(date.getDate()).padStart(2, "0")
             return `${yearValue}-${monthValue}-${dayValue}`
-      }
-
-      const formatDateTime = (value) => {
-            const date = new Date(value)
-            if (Number.isNaN(date.getTime())) return ""
-            return date.toLocaleString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-            })
       }
 
       const { data: sampleHolidays = [] } = useQuery({
@@ -262,8 +248,8 @@ export default function CalendarPage() {
             return {
                   dateKey,
                   type: "client_meeting",
-                  title: meeting?.name ? `Client Meeting: ${meeting.name}` : "Client Meeting",
-                  summary: meeting?.status ? `Client meeting status: ${meeting.status}` : "Client meeting booking",
+                  title: meeting?.name || "Appointment",
+                  summary: [meeting?.type_name, meeting?.duration_minutes ? `${meeting.duration_minutes} min` : null, meeting?.mode === "online" ? "Online" : meeting?.mode === "phone" ? "Phone" : meeting?.mode === "client_site" ? "On site" : null].filter(Boolean).join(" · ") || "Appointment",
                   raw: meeting,
             }
       }
@@ -271,7 +257,7 @@ export default function CalendarPage() {
       const calendarItems = [
             ...(meting_data.map(normalizeMeetingItem).filter(Boolean)),
             ...(contacts.map(normalizeContactItem).filter(Boolean)),
-            ...(notice_data.map(normalizeNoticeItem).filter(Boolean)),
+            ...(notice_data.filter((n) => n.status !== "pending").map(normalizeNoticeItem).filter(Boolean)),
             ...(issue_data.map(normalizeIssueItem).filter(Boolean)),
             ...(Array.isArray(meetings) ? meetings.map(normalizeAppointmentItem).filter(Boolean) : []),
       ]
@@ -287,9 +273,6 @@ export default function CalendarPage() {
 
       const firstDayOfMonth = new Date(year, month, 1).getDay()
       const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-      const isToday = (day) =>
-            day === today.getDate() && month === today.getMonth() && year === today.getFullYear()
 
       const isWeekend = (day) => {
             const date = new Date(year, month, day)
@@ -332,544 +315,164 @@ export default function CalendarPage() {
             return events;
       };
 
-      const getMembersForDay = (day) => {
-            const currentMonth = month + 1
-            return teamMembers.filter(m => {
-                  if (!m.dob) return false
-                  const d = new Date(m.dob)
-                  return (d.getMonth() + 1) === currentMonth && d.getDate() === day
-            })
-      }
-
-      const openDayModal = (day) => {
-            const events = getEvents(day)
-            const members = getMembersForDay(day)
-            const currentMonth = month + 1
-            const dateStr = `${year}-${String(currentMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-            const items = calendarItems.filter(item => item.dateKey === dateStr)
-            setSelectedDayInfo({ day, dateStr, events, members, items })
-            setModalOpen(true)
-      }
-
-      const closeModal = () => {
-            setModalOpen(false)
-            setSelectedDayInfo(null)
-      }
+      const pad2 = (n) => String(n).padStart(2, "0")
+      const keyOf = (day) => `${year}-${pad2(month + 1)}-${pad2(day)}`
+      const todayKey = `${today.getFullYear()}-${pad2(today.getMonth() + 1)}-${pad2(today.getDate())}`
+      const activeKey = selectedKey || todayKey
 
       const previousMonth = () => setCurrentDate(new Date(year, month - 1, 1))
       const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1))
-      const goToToday = () => setCurrentDate(new Date())
+      const goToToday = () => { setCurrentDate(new Date()); setSelectedKey(todayKey) }
+
+      // Event categories: one colour each, used by the chips, the legend and the agenda.
+      const CATS = {
+            client_meeting: { label: "Appointments", color: "#3B82F6", href: "/dashboard/client_meetings" },
+            meeting: { label: "Meetings", color: "#818CF8", href: "/dashboard/meeting_management" },
+            contact: { label: "Contact requests", color: "#2DD4BF", href: "/dashboard/contact-management" },
+            notice: { label: "Notices", color: "#FBBF24", href: "/dashboard/notice" },
+            issue: { label: "Issues", color: "#FB7185", href: "/dashboard/issue-submit" },
+            birthday: { label: "Birthdays", color: "#F472B6" },
+            special: { label: "Company events", color: "#A78BFA" },
+            holiday: { label: "Holidays", color: "#F87171" },
+      }
+      const timeOf = (e) => {
+            const v = e.type === "client_meeting" ? e.raw?.start_time : e.type === "meeting" ? e.raw?.date : null
+            const d = v ? new Date(v) : null
+            return d && !Number.isNaN(d.getTime()) && String(v).length > 10 ? d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : ""
+      }
+      const visibleEvents = (day) => getEvents(day).filter((e) => !hidden.includes(e.type))
+      const dayStatus = (day) => {
+            const events = getEvents(day)
+            const holiday = events.find((e) => e.type === "holiday")
+            return { holiday, weekend: isWeekend(day) }
+      }
+
+      const selDay = Number(activeKey.slice(8))
+      const selInMonth = activeKey.slice(0, 7) === `${year}-${pad2(month + 1)}`
+      const selDate = new Date(`${activeKey}T12:00:00`)
+      const selEvents = selInMonth ? visibleEvents(selDay) : []
+      const selStatus = selInMonth ? dayStatus(selDay) : { holiday: null, weekend: false }
+      const groupedSel = Object.keys(CATS).map((type) => ({ type, list: selEvents.filter((e) => e.type === type) })).filter((g) => g.list.length)
+      const monthCount = [...Array(daysInMonth)].reduce((n, _, i) => n + visibleEvents(i + 1).filter((e) => e.type !== "holiday").length, 0)
+
+      const chip = (type) => ({ background: `${CATS[type].color}24`, borderLeft: `3px solid ${CATS[type].color}` })
 
       return (
-            <div className="min-h-screen bg-gray-900 mt-4">
-                  <div className="max-w-7xl mx-auto">
-                        <div className="bg-gray-900 rounded-xl p-4 md:p-6 lg:p-8 shadow-xl border border-slate-700">
-                              {/* Header */}
-                              <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-                                    <div className="flex items-center gap-3">
-                                          {/* <div className="p-2 md:p-3 bg-gray-100 rounded-lg">
-                                                <CalendarIcon />
-                                          </div> */}
-                                          <div>
-                                                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white">
-                                                      {monthNames[month]} {year}
-                                                </h1>
-                                                <p className="text-xs md:text-sm text-slate-300">
-                                                      {today.toLocaleDateString("en-US", {
-                                                            weekday: "long",
-                                                            year: "numeric",
-                                                            month: "long",
-                                                            day: "numeric",
-                                                      })}
-                                                </p>
-                                          </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                          <button onClick={previousMonth}
-                                                className="h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-lg border border-slate-600 bg-gray-900 text-white hover:bg-gray-800 transition-colors">
-                                                <ChevronLeftIcon />
-                                          </button>
-                                          <button onClick={goToToday}
-                                                className="h-9 px-3 md:h-10 md:px-4 text-xs md:text-sm font-medium rounded-lg bg-[#1c65b4] text-white hover:bg-blue-700 transition-colors">
-                                                Today
-                                          </button>
-                                          <button onClick={nextMonth}
-                                                className="h-9 w-9 md:h-10 md:w-10 flex items-center justify-center rounded-lg border border-slate-600 bg-gray-900 text-white hover:bg-gray-800 transition-colors">
-                                                <ChevronRightIcon />
-                                          </button>
-                                    </div>
-                              </div>
-                              {/* Legend */}
-                              <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4 md:mb-6 pb-4 md:pb-6 border-b border-slate-700">
-                                    <div className="flex items-center gap-2">
-                                          <div className="w-3 h-3 md:w-4 md:h-4 rounded-sm ring-2 ring-blue-600"></div>
-                                          <span className="text-xs md:text-sm text-slate-200">Today</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                          <div className="w-3 h-3 md:w-4 md:h-4 rounded-sm bg-red-500 border border-red-400"></div>
-                                          <span className="text-xs md:text-sm text-red-500">Holiday/Weekend</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                          <div className="w-3 h-3 md:w-4 md:h-4 rounded-sm bg-green-200 border border-green-400"></div>
-                                          <span className="text-xs md:text-sm text-green-200">Birthday</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                          <div className="w-3 h-3 md:w-4 md:h-4 rounded-sm bg-yellow-200 border border-yellow-400"></div>
-                                          <span className="text-xs md:text-sm text-yellow-200">Special Day</span>
-                                    </div>
-                              </div>
-                              {/* Calendar Grid */}
-                              <div className="rounded-lg overflow-hidden border border-slate-700 shadow-sm">
-                                    {/* Day headers */}
-                                    <div className="grid grid-cols-7 bg-slate-700">
-                                          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => (
-                                                <div key={day}
-                                                      className={`p-2 md:p-3 text-center text-xs md:text-sm font-semibold ${index === 0 || index === 6 ? "text-red-300" : "text-slate-200"}`}>
-                                                      <span className="hidden md:inline">{day}</span>
-                                                      <span className="md:hidden">{day.charAt(0)}</span>
-                                                </div>
-                                          ))}
-                                    </div>
-                                    <div className="grid grid-cols-7 bg-gray-900">
-                                          {/* Empty cells for days before month starts */}
-                                          {[...Array(firstDayOfMonth)].map((_, i) => (
-                                                <div key={`empty-${i}`} className="aspect-square md:aspect-auto md:h-24 lg:h-28 border border-slate-800 bg-gray-900"></div>
-                                          ))}
-                                          {[...Array(daysInMonth)].map((_, i) => {
-                                                const day = i + 1
-                                                const isTodayDate = isToday(day)
-                                                const isWeekendDay = isWeekend(day)
-                                                const events = getEvents(day)
-                                                // Color priority: birthday > special > holiday > weekend
-                                                let bg = "bg-gray-900 hover:bg-slate-800"
-                                                let border = "border-slate-800"
-                                                let dayText = "text-slate-200"
-                                                if (events.find(e => e.type === "birthday")) {
-                                                      bg = "bg-green-200 hover:bg-green-300"
-                                                      border = "border-green-500 rounded"
-                                                      dayText = "text-green-800"
-                                                } else if (events.find(e => e.type === "special")) {
-                                                      bg = "bg-yellow-200 hover:bg-yellow-300"
-                                                      border = "border-yellow-500 rounded"
-                                                      dayText = "text-yellow-800"
-                                                } else if (events.find(e => e.type === "holiday")) {
-                                                      bg = "bg-red-500 hover:bg-red-600"
-                                                      border = "border-red-400 rounded "
-                                                      dayText = "text-white"
-                                                } else if (isWeekendDay) {
-                                                      bg = "bg-red-500 hover:bg-red-600"
-                                                      border = "border-red-400  "
-                                                      dayText = "text-white"
-                                                }
-
-                                                return (
-                                                      <div key={day}
-                                                            onClick={() => openDayModal(day)}
-                                                            role="button"
-                                                            tabIndex={0}
-                                                            className={`cursor-pointer aspect-square md:aspect-auto md:h-24 lg:h-28 border ${border} p-1.5 md:p-2 lg:p-3 transition-all hover:shadow-md relative overflow-hidden group ${bg} ${isTodayDate ? "ring-2 ring-blue-600 ring-inset" : ""}`}>
-                                                            <div className="flex flex-col h-full relative z-10">
-                                                                  <span className={`text-xs md:text-sm lg:text-base font-semibold ${isTodayDate ? "text-blue-700" : dayText}`}>
-                                                                        {day}
-                                                                  </span>
-                                                                  {isTodayDate && (<span className="hidden md:block text-[10px] lg:text-xs font-medium text-blue-800">Today</span>)}
-                                                                  {events.map((event, idx) => (
-                                                                        <span
-                                                                              key={idx}
-                                                                              className={`
-                                                                                    text-[9px] md:text-[10px] lg:text-xs mt-0.5 md:mt-1 line-clamp-2 md:line-clamp-3 font-medium
-                                                                                    ${event.type === "holiday" ? "text-white" : ""}
-                                                                                    ${event.type === "birthday" ? "text-green-900" : ""}
-                                                                                    ${event.type === "special" ? "text-black" : ""}
-                                                                              `}
-                                                                        >
-                                                                              {event.type === "birthday" ? `🎂 ${event.name}` : event.name}
-                                                                        </span>
-                                                                  ))}
-                                                                  {!events.length && isWeekendDay && (
-                                                                        <span className="hidden md:block text-[10px] lg:text-xs text-red-300 mt-1">Weekend</span>
-                                                                  )}
-                                                            </div>
-                                                            {isTodayDate && <div className="absolute inset-0 bg-blue-100/50 pointer-events-none"></div>}
-                                                      </div>
-                                                )
-                                          })}
-                                    </div>
-                              </div>
-                              {/* Day detail modal */}
-                              {modalOpen && selectedDayInfo && (
-                                   <DayDetailModal 
-  isOpen={modalOpen}
-  selectedDayInfo={selectedDayInfo}
-  onClose={closeModal}
-  formatDateTime={formatDateTime}
-/>
-                              )}
+            <div className="rounded-2xl border border-gray-700 bg-gray-800 p-4 shadow-xl md:p-6">
+                  {/* Header */}
+                  <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                              <h2 className="text-xl font-bold tracking-tight text-white md:text-2xl">{monthNames[month]} {year}</h2>
+                              <p className="text-xs text-gray-400 md:text-sm">{monthCount} item{monthCount === 1 ? "" : "s"} this month</p>
                         </div>
+                        <div className="flex items-center gap-2">
+                              <button onClick={previousMonth} aria-label="Previous month" className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-600 bg-gray-800 text-white transition hover:bg-gray-700"><ChevronLeftIcon /></button>
+                              <button onClick={goToToday} className="h-9 rounded-lg bg-[#1c65b4] px-4 text-sm font-semibold text-white transition hover:bg-blue-700">Today</button>
+                              <button onClick={nextMonth} aria-label="Next month" className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-600 bg-gray-800 text-white transition hover:bg-gray-700"><ChevronRightIcon /></button>
+                        </div>
+                  </div>
+
+                  {/* Legend = filters */}
+                  <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Show or hide event types">
+                        {Object.entries(CATS).map(([type, c]) => {
+                              const off = hidden.includes(type)
+                              return (
+                                    <button key={type} aria-pressed={!off} onClick={() => setHidden((h) => (off ? h.filter((x) => x !== type) : [...h, type]))} className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition ${off ? "border-gray-700 text-gray-500 line-through" : "border-gray-600 text-gray-200 hover:bg-gray-700"}`}>
+                                          <span className="h-2.5 w-2.5 rounded-full" style={{ background: off ? "#64748B" : c.color }} aria-hidden="true" />
+                                          {c.label}
+                                    </button>
+                              )
+                        })}
+                  </div>
+
+                  <div className="grid gap-5 2xl:grid-cols-[1fr_320px]">
+                        {/* Month grid */}
+                        <div className="min-w-0 overflow-hidden rounded-xl border border-gray-700">
+                              <div className="grid grid-cols-7 border-b border-gray-700 bg-gray-900/60">
+                                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d, i) => (
+                                          <div key={d} className={`py-2.5 text-center text-[11px] font-bold uppercase tracking-wider ${i === 6 ? "text-rose-400" : "text-gray-400"}`}>
+                                                <span className="hidden sm:inline">{d}</span><span className="sm:hidden">{d[0]}</span>
+                                          </div>
+                                    ))}
+                              </div>
+                              <div className="grid grid-cols-7">
+                                    {[...Array(firstDayOfMonth)].map((_, i) => <div key={`e${i}`} className="min-h-[64px] border-b border-r border-gray-700/60 bg-gray-900/30 sm:min-h-[104px]" />)}
+                                    {[...Array(daysInMonth)].map((_, i) => {
+                                          const day = i + 1
+                                          const key = keyOf(day)
+                                          const events = visibleEvents(day)
+                                          const { holiday, weekend } = dayStatus(day)
+                                          const closed = Boolean(holiday) || weekend
+                                          const isSel = key === activeKey
+                                          const isTodayDate = key === todayKey
+                                          const shown = events.filter((e) => e.type !== "holiday")
+                                          return (
+                                                <button
+                                                      key={day}
+                                                      type="button"
+                                                      onClick={() => setSelectedKey(key)}
+                                                      aria-label={`${monthNames[month]} ${day}${events.length ? `, ${events.length} items` : ""}${holiday ? `, ${holiday.name}` : weekend ? ", weekend" : ""}`}
+                                                      aria-pressed={isSel}
+                                                      className={`relative min-h-[64px] border-b border-r border-gray-700/60 p-1.5 text-left transition sm:min-h-[104px] sm:p-2 ${closed ? "bg-gray-900/50" : "bg-gray-800"} ${isSel ? "z-10 ring-2 ring-inset ring-blue-500" : "hover:bg-gray-700/40"}`}
+                                                >
+                                                      <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold sm:h-7 sm:w-7 sm:text-sm ${isTodayDate ? "bg-[#1c65b4] text-white" : closed ? "text-rose-400" : "text-gray-200"}`}>{day}</span>
+                                                      {holiday && <span className="mt-0.5 block truncate text-[10px] font-medium text-rose-400 sm:text-[11px]">{holiday.name}</span>}
+                                                      
+                                                      <span className="mt-1 hidden space-y-1 sm:block">
+                                                            {shown.slice(0, 2).map((e, idx) => (
+                                                                  <span key={idx} className="block truncate rounded-sm px-1.5 py-0.5 text-[11px] font-medium text-gray-100" style={chip(e.type)}>{e.type === "birthday" ? "🎂 " : ""}{e.name}</span>
+                                                            ))}
+                                                            {shown.length > 2 && <span className="block text-[11px] font-semibold text-gray-400">+{shown.length - 2} more</span>}
+                                                      </span>
+                                                      {shown.length > 0 && (
+                                                            <span className="mt-1 flex flex-wrap gap-1 sm:hidden" aria-hidden="true">
+                                                                  {shown.slice(0, 4).map((e, idx) => <span key={idx} className="h-1.5 w-1.5 rounded-full" style={{ background: CATS[e.type].color }} />)}
+                                                            </span>
+                                                      )}
+                                                </button>
+                                          )
+                                    })}
+                              </div>
+                        </div>
+
+                        {/* Day agenda */}
+                        <aside className="rounded-xl border border-gray-700 bg-gray-900/40 p-4" aria-live="polite">
+                              <p className="text-xs font-bold uppercase tracking-[0.15em] text-gray-400">{activeKey === todayKey ? "Today" : "Selected day"}</p>
+                              <h3 className="mt-1 text-lg font-bold text-white">{selDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h3>
+                              {selStatus.holiday && <p className="mt-2 rounded-lg bg-rose-500/15 px-3 py-2 text-sm font-medium text-rose-300">Holiday: {selStatus.holiday.name}. Bookings are closed.</p>}
+                              {!selStatus.holiday && selStatus.weekend && <p className="mt-2 rounded-lg bg-rose-500/15 px-3 py-2 text-sm font-medium text-rose-300">Weekend. Bookings are closed.</p>}
+                              {!selInMonth ? (
+                                    <p className="mt-4 rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm text-gray-500">Pick a day in this month.</p>
+                              ) : groupedSel.filter((g) => g.type !== "holiday").length === 0 ? (
+                                    <p className="mt-4 rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm text-gray-500">Nothing scheduled.</p>
+                              ) : (
+                                    <div className="mt-4 space-y-4">
+                                          {groupedSel.filter((g) => g.type !== "holiday").map((g) => (
+                                                <section key={g.type}>
+                                                      <h4 className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-400"><span className="h-2.5 w-2.5 rounded-full" style={{ background: CATS[g.type].color }} aria-hidden="true" />{CATS[g.type].label}<span className="text-gray-500">{g.list.length}</span></h4>
+                                                      <ul className="space-y-2">
+                                                            {g.list.map((e, idx) => {
+                                                                  const inner = (
+                                                                        <>
+                                                                              <span className="flex items-baseline justify-between gap-2"><span className="min-w-0 break-words text-sm font-semibold text-gray-100">{e.type === "birthday" ? "🎂 " : ""}{e.name}</span>{timeOf(e) && <span className="shrink-0 text-xs font-bold tabular-nums text-gray-300">{timeOf(e)}</span>}</span>
+                                                                              {e.summary && <span className="mt-0.5 line-clamp-2 block text-xs text-gray-400">{e.summary}</span>}
+                                                                        </>
+                                                                  )
+                                                                  return (
+                                                                        <li key={idx}>
+                                                                              {CATS[e.type].href
+                                                                                    ? <Link to={CATS[e.type].href} className="block rounded-lg border border-gray-700 p-3 transition hover:border-gray-500" style={{ borderLeft: `3px solid ${CATS[e.type].color}` }}>{inner}</Link>
+                                                                                    : <div className="rounded-lg border border-gray-700 p-3" style={{ borderLeft: `3px solid ${CATS[e.type].color}` }}>{inner}</div>}
+                                                                        </li>
+                                                                  )
+                                                            })}
+                                                      </ul>
+                                                </section>
+                                          ))}
+                                    </div>
+                              )}
+                        </aside>
                   </div>
             </div>
       )
-}
-
-
-
-
-
-import { X } from 'lucide-react'
-
-
-
-// Reusable section component to reduce repetition
-function ModalSection({
-  title,
-  count,
-  colorScheme,
-  children,
-}) {
-  return (
-    <section className={`rounded-md border ${colorScheme.border} ${colorScheme.bg} p-4`}>
-      <div className="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-gray-200">
-        <h4 className={`text-xs font-semibold uppercase tracking-wide ${colorScheme.text}`}>
-          {title}
-        </h4>
-        <span className={`rounded-md ${colorScheme.badge} px-2 py-0.5 text-xs font-medium ${colorScheme.badgeText}`}>
-          {count}
-        </span>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-// Reusable item component for links
-function ModalItem({
-  title,
-  summary,
-  timestamp,
-  href,
-  colorScheme,
-}) {
-  return (
-    <Link to={href} className="block">
-      <div className={`rounded-md bg-white p-3 shadow-sm ring-1 ${colorScheme.ring} transition hover:shadow-md`}>
-        <div className="font-medium text-gray-900 text-sm">{title}</div>
-        {summary && <div className="mt-1 text-xs text-gray-600">{summary}</div>}
-        {timestamp && <div className="mt-1.5 text-xs text-gray-500">{timestamp}</div>}
-      </div>
-    </Link>
-  )
-}
-
-// Reusable event item (for holidays/special days)
-function ModalEventItem({ name }) {
-  return (
-    <div className="rounded-md bg-white px-3 py-2 text-sm text-gray-800 shadow-sm ring-1 ring-gray-100">
-      {name}
-    </div>
-  )
-}
-
-export function DayDetailModal({
-  isOpen,
-  selectedDayInfo,
-  onClose,
-  formatDateTime,
-}) {
-  if (!isOpen || !selectedDayInfo) return null
-
-  const birthdayMembers = selectedDayInfo.members || []
-  const holidayEvents = (selectedDayInfo.events || []).filter((e) => e.type === 'holiday')
-  const specialEvents = (selectedDayInfo.events || []).filter((e) => e.type === 'special')
-  const meetingItems = (selectedDayInfo.items || []).filter((i) => i.type === 'meeting')
-  const clientMeetingItems = (selectedDayInfo.items || []).filter((i) => i.type === 'client_meeting')
-  const contactItems = (selectedDayInfo.items || []).filter((i) => i.type === 'contact')
-  const noticeItems = (selectedDayInfo.items || []).filter((i) => i.type === 'notice')
-  const issueItems = (selectedDayInfo.items || []).filter((i) => i.type === 'issue')
-
-  const hasAnyContent =
-    birthdayMembers.length > 0 ||
-    holidayEvents.length > 0 ||
-    specialEvents.length > 0 ||
-    meetingItems.length > 0 ||
-    clientMeetingItems.length > 0 ||
-    contactItems.length > 0 ||
-    noticeItems.length > 0 ||
-    issueItems.length > 0
-
-  return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-2xl rounded-lg border border-gray-200 bg-white shadow-xl"
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{selectedDayInfo.dateStr}</h2>
-            <p className="mt-1 text-xs text-gray-500 uppercase tracking-wide">Daily overview</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition p-1"
-            aria-label="Close modal"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          {!hasAnyContent ? (
-            <div className="rounded-md border border-gray-200 bg-gray-50 px-6 py-12 text-center">
-              <div className="text-base font-semibold text-gray-700">This is just a normal day.</div>
-              <div className="mt-2 text-sm text-gray-500">
-                No birthdays, meetings, or events scheduled.
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {/* Birthdays */}
-              {birthdayMembers.length > 0 && (
-                <ModalSection
-                  title="Birthdays"
-                  count={birthdayMembers.length}
-                  colorScheme={{
-                    border: 'border-green-100',
-                    bg: 'bg-green-50',
-                    text: 'text-green-800',
-                    badge: 'bg-green-100',
-                    badgeText: 'text-green-700',
-                  }}
-                >
-                  <ul className="space-y-2">
-                    {birthdayMembers.map((m) => (
-                      <li key={m._id || m.email || m.name} className="flex gap-3 p-2">
-                        {m.image ? (
-                          <img
-                            src={m.image}
-                            alt={m.name}
-                            className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gray-200" />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <div className="font-medium text-gray-900 text-sm">{m.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {m.dob && new Date(m.dob).toLocaleDateString()}
-                          </div>
-                          {m.position && <div className="text-xs text-gray-400">{m.position}</div>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Meetings */}
-              {meetingItems.length > 0 && (
-                <ModalSection
-                  title="Meetings"
-                  count={meetingItems.length}
-                  colorScheme={{
-                    border: 'border-blue-100',
-                    bg: 'bg-blue-50',
-                    text: 'text-blue-800',
-                    badge: 'bg-blue-100',
-                    badgeText: 'text-blue-700',
-                  }}
-                >
-                  <ul className="space-y-2">
-                    {meetingItems.map((item, idx) => (
-                      <ModalItem
-                        key={`${item.raw?.uri || item.title}-${idx}`}
-                        title={item.title}
-                        summary={item.summary}
-                        timestamp={item.raw?.start_time ? formatDateTime(item.raw.start_time) : undefined}
-                        href="/dashboard/meeting_management"
-                        colorScheme={{
-                          ring: 'ring-blue-100',
-                          hover: 'ring-blue-200',
-                        }}
-                      />
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Client Meetings */}
-              {clientMeetingItems.length > 0 && (
-                <ModalSection
-                  title="Client Meetings"
-                  count={clientMeetingItems.length}
-                  colorScheme={{
-                    border: 'border-purple-100',
-                    bg: 'bg-purple-50',
-                    text: 'text-purple-800',
-                    badge: 'bg-purple-100',
-                    badgeText: 'text-purple-700',
-                  }}
-                >
-                  <ul className="space-y-2">
-                    {clientMeetingItems.map((item, idx) => (
-                      <ModalItem
-                        key={`${item.raw?.uri || item.title}-${idx}`}
-                        title={item.title}
-                        summary={item.summary}
-                        timestamp={item.raw?.start_time ? formatDateTime(item.raw.start_time) : undefined}
-                        href="/dashboard/client_meetings"
-                        colorScheme={{
-                          ring: 'ring-purple-100',
-                          hover: 'ring-purple-200',
-                        }}
-                      />
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Contacts */}
-              {contactItems.length > 0 && (
-                <ModalSection
-                  title="Contacts"
-                  count={contactItems.length}
-                  colorScheme={{
-                    border: 'border-cyan-200',
-                    bg: 'bg-cyan-50',
-                    text: 'text-cyan-700',
-                    badge: 'bg-cyan-100',
-                    badgeText: 'text-cyan-700',
-                  }}
-                >
-                  <ul className="space-y-3">
-                    {contactItems.map((item, idx) => (
-                      <div
-                        key={`${item.raw?._id || item.title}-${idx}`}
-                        className="rounded-lg bg-white p-3 shadow-sm ring-1 ring-cyan-100"
-                      >
-                        <div className="font-medium text-gray-900">{item.title}</div>
-                        <div className="mt-1 text-sm text-gray-600">{item.summary}</div>
-                        {item.raw?.time_stamp && (
-                          <div className="mt-1.5 text-xs text-gray-500">
-                            {formatDateTime(item.raw.time_stamp)}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Notices */}
-              {noticeItems.length > 0 && (
-                <ModalSection
-                  title="Notices"
-                  count={noticeItems.length}
-                  colorScheme={{
-                    border: 'border-amber-200',
-                    bg: 'bg-amber-50',
-                    text: 'text-amber-700',
-                    badge: 'bg-amber-100',
-                    badgeText: 'text-amber-700',
-                  }}
-                >
-                  <ul className="space-y-3">
-                    {noticeItems.map((item, idx) => (
-                      <ModalItem
-                        key={`${item.raw?._id || item.title}-${idx}`}
-                        title={item.title}
-                        summary={item.summary}
-                        timestamp={item.raw?.notice_date ? formatDateTime(item.raw.notice_date) : undefined}
-                        href={`/dashboard/notice/${item.raw?._id || ''}`}
-                        colorScheme={{
-                          ring: 'ring-amber-100',
-                          hover: 'ring-amber-200',
-                        }}
-                      />
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Issues */}
-              {issueItems.length > 0 && (
-                <ModalSection
-                  title="Issues"
-                  count={issueItems.length}
-                  colorScheme={{
-                    border: 'border-red-200',
-                    bg: 'bg-red-50',
-                    text: 'text-red-700',
-                    badge: 'bg-red-100',
-                    badgeText: 'text-red-700',
-                  }}
-                >
-                  <ul className="space-y-3">
-                    {issueItems.map((item, idx) => (
-                      <ModalItem
-                        key={`${item.raw?.issue_number || item.title}-${idx}`}
-                        title={item.title}
-                        summary={item.summary}
-                        timestamp={item.raw?.issue_date ? formatDateTime(item.raw.issue_date) : undefined}
-                        href="/dashboard/issue-submit"
-                        colorScheme={{
-                          ring: 'ring-red-100',
-                          hover: 'ring-red-200',
-                        }}
-                      />
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Special Events */}
-              {specialEvents.length > 0 && (
-                <ModalSection
-                  title="Special Days"
-                  count={specialEvents.length}
-                  colorScheme={{
-                    border: 'border-yellow-200',
-                    bg: 'bg-yellow-50',
-                    text: 'text-yellow-700',
-                    badge: 'bg-yellow-100',
-                    badgeText: 'text-yellow-700',
-                  }}
-                >
-                  <ul className="space-y-2">
-                    {specialEvents.map((event, idx) => (
-                      <ModalEventItem key={`${event.name}-${idx}`} name={event.name} />
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-
-              {/* Holidays */}
-              {holidayEvents.length > 0 && (
-                <ModalSection
-                  title="Holidays"
-                  count={holidayEvents.length}
-                  colorScheme={{
-                    border: 'border-orange-200',
-                    bg: 'bg-orange-50',
-                    text: 'text-orange-700',
-                    badge: 'bg-orange-100',
-                    badgeText: 'text-orange-700',
-                  }}
-                >
-                  <ul className="space-y-2">
-                    {holidayEvents.map((event, idx) => (
-                      <ModalEventItem key={`${event.name}-${idx}`} name={event.name} />
-                    ))}
-                  </ul>
-                </ModalSection>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
 }

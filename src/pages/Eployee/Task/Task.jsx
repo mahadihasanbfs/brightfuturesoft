@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowRight, Calendar, CheckCircle2, ChevronDown, Clock, MessageSquare, MoreHorizontal, Plus, Trash2, X, User } from "lucide-react";
 import { base_url } from "../../../layout/Title";
 import uploadImage from "../../../Hook/ImageUpload";
+import TaskDetailsModal from "./TaskDetailsModal";
 
 function Modal({ open, onClose, children }) {
       if (!open) return null;
@@ -21,25 +22,6 @@ function Modal({ open, onClose, children }) {
                   </div>
             </div>
       );
-}
-
-function timeAgo(date) {
-      const now = new Date();
-      const past = new Date(date);
-      const diff = Math.floor((now - past) / 1000); // seconds
-
-      const minutes = Math.floor(diff / 60);
-      const hours = Math.floor(diff / 3600);
-      const days = Math.floor(diff / 86400);
-      const months = Math.floor(diff / 2592000);
-      const years = Math.floor(diff / 31536000);
-
-      if (diff < 60) return "Just now";
-      if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-      if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-      if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
-      if (months < 12) return `${months} month${months > 1 ? "s" : ""} ago`;
-      return `${years} year${years > 1 ? "s" : ""} ago`;
 }
 
 function computeNewOrder({ beforeOrder, afterOrder }) {
@@ -286,6 +268,12 @@ function TaskManagement() {
 
       const [viewModalOpen, setViewModalOpen] = useState(false);
       const [selectedTask, setSelectedTask] = useState(null);
+      const [scope, setScope] = useState("all"); // admins start on the whole team; the server limits everyone else to their own tasks
+      const [search, setSearch] = useState("");
+      const [priorityFilter, setPriorityFilter] = useState("all");
+      const [assigneeFilter, setAssigneeFilter] = useState("all");
+      const [colLimit, setColLimit] = useState({}); // cards shown per column; the rest load on request
+      const PAGE = 25;
       const editorRef = useRef(null);
 
       const COLUMNS = useMemo(
@@ -383,17 +371,20 @@ function TaskManagement() {
             setLabelSearch("");
       };
 
-      const { data: getTasks = [], refetch, isLoading } = useQuery({
-            queryKey: ["tasks"],
+      const { data: tasksResp, refetch, isLoading } = useQuery({
+            queryKey: ["tasks", scope],
             queryFn: async () => {
-                  const res = await fetch(`${base_url}/task/get-task`, {
+                  const res = await fetch(`${base_url}/task/get-task?scope=${scope}`, {
                         method: "GET",
                         headers: { "content-type": "application/json", author: "bright_future_soft" },
                   });
                   const data = await res.json();
-                  return data.data || [];
+                  return { data: data.data || [], meta: data.meta || {} };
             },
       });
+      const getTasks = tasksResp?.data;
+      const meta = tasksResp?.meta || {};
+      const isAdmin = Boolean(meta.is_admin);
 
       const tasks = useMemo(() => {
             return (getTasks || []).map((t, index) => ({
@@ -410,13 +401,24 @@ function TaskManagement() {
                   order: typeof t?.order === "number" ? t.order : index * 1000,
                   create_at: t?.create_at ?? "",
                   comment: t?.comment ?? [],
+                  history: t?.history ?? [],
+                  created_by: t?.created_by ?? null,
+                  can_edit: Boolean(t?.can_edit),
+                  can_delete: Boolean(t?.can_delete),
+                  can_move: t?.can_move !== false,
             }));
       }, [getTasks]);
 
       const tasksByColumn = useMemo(() => {
             const map = {};
             for (const c of COLUMNS) map[c.id] = [];
-            for (const t of tasks) {
+            const q = search.trim().toLowerCase();
+            const visible = tasks.filter((t) =>
+                  (priorityFilter === "all" || t.priority === priorityFilter) &&
+                  (assigneeFilter === "all" || (t.assignees || []).map(String).includes(assigneeFilter)) &&
+                  (!q || `${t.title} ${sanitizeTextFromHtml(t.description)} ${(t.labels || []).join(" ")}`.toLowerCase().includes(q))
+            );
+            for (const t of visible) {
                   if (!map[t.column]) map[t.column] = [];
                   map[t.column].push(t);
             }
@@ -424,7 +426,7 @@ function TaskManagement() {
                   map[colId].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
             }
             return map;
-      }, [tasks, COLUMNS]);
+      }, [tasks, COLUMNS, search, priorityFilter, assigneeFilter]);
 
       const closeAllDropdowns = () => {
             setAssigneeOpen(false);
@@ -577,21 +579,6 @@ function TaskManagement() {
             }
       };
 
-      const markTaskComplete = async (taskId) => {
-            try {
-                  await fetch(`${base_url}/task/update-task?id=${taskId}`, {
-                        method: "PUT",
-                        headers: { "content-type": "application/json", author: "bright_future_soft" },
-                        body: JSON.stringify({ column: "done" }),
-                  });
-                  refetch();
-                  // close modal if viewing the same task
-                  if (selectedTask && selectedTask.id === taskId) closeViewModal();
-            } catch (error) {
-                  console.error(error);
-            }
-      };
-
       const handleDropOnColumn = async (e, columnId) => {
             e.preventDefault();
             if (!draggedId) return;
@@ -627,20 +614,6 @@ function TaskManagement() {
             setDropTarget({ columnId: null, beforeId: null });
       };
 
-      const delete_task = async (taskId) => {
-            console.log(taskId);
-            try {
-                  await fetch(`${base_url}/task/delete-task?id=${taskId}`, {
-                        method: "DELETE",
-                        headers: { "content-type": "application/json", author: "bright_future_soft" },
-                  });
-                  refetch();
-                  if (selectedTask && selectedTask.id === taskId) closeViewModal();
-            } catch (error) {
-                  console.error(error);
-            }
-      }
-
       const openViewModal = (task) => {
             setSelectedTask(task);
             setViewModalOpen(true);
@@ -652,6 +625,8 @@ function TaskManagement() {
       };
 
       const priorityCfg = PRIORITIES.find((p) => p.id === priority);
+      // The open task always reflects the latest server data (new comments, history, status).
+      const liveSelected = selectedTask ? tasks.find((t) => t.id === selectedTask.id) : null;
 
       if (isLoading) {
             return (
@@ -661,160 +636,158 @@ function TaskManagement() {
             );
       }
 
+      const COL_COLOR = { backlog: "#94A3B8", ready: "#22D3EE", in_progress: "#FBBF24", in_review: "#FB923C", done: "#34D399" };
+      const memberOf = (id) => TEAM_MEMBERS.find((m) => String(m.id) === String(id));
+      const initialsOf = (name) => String(name || "?").trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
+      const dueState = (t) => {
+            if (!t.deadline || t.column === "done") return "";
+            const days = (new Date(t.deadline).getTime() - Date.now()) / 86400000;
+            return days < 0 ? "late" : days <= 2 ? "soon" : "";
+      };
+      const openCount = tasks.filter((t) => t.column !== "done").length;
+      const lateCount = tasks.filter((t) => dueState(t) === "late").length;
+      const doneCount = tasks.length - openCount;
+
       return (
             <>
-                  <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8 ">
-                        <div className="mb-8">
-                              <h1 className="text-3xl font-bold text-slate-100 mb-2">Task Board</h1>
-                              <p className="text-slate-400">Manage your team's workflow</p>
+                  <div className="tk-page flex h-full min-h-[560px] flex-col p-4 sm:p-6 lg:p-8">
+                        {/* header */}
+                        <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+                              <div>
+                                    <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{isAdmin && scope === "all" ? "Team tasks" : "My tasks"}</h1>
+                                    <p className="tk-body mt-1 text-sm">{isAdmin && scope === "all" ? "Every task across the team" : "Assigned to you, or assigned by you"}</p>
+                                    <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+                                          <span className="tk-chip">{openCount} open</span>
+                                          {lateCount > 0 && <span className="tk-due tk-due-late">{lateCount} overdue</span>}
+                                          <span className="tk-chip">{doneCount} done</span>
+                                    </div>
+                              </div>
+                              {isAdmin && (
+                                    <div className="tk-seg flex" role="group" aria-label="Task scope">
+                                          {[["mine", "My tasks"], ["all", "Whole team"]].map(([key, name]) => (
+                                                <button key={key} aria-pressed={scope === key} onClick={() => { setScope(key); setAssigneeFilter("all"); }} className="px-4 py-2 text-sm font-medium transition">{name}</button>
+                                          ))}
+                                    </div>
+                              )}
                         </div>
 
-                        <div className="flex overflow-x-auto gap-6 pb-4">
+                        {/* filters */}
+                        <div className="mb-4 flex flex-wrap items-center gap-3">
+                              <div className="relative min-w-[200px] flex-1">
+                                    <svg className="tk-mute pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                                    <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search tasks" aria-label="Search tasks" className="tk-field w-full py-2.5 pl-9 pr-3 text-sm" />
+                              </div>
+                              <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} aria-label="Filter by priority" className="tk-field px-3 py-2.5 text-sm">
+                                    <option value="all">All priorities</option>
+                                    {PRIORITIES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+                              </select>
+                              {isAdmin && scope === "all" && (
+                                    <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)} aria-label="Filter by assignee" className="tk-field max-w-[200px] px-3 py-2.5 text-sm">
+                                          <option value="all">All people</option>
+                                          {TEAM_MEMBERS.map((m) => <option key={m.id} value={String(m.id)}>{m.name}</option>)}
+                                    </select>
+                              )}
+                              {(search || priorityFilter !== "all" || assigneeFilter !== "all") && (
+                                    <button onClick={() => { setSearch(""); setPriorityFilter("all"); setAssigneeFilter("all"); }} className="text-xs font-semibold text-blue-500 hover:underline">Clear filters</button>
+                              )}
+                        </div>
+
+                        {/* board */}
+                        <div className="flex min-h-0 flex-1 gap-4 overflow-x-auto pb-2">
                               {COLUMNS.map((column) => {
                                     const colId = String(column.id).toLowerCase();
                                     const columnTasks = tasksByColumn[colId] || [];
-
+                                    const limit = colLimit[colId] || PAGE;
                                     return (
-                                          <div
+                                          <section
                                                 key={column.id}
-                                                className={`w-96 flex-shrink-0 rounded-xl p-5 flex flex-col border transition-all duration-200
-                ${dragOverColumn === column.id
-                                                            ? "bg-slate-800/60 ring-2 ring-blue-500/40 border-blue-500/30"
-                                                            : "bg-slate-900/40 border-slate-800/50 backdrop-blur-sm"
-                                                      }`}
-                                                onDragOver={(e) => {
-                                                      e.preventDefault();
-                                                      setDragOverColumn(column.id);
-                                                }}
+                                                aria-label={`${column.label}, ${columnTasks.length} tasks`}
+                                                className={`tk-col flex min-h-0 w-[19rem] flex-shrink-0 flex-col rounded-2xl p-3 sm:w-[21rem] ${dragOverColumn === column.id ? "tk-col-over" : ""}`}
+                                                onDragOver={(e) => { e.preventDefault(); setDragOverColumn(column.id); }}
                                                 onDragLeave={() => setDragOverColumn(null)}
                                                 onDrop={(e) => handleDropOnColumn(e, column.id)}
                                           >
-                                                <div className="flex justify-between items-center mb-5 pb-4 border-b border-slate-800/50">
+                                                <header className="mb-3 flex items-center justify-between gap-2 px-1">
                                                       <div className="flex items-center gap-2">
-                                                            <span className="text-xl">{column.icon}</span>
-                                                            <h2 className="font-bold text-slate-100 text-base">
-                                                                  {column.label}
-                                                            </h2>
-                                                            <span className="px-2 py-0.5 rounded-full bg-slate-800/50 text-slate-400 text-xs font-semibold">
-                                                                  {columnTasks.length}
-                                                            </span>
+                                                            <span className="h-2.5 w-2.5 rounded-full" style={{ background: COL_COLOR[colId] || "#94A3B8" }} aria-hidden="true" />
+                                                            <h2 className="text-sm font-bold">{column.label}</h2>
+                                                            <span className="tk-chip">{columnTasks.length}</span>
                                                       </div>
-                                                </div>
+                                                      <button onClick={() => openAddModal(column.id)} aria-label={`Add task to ${column.label}`} className="tk-icon-btn flex h-7 w-7 items-center justify-center"><Plus size={16} /></button>
+                                                </header>
 
-                                                <div className="flex-1 space-y-3 overflow-y-auto pr-1">
-                                                      {columnTasks.map((task) => {
-                                                            const taskPriorityCfg = PRIORITIES.find((p) => p.id === task.priority) || null;
-
+                                                <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto overflow-x-hidden pr-1">
+                                                      {columnTasks.length === 0 && <p className="tk-mute rounded-xl border border-dashed p-4 text-center text-xs" style={{ borderColor: "var(--tk-col-line)" }}>No tasks here</p>}
+                                                      {columnTasks.slice(0, limit).map((task) => {
+                                                            const pr = PRIORITIES.find((p) => p.id === task.priority) || PRIORITIES[1];
+                                                            const due = dueState(task);
                                                             return (
-                                                                  <div key={task.id} className="relative group">
+                                                                  <div key={task.id} className="relative min-w-0">
                                                                         <div
-                                                                              onDragOver={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    setDropTarget({ columnId: colId, beforeId: task.id });
-                                                                              }}
+                                                                              onDragOver={(e) => { e.preventDefault(); setDropTarget({ columnId: colId, beforeId: task.id }); }}
                                                                               onDrop={(e) => handleDropBeforeTask(e, colId, task.id)}
-                                                                              className={`h-2 rounded transition-colors ${dropTarget.columnId === colId && dropTarget.beforeId === task.id
-                                                                                    ? "bg-blue-500/30"
-                                                                                    : ""
-                                                                                    }`}
+                                                                              className={`h-1.5 rounded transition-colors ${dropTarget.columnId === colId && dropTarget.beforeId === task.id ? "bg-blue-500/50" : ""}`}
                                                                         />
-                                                                        <div
-                                                                              draggable
+                                                                        <article
+                                                                              draggable={task.can_move}
                                                                               onDragStart={() => setDraggedId(task.id)}
-                                                                              onDragEnd={() => {
-                                                                                    setDraggedId(null);
-                                                                                    setDragOverColumn(null);
-                                                                                    setDropTarget({ columnId: null, beforeId: null });
-                                                                              }}
+                                                                              onDragEnd={() => { setDraggedId(null); setDragOverColumn(null); setDropTarget({ columnId: null, beforeId: null }); }}
                                                                               onClick={() => openViewModal(task)}
-                                                                              className={`p-4 rounded-xl border bg-slate-900/60 backdrop-blur-sm cursor-pointer
-                          transition-all duration-200 hover:shadow-xl hover:shadow-slate-900/50 hover:-translate-y-0.5
-                          ${draggedId === task.id ? "opacity-40 scale-95" : "hover:bg-slate-900/80 border-slate-800/50 hover:border-slate-700"}
-                        `}
+                                                                              onKeyDown={(e) => { if (e.key === "Enter") openViewModal(task); }}
+                                                                              tabIndex={0}
+                                                                              className={`tk-card tk-p-${pr.id} cursor-pointer rounded-xl p-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${draggedId === task.id ? "scale-95 opacity-40" : ""}`}
                                                                         >
-                                                                              <div className="flex items-start justify-between gap-3 mb-2">
-                                                                                    <div className="text-sm font-semibold text-slate-100 break-words flex-1 leading-snug">
-                                                                                          {task.title}
-                                                                                    </div>
-                                                                                    {taskPriorityCfg ? (
-                                                                                          <LevelPill label={taskPriorityCfg.label} colorClass={taskPriorityCfg.color} />
-                                                                                    ) : null}
+                                                                              <div className="flex items-start justify-between gap-2">
+                                                                                    <h3 className="min-w-0 flex-1 text-[13.5px] font-semibold leading-snug [overflow-wrap:anywhere] line-clamp-3">{task.title}</h3>
+                                                                                    <span className={`tk-prio tk-prio-${pr.id}`}>{pr.label}</span>
                                                                               </div>
-
-                                                                              {task.description ? (
-                                                                                    <div className="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">
-                                                                                          {sanitizeTextFromHtml(task.description)}
-                                                                                    </div>
-                                                                              ) : null}
+                                                                              {task.description ? <p className="tk-body mt-1.5 line-clamp-2 text-xs leading-relaxed">{sanitizeTextFromHtml(task.description)}</p> : null}
 
                                                                               {task.labels && task.labels.length > 0 && (
-                                                                                    <div className="flex flex-wrap gap-1.5 mb-3">
-                                                                                          {task.labels.slice(0, 3).map((label, idx) => (
-                                                                                                <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-800/50 border border-slate-700/50 text-slate-300 text-xs font-medium">
-                                                                                                      {label}
-                                                                                                </span>
-                                                                                          ))}
-                                                                                          {task.labels.length > 3 && (
-                                                                                                <span className="px-2 py-0.5 rounded-md bg-slate-800/50 border border-slate-700/50 text-slate-400 text-xs font-medium">
-                                                                                                      +{task.labels.length - 3}
-                                                                                                </span>
-                                                                                          )}
+                                                                                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                                                                                          {task.labels.slice(0, 3).map((label, idx) => <span key={idx} className="tk-chip max-w-[8rem] truncate capitalize">{label}</span>)}
+                                                                                          {task.labels.length > 3 && <span className="tk-chip">+{task.labels.length - 3}</span>}
                                                                                     </div>
                                                                               )}
 
-                                                                              <div className="flex items-center justify-between pt-2 border-t border-slate-800/50">
-                                                                                    {task.assignees && task.assignees.length > 0 ? (
-                                                                                          <div className="flex -space-x-2">
-                                                                                                {task.assignees.slice(0, 3).map((assignee, idx) => (
-                                                                                                      <div
-                                                                                                            key={idx}
-                                                                                                            className="h-7 w-7 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-900 flex items-center justify-center text-slate-200 text-xs font-semibold"
-                                                                                                            title={assignee}
-                                                                                                      >
-                                                                                                            <img className="w-5 h-5 rounded-full object-cover" src={TEAM_MEMBERS.find((m) => m.id === assignee)?.avatar || ''} alt="" />
-                                                                                                      </div>
-                                                                                                ))}
-                                                                                                {task.assignees.length > 3 && (
-                                                                                                      <div className="h-7 w-7 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center text-slate-400 text-xs font-semibold">
-                                                                                                            +{task.assignees.length - 3}
-                                                                                                      </div>
-                                                                                                )}
-                                                                                          </div>
-                                                                                    ) : (
-                                                                                          <div className="text-xs text-slate-500">No assignees</div>
-                                                                                    )}
-
-                                                                                    {task.deadline && (
-                                                                                          <div className="flex items-center gap-1 text-xs text-slate-400">
-                                                                                                <Calendar size={12} />
-                                                                                                {
-                                                                                                      task.deadline
-                                                                                                            ? new Date(task.deadline).toLocaleDateString("en-GB", {
-                                                                                                                  day: "numeric",
-                                                                                                                  month: "long",
-                                                                                                                  year: "numeric",
-                                                                                                            })
-                                                                                                            : "No deadline"
-                                                                                                }
-                                                                                          </div>
-                                                                                    )}
+                                                                              <div className="mt-3 flex items-center justify-between gap-2">
+                                                                                    <div className="flex min-w-0 items-center">
+                                                                                          {task.assignees && task.assignees.length > 0 ? (
+                                                                                                <div className="flex">
+                                                                                                      {task.assignees.slice(0, 3).map((a, idx) => {
+                                                                                                            const m = memberOf(a);
+                                                                                                            return <span key={idx} className="tk-avatar" title={m?.name || String(a)}>{m?.avatar ? <img src={m.avatar} alt="" className="h-full w-full object-cover" /> : initialsOf(m?.name)}</span>;
+                                                                                                      })}
+                                                                                                      {task.assignees.length > 3 && <span className="tk-avatar">+{task.assignees.length - 3}</span>}
+                                                                                                </div>
+                                                                                          ) : <span className="tk-mute text-xs">Unassigned</span>}
+                                                                                    </div>
+                                                                                    <div className="flex shrink-0 items-center gap-2.5">
+                                                                                          {task.comment.length > 0 && <span className="tk-mute flex items-center gap-1 text-xs"><MessageSquare size={12} />{task.comment.length}</span>}
+                                                                                          {task.deadline && (
+                                                                                                <span className={`tk-due ${due === "late" ? "tk-due-late" : due === "soon" ? "tk-due-soon" : ""}`} title={due === "late" ? "Overdue" : due === "soon" ? "Due soon" : "Deadline"}>
+                                                                                                      <Calendar size={11} />
+                                                                                                      {new Date(task.deadline).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                                                                                                </span>
+                                                                                          )}
+                                                                                    </div>
                                                                               </div>
-                                                                        </div>
+                                                                        </article>
                                                                   </div>
                                                             );
                                                       })}
+                                                      {columnTasks.length > limit && (
+                                                            <button onClick={() => setColLimit((p) => ({ ...p, [colId]: limit + PAGE }))} className="tk-add w-full py-2 text-xs font-semibold">
+                                                                  Show {Math.min(PAGE, columnTasks.length - limit)} more ({columnTasks.length - limit} hidden)
+                                                            </button>
+                                                      )}
                                                 </div>
 
-                                                <div className="mt-4 pt-4 border-t border-slate-800/50">
-                                                      <button
-                                                            onClick={() => openAddModal(column.id)}
-                                                            className="w-full px-4 py-2.5 text-sm font-medium text-slate-300 hover:text-slate-100 bg-slate-800/40 hover:bg-slate-800/70 rounded-lg border border-slate-700/50 hover:border-slate-600 transition-all duration-200 flex items-center justify-center gap-2"
-                                                      >
-                                                            <Plus size={16} />
-                                                            Add Task
-                                                      </button>
-                                                </div>
-                                          </div>
+                                                <button onClick={() => openAddModal(column.id)} className="tk-add mt-3 flex w-full items-center justify-center gap-2 py-2 text-sm font-medium">
+                                                      <Plus size={15} />
+                                                      Add task
+                                                </button>
+                                          </section>
                                     );
                               })}
                         </div>
@@ -1153,158 +1126,16 @@ function TaskManagement() {
 
                   <Modal open={viewModalOpen} onClose={closeViewModal}>
                         {selectedTask && (
-                              <div className="flex flex-col h-full max-h-[90vh] relative">
-                                    <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-                                          <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white shadow-lg shadow-blue-900/30">
-                                                      <CheckCircle2 size={20} />
-                                                </div>
-                                                <div className="flex flex-col">
-                                                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Task Details</span>
-                                                      <span className="text-xs text-slate-400">#{selectedTask.id.slice(-8)}</span>
-                                                </div>
-                                          </div>
-                                                <div className="flex items-center gap-2">
-                                                <button onClick={() => delete_task(selectedTask.id)} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-rose-400 transition-all" title="Mark complete">
-                                                      <Trash2 size={18} />
-                                                </button>
-                                                <button className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-300 transition-all">
-                                                      <MoreHorizontal size={18} />
-                                                </button>
-                                                <div className="w-px h-6 bg-slate-800 mx-1" />
-                                                <button onClick={closeViewModal} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-300 transition-all">
-                                                      <X size={18} />
-                                                </button>
-                                          </div>
-                                    </div>
-
-                                    <div className="flex-1 overflow-hidden flex">
-                                          <div className="flex-1 overflow-y-auto p-8 space-y-6">
-                                                <div className="space-y-3">
-                                                      <h2 className="text-3xl font-bold tracking-tight text-slate-100 leading-tight">{selectedTask.title}</h2>
-                                                      <div className="flex items-center gap-4 text-sm text-slate-500">
-                                                            <div className="flex items-center gap-1.5">
-                                                                  <Clock size={14} />
-                                                                  <span>{timeAgo(selectedTask.create_at)}</span>
-                                                            </div>
-                                                            <div className="w-1 h-1 rounded-full bg-slate-700" />
-                                                            <div className="flex items-center gap-1.5">
-                                                                  <MessageSquare size={14} />
-                                                                  <span>{selectedTask.comment.length} comments</span>
-                                                            </div>
-                                                      </div>
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                      <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Description</h3>
-                                                      <div
-                                                            className="prose prose-invert prose-slate max-w-none text-slate-300 leading-relaxed"
-                                                            dangerouslySetInnerHTML={{
-                                                                  __html: selectedTask.description || "<p class='text-slate-600 italic'>No description provided.</p>",
-                                                            }}
-                                                      />
-                                                </div>
-                                                {/* <textarea
-                                                      className="w-[500px] h-20 p-2 absolute bottom-2 border border-slate-700 rounded bg-slate-900 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                      placeholder="Add a comment..."
-                                                /> */}
-
-                                                {selectedTask.images && selectedTask.images.length > 0 && (
-                                                      <div className="space-y-3">
-                                                            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Attachments</h3>
-                                                            <div className="grid grid-cols-2 gap-3">
-                                                                  {selectedTask.images.map((img, i) => (
-                                                                        <div key={i} className="group relative aspect-video rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
-                                                                              <img src={img} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                                                              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                                                                                    <span className="text-xs font-medium text-white">attachment-{i + 1}.png</span>
-                                                                              </div>
-                                                                        </div>
-                                                                  ))}
-                                                            </div>
-                                                      </div>
-                                                )}
-                                          </div>
-
-                                          <div className="w-80 border-l border-slate-800 bg-slate-900/30 p-6 space-y-6 overflow-y-auto">
-                                                <div className="space-y-4">
-                                                      <div className="space-y-2">
-                                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
-                                                            <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm font-medium hover:bg-slate-700 transition-all capitalize">
-                                                                  <div className="flex items-center gap-2 capitalize">
-                                                                        <span className="w-2 h-2 rounded-full capitalize bg-amber-500" />
-                                                                        {selectedTask.column.replace('_', ' ')}
-                                                                  </div>
-
-                                                            </button>
-                                                      </div>
-
-                                                      <div className="space-y-2">
-                                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Assignees</label>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                  {selectedTask.assignees && selectedTask.assignees.length > 0 ? (
-                                                                        selectedTask.assignees.map((a, i) => (
-                                                                              <div key={i} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium">
-                                                                                    <img className="w-5 h-5 rounded-full object-cover" src={TEAM_MEMBERS.find((m) => m.id === a)?.avatar || ''} alt="" />
-                                                                                    {TEAM_MEMBERS.find((m) => m.id === a)?.name}
-                                                                              </div>
-                                                                        ))
-                                                                  ) : (
-                                                                        <span className="text-sm text-slate-500">No assignees</span>
-                                                                  )}
-                                                                  <button className="w-7 h-7 rounded-lg border border-slate-700 border-dashed flex items-center justify-center text-slate-500 hover:text-slate-300 hover:border-slate-500 transition-all">
-                                                                        <Plus size={14} />
-                                                                  </button>
-                                                            </div>
-                                                      </div>
-
-                                                      <div className="flex flex-col">
-                                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Priority</label>
-                                                            <PriorityBadge priority={selectedTask.priority} />
-                                                      </div>
-
-                                                      <div className="space-y-2">
-                                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Labels</label>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                  {selectedTask.labels && selectedTask.labels.length > 0 ? (
-                                                                        selectedTask.labels.map((l, i) => (
-                                                                              <span key={i} className="px-2.5 py-1 capitalize rounded-lg bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300">
-                                                                                    {l}
-                                                                              </span>
-                                                                        ))
-                                                                  ) : (
-                                                                        <span className="text-sm text-slate-500">No labels</span>
-                                                                  )}
-
-                                                            </div>
-                                                      </div>
-
-                                                      <div className="space-y-2">
-                                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Deadline</label>
-                                                            <div className="flex items-center gap-2 text-sm text-slate-300">
-                                                                  <Calendar size={14} className="text-slate-500" />
-                                                                  {
-                                                                        selectedTask.deadline
-                                                                              ? new Date(selectedTask.deadline).toLocaleDateString("en-GB", {
-                                                                                    day: "numeric",
-                                                                                    month: "long",
-                                                                                    year: "numeric",
-                                                                              })
-                                                                              : "No deadline"
-                                                                  }
-                                                            </div>
-                                                      </div>
-                                                </div>
-
-                                                <div className="pt-4 border-t border-slate-800">
-                                                      <button onClick={() => markTaskComplete(selectedTask.id)} className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-bold hover:from-blue-500 hover:to-blue-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/30">
-                                                            Complete Task
-                                                            <ArrowRight size={16} />
-                                                      </button>
-                                                </div>
-                                          </div>
-                                    </div>
-                              </div>
+                              <TaskDetailsModal
+                                    key={selectedTask.id}
+                                    task={liveSelected || selectedTask}
+                                    members={TEAM_MEMBERS}
+                                    isAdmin={isAdmin}
+                                    meId={meta.me}
+                                    onClose={closeViewModal}
+                                    onChanged={() => refetch()}
+                                    onDeleted={() => { closeViewModal(); refetch(); }}
+                              />
                         )}
                   </Modal>
             </>

@@ -100,7 +100,7 @@ const Stamp = ({ size = 112 }) => (
       </svg>
 );
 
-const Watermark = () => (
+export const Watermark = () => (
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
             <div style={{ opacity: 0.035, width: '70%' }}>
                   <svg viewBox="393 350 774 862" className="h-auto w-full"><g fill={BLUE}>{LOGO_POINTS.map((p) => <polygon key={p} points={p} />)}</g></svg>

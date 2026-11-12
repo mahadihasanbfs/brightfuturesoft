@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { confirmDialog } from '../../../Hook/confirmDialog';
 import { BASE_CURRENCY, money, todayISO } from './format';
 
 export const input =
@@ -28,15 +29,8 @@ export function PageHeader({ title, subtitle, action }) {
 export const toastError = (err) =>
       Swal.fire({ icon: 'error', title: 'Error', text: err.message, confirmButtonColor: '#0A65B4' });
 
-export const confirm = async (text, confirmButtonText = 'Yes') =>
-      (await Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure?',
-            text,
-            showCancelButton: true,
-            confirmButtonText,
-            confirmButtonColor: '#dc2626',
-      })).isConfirmed;
+export const confirm = (text, confirmText = 'Yes') =>
+      confirmDialog({ title: 'Are you sure?', message: text, confirmText, tone: 'danger' });
 
 export function Field({ label, children, className = '' }) {
       return (

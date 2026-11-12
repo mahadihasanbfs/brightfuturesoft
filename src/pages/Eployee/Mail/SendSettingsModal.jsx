@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import { X, Eye, EyeOff, CheckCircle2, ExternalLink } from 'lucide-react';
 import { mail } from './mailApi';
+import { confirmDialog } from '../../../Hook/confirmDialog';
 
 const Row = ({ label, value }) => (
       <div className="flex items-center justify-between border-b border-gray-800 py-2 text-sm">
@@ -36,7 +37,7 @@ export default function SendSettingsModal({ onClose, onChanged }) {
       };
 
       const remove = async () => {
-            const { isConfirmed } = await Swal.fire({ icon: 'warning', title: 'Remove your API key?', text: 'You will not be able to send mail until you add one again.', showCancelButton: true, confirmButtonText: 'Remove', confirmButtonColor: '#dc2626' });
+            const isConfirmed = await confirmDialog({ title: 'Remove your API key?', message: 'You will not be able to send mail until you add one again.', confirmText: 'Remove', tone: 'danger' });
             if (!isConfirmed) return;
             await mail.removeSettings();
             await refetch();

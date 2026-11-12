@@ -5,6 +5,7 @@ import SlotPicker from "./SlotPicker";
 import OfficeMap from "./OfficeMap";
 import MapPreview from "./MapPreview";
 import MeetingPrep from "./MeetingPrep";
+import { confirmDialog } from "../../Hook/confirmDialog";
 
 const MODES = { online: "Online meeting", phone: "Phone call", office: "At our office", client_site: "We visit your office" };
 const GRID_BG = {
@@ -78,7 +79,7 @@ const ManagePage = () => {
       };
 
       const cancel = async () => {
-            if (!window.confirm("Cancel this appointment?")) return;
+            if (!(await confirmDialog({ title: "Cancel this appointment?", message: "Your time will be released and we will email you a confirmation. You can book a new time any time.", confirmText: "Yes, cancel it", cancelText: "Keep appointment", tone: "danger" }))) return;
             if (await post("cancel", {})) {
                   setNotice("Your appointment was cancelled.");
                   await load();

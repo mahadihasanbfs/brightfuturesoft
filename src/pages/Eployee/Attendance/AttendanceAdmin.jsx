@@ -12,6 +12,7 @@ import { api } from './api';
 import Badge from './Badge';
 import { fmtDay, fmtHours, fmtTime, localDate, localMonth, toHHMM } from './format';
 import { Empty, Field, Modal, PageHeader, Row, Stat, Table, Td, btnDanger, btnGhost, btnPrimary, confirm, input, toastError } from '../Invoice/ui';
+import { promptDialog } from '../../../Hook/confirmDialog';
 
 const ADMIN_DESIGNATIONS = ['Chief Executive Officer', 'manager'];
 
@@ -187,12 +188,12 @@ function Leaves() {
             onError: toastError,
       });
       const approve = async (l) => {
-            const r = await Swal.fire({ title: `Approve ${l.name}'s leave?`, text: `${l.from === l.to ? l.from : `${l.from} → ${l.to}`} · ${leaveDays(l.from, l.to)} working days`, input: 'text', inputPlaceholder: 'Note (optional)', showCancelButton: true, confirmButtonText: 'Approve', confirmButtonColor: '#059669' });
-            if (r.isConfirmed) decide.mutate({ id: l._id, status: 'approved', note: r.value || '' });
+            const note = await promptDialog({ title: `Approve ${l.name}'s leave?`, message: `${l.from === l.to ? l.from : `${l.from} → ${l.to}`} · ${leaveDays(l.from, l.to)} working days`, label: 'Note (optional)', placeholder: 'Anything the employee should know', required: false, confirmText: 'Approve' });
+            if (note !== null) decide.mutate({ id: l._id, status: 'approved', note });
       };
       const reject = async (l) => {
-            const r = await Swal.fire({ title: `Reject ${l.name}'s leave?`, input: 'text', inputPlaceholder: 'Reason (required)', inputValidator: (v) => (!v?.trim() ? 'Give a reason so they know why' : undefined), showCancelButton: true, confirmButtonText: 'Reject', confirmButtonColor: '#dc2626' });
-            if (r.isConfirmed) decide.mutate({ id: l._id, status: 'rejected', note: r.value });
+            const note = await promptDialog({ title: `Reject ${l.name}'s leave?`, label: 'Reason', placeholder: 'Tell them why', requiredMessage: 'Give a reason so they know why', confirmText: 'Reject', tone: 'danger' });
+            if (note !== null) decide.mutate({ id: l._id, status: 'rejected', note });
       };
       const own = (l) => l.userId === String(user?._id) && user?.designation !== 'Chief Executive Officer';
       return (

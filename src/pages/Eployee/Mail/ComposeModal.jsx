@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { AuthContext } from '../../../context/UseContext/AuthProvider';
 import { mail, extractEmails, avatarColor, initials } from './mailApi';
+import { confirmDialog } from '../../../Hook/confirmDialog';
 
 const EMAIL_RE = /^[^\s,;<>@]+@[^\s,;<>@]+\.[^\s,;<>@]+$/;
 const MAX_TOTAL = 20 * 1024 * 1024;
@@ -161,7 +162,7 @@ export default function ComposeModal({ initial = {}, fromEmail, sendConfigured =
 
       const close = async () => {
             if (hasContent()) {
-                  const { isConfirmed } = await Swal.fire({ ...DARK_DIALOG, icon: 'question', title: 'Discard this draft?', showCancelButton: true, confirmButtonText: 'Discard', confirmButtonColor: '#dc2626' });
+                  const isConfirmed = await confirmDialog({ title: 'Discard this draft?', message: 'What you have written will be lost.', confirmText: 'Discard', tone: 'danger' });
                   if (!isConfirmed) return;
             }
             onClose();
@@ -193,7 +194,7 @@ export default function ComposeModal({ initial = {}, fromEmail, sendConfigured =
             const text = editor.current.innerText.trim();
             if (!text && !files.length) return setError('Write a message first.');
             if (!subject.trim()) {
-                  const { isConfirmed } = await Swal.fire({ ...DARK_DIALOG, icon: 'question', title: 'Send without a subject?', showCancelButton: true, confirmButtonText: 'Send anyway' });
+                  const isConfirmed = await confirmDialog({ title: 'Send without a subject?', message: 'The message will go out with no subject line.', confirmText: 'Send anyway', tone: 'warning' });
                   if (!isConfirmed) return;
             }
             setSending(true);

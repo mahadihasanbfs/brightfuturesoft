@@ -3,10 +3,14 @@
 import { useState, useEffect } from "react"
 import { base_url } from "../../../layout/Title"
 import { useQuery } from "@tanstack/react-query"
+import { confirmDialog } from "../../../Hook/confirmDialog";
+import { safeHtml } from "../../../layout/safeHtml";
+import { CONTACT_REASONS, reasonLabel } from "../../../component/Contact/contactReasons";
 
 const Contact_management = () => {
       const [error, setError] = useState(null)
       const [selectContact, setSelectContact] = useState(null)
+      const [reasonFilter, setReasonFilter] = useState("all")
 
       // Close modal when escape key is pressed
       useEffect(() => {
@@ -43,7 +47,7 @@ const Contact_management = () => {
 
       // Handle delete contact
       const handleDelete = async (id) => {
-            if (window.confirm("Are you sure you want to delete this contact?")) {
+            if (await confirmDialog({ title: "Delete this contact?", message: "The message and details are removed permanently.", confirmText: "Delete", tone: "danger" })) {
                   try {
                         await fetch(`${base_url}/contact/delete-contact?contact_id=${id}`, {
                               method: 'DELETE',
@@ -106,13 +110,23 @@ const Contact_management = () => {
 
       return (
             <div className="container mx-auto p-4 relative text-white">
-                  <h1 className="text-2xl font-bold mb-6">Contact Messages</h1>
+                  <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+                        <h1 className="text-2xl font-bold">Contact Messages</h1>
+                        <label className="flex items-center gap-2 text-sm text-gray-400">
+                              Reason
+                              <select value={reasonFilter} onChange={(e) => setReasonFilter(e.target.value)} className="rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none">
+                                    <option value="all">All reasons ({contacts.length})</option>
+                                    {CONTACT_REASONS.map((r) => <option key={r.id} value={r.id}>{r.label} ({contacts.filter((c) => c.reason === r.id).length})</option>)}
+                              </select>
+                        </label>
+                  </div>
 
                   <div className="overflow-x-auto shadow-md border border-white border-opacity-20 rounded-lg">
                         <table className="min-w-full divide-y divide-gray-200 divide-opacity-20">
                               <thead className="">
                                     <tr>
                                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Email/Phone
                                           </th>
@@ -129,15 +143,18 @@ const Contact_management = () => {
                               <tbody className="divide-y divide-gray-200">
                                     {contacts.length === 0 ? (
                                           <tr>
-                                                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                                                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                                                       No contacts found
                                                 </td>
                                           </tr>
                                     ) : (
-                                          contacts.map((contact) => (
+                                          contacts.filter((c) => reasonFilter === "all" || c.reason === reasonFilter).map((contact) => (
                                                 <tr key={contact._id} className="">
                                                       <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="text-sm font-medium text-gray-200">{contact.full_name}</div>
+                                                      </td>
+                                                      <td className="px-6 py-4 whitespace-nowrap">
+                                                            {contact.reason ? <span className="rounded-md bg-blue-500/15 px-2 py-1 text-xs font-semibold text-blue-400">{contact.reason_label || reasonLabel(contact.reason)}</span> : <span className="text-xs text-gray-500">Not given</span>}
                                                       </td>
                                                       <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="text-sm text-gray-200">
@@ -162,7 +179,7 @@ const Contact_management = () => {
                                                             onClick={() => setSelectContact(contact)}
                                                             className="px-6 py-4 cursor-pointer  transition-colors"
                                                       >
-                                                            <div dangerouslySetInnerHTML={{ __html: contact.message?.split(' ').slice(0, 10).join(' ') }} className="text-sm text-gray-200 truncate max-w-xs">
+                                                            <div dangerouslySetInnerHTML={{ __html: safeHtml(contact.message?.split(' ').slice(0, 10).join(' ')) }} className="text-sm text-gray-200 truncate max-w-xs">
 
                                                             </div>
                                                       </td>
@@ -222,6 +239,7 @@ const Contact_management = () => {
                                     <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-transparent">
 
                                           <InfoCard label="Name" value={selectContact.full_name} />
+                                          <InfoCard label="Reason for contacting" value={selectContact.reason ? (selectContact.reason_label || reasonLabel(selectContact.reason)) : "Not given"} />
 
                                           <div className="bg-white/10 p-4 rounded-xl border border-white/10">
                                                 <p className="text-sm text-gray-300 font-medium">Contact</p>
@@ -254,7 +272,7 @@ const Contact_management = () => {
 
                                                 {/* Message Height Control */}
                                                 <div className="max-h-60 overflow-y-auto mt-2 pr-2">
-                                                      <p dangerouslySetInnerHTML={{ __html: selectContact.message }} className="text-white whitespace-pre-wrap">
+                                                      <p dangerouslySetInnerHTML={{ __html: safeHtml(selectContact.message) }} className="text-white whitespace-pre-wrap">
 
                                                       </p>
                                                 </div>

@@ -4,9 +4,16 @@ import { BsInstagram, BsLinkedin, BsTwitter } from 'react-icons/bs';
 import { base_url } from '../../../layout/Title';
 import Swal from 'sweetalert2';
 import JoditEditor from 'jodit-react';
+import { useSearchParams } from 'react-router-dom';
+import { CONTACT_REASONS } from '../contactReasons';
+import ReasonSelect from './ReasonSelect';
 
 const Contact = () => {
       const [loading, setLoading] = useState(false);
+      // Why they are contacting us (required). A link like /contact?reason=career preselects it.
+      const [params] = useSearchParams();
+      const [reason, setReason] = useState(() => (CONTACT_REASONS.some((r) => r.id === params.get('reason')) ? params.get('reason') : ''));
+      const [reasonError, setReasonError] = useState(false);
 
       const [value, setValue] = useState("");
       const [error, setError] = useState("");
@@ -39,6 +46,11 @@ const Contact = () => {
             const full_name = e.target.full_name.value;
             const message = e.target.message.value;
             const time_stamp = new Date().toISOString();
+            if (!reason) {
+                  setReasonError(true);
+                  document.getElementById('contact-reason')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  return;
+            }
             const validationError = validateEmailOrPhone(value);
             if (validationError) {
                   setError(validationError);
@@ -49,12 +61,13 @@ const Contact = () => {
                   const response = await fetch(`${base_url}/contact/add-contact`, {
                         method: 'POST',
                         headers: { 'content-type': 'application/json', 'author': 'bright_future_soft' },
-                        body: JSON.stringify({ full_name, email_or_phone: value, message, time_stamp, status: 'pending' }),
+                        body: JSON.stringify({ full_name, email_or_phone: value, message, time_stamp, status: 'pending', reason }),
                   });
                   if (!response.ok) throw new Error('Unable to send your message. Please try again.');
                   await response.json();
                   form.current.reset();
                   setValue("");
+                  setReason('');
                   Swal.fire({ title: 'Message sent', text: 'Thanks for reaching out. We’ll be in touch soon.', icon: 'success' });
             } catch {
                   Swal.fire({ title: 'Message not sent', text: 'Please try again in a moment or contact us by email.', icon: 'error' });
@@ -92,6 +105,12 @@ const Contact = () => {
                                     <div className="contact-form-wrap">
                                           <form ref={form} onSubmit={sendEmail} className="contact-form form-bg capitalize">
                                                 <h3>Your message</h3>
+
+                                                <div id="contact-reason" className="normal-case">
+                                                      <label id="contact-reason-label" className="mb-1.5 block text-[13px] font-semibold text-[#17283e]">Why are you contacting us? <span aria-hidden="true">*</span></label>
+                                                      <ReasonSelect value={reason} onChange={(id) => { setReason(id); setReasonError(false); }} invalid={reasonError} />
+                                                      {reasonError && <p id="contact-reason-error" role="alert" className="mt-2 text-sm font-medium text-red-500">Please choose why you are contacting us.</p>}
+                                                </div>
                                                 <div className="relative bg-[#0b0a2238] border border-[#1795F0] rounded-lg mt-4">
 
                                                       <input required name="full_name" id='full_name' type="text" className="w-full p-2 rounded-lg outline-none text-white border-none bg-[#00000034]" placeholder="Enter your full name" />
@@ -155,7 +174,7 @@ const Contact = () => {
 
                                                 </div>
 
-                                                <button type="submit" className="mt-8 bg-[#1A2644] hover:bg-blue-500 text-white w-full p-3 rounded-lg" disabled={loading}>{!loading ? "Submit" : <div align="center" className=' justify-center'>
+                                                <button type="submit" style={{ marginTop: 14 }} className="bg-[#1A2644] hover:bg-blue-500 text-white w-full p-3 rounded-lg" disabled={loading}>{!loading ? "Submit" : <div align="center" className=' justify-center'>
                                                       <div className="flex">
                                                             <div className="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-[#1e3d8d] border-4"></div>
                                                             <div className="ml-2"> Processing... </div>
