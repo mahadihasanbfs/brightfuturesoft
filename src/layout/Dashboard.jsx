@@ -9,6 +9,8 @@ import logoOnLight from "../Assctes/logo.png" // dark lettering
 import "./dashboard-theme.css"
 import useDashTheme from "./useDashTheme"
 import DashTopBar from "./DashTopBar"
+import { AppSheet, TabBar } from "./MobileTabs"
+import useTabShortcuts from "./useTabShortcuts"
 import { AuthContext } from "../context/UseContext/AuthProvider"
 import { CalendarCheck, Handshake, Mail } from "lucide-react"
 import { FaFileInvoice } from "react-icons/fa"
@@ -373,6 +375,16 @@ const SidebarContent = ({ onItemClick, searchValue, onSearchChange, allowed, use
       </div>
 )
 
+// Small unread dot for the Mail shortcut on phones (shares query keys with MailBadge).
+const MailDot = () => {
+      const { data: status } = useQuery({ queryKey: ["gmail-status"], queryFn: mail.status, retry: false, staleTime: 60000 })
+      const { data: unread } = useQuery({ queryKey: ["gmail-unread"], queryFn: mail.unread, enabled: Boolean(status?.connected), retry: false, refetchInterval: 60000 })
+      const count = unread?.inbox || 0
+      if (!status?.connected || count <= 0) return null
+      return <span className="dash-dot">{count > 99 ? "99+" : count}</span>
+}
+const phoneBadge = (item) => (item.path === "/dashboard/mail" ? <MailDot /> : null)
+
 const Dashboard = () => {
       const { user, setUser } = useContext(AuthContext)
       const navigate = useNavigate()
@@ -430,6 +442,16 @@ const Dashboard = () => {
 
       const { theme, toggle } = useDashTheme()
 
+      const [sheetOpen, setSheetOpen] = useState(false)
+      const closeSheet = () => setSheetOpen(false)
+      const phoneGroups = [
+            { label: "Workspace", items: navigationItems.filter((i) => allowed(i.path)) },
+            { label: "Management", items: adminNavigationItems.filter((i) => allowed(i.path)) },
+            { label: "General", items: commonNavigationItems.filter((i) => allowed(i.path)) },
+      ].filter((g) => g.items.length)
+      const phoneItems = phoneGroups.flatMap((g) => g.items)
+      const shortcuts = useTabShortcuts(phoneItems)
+
       if (!user) {
             navigate("/sign_in")
       }
@@ -437,7 +459,7 @@ const Dashboard = () => {
       
 
       return (
-            <div className={`flex h-screen bg-gray-100 ${theme === "light" ? "dash-light" : ""}`}>
+            <div className={`flex h-screen h-[100dvh] bg-gray-100 ${theme === "light" ? "dash-light" : ""}`}>
                   {/* Mobile Menu Overlay */}
                   {mobileMenuOpen && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={closeMobileMenu} />
@@ -481,7 +503,7 @@ const Dashboard = () => {
                               user={user}
                               theme={theme}
                               onToggleTheme={toggle}
-                              onOpenMenu={() => setMobileMenuOpen(true)}
+                              onOpenMenu={() => setSheetOpen(true)}
                               onLogout={handleLogout}
                               canOpen={allowed}
                               isCeo={user?.designation === "Chief Executive Officer"}
@@ -489,7 +511,7 @@ const Dashboard = () => {
                         />
 
                         {/* Page Content */}
-                        <main className="flex-1 overflow-y-auto bg-gray-900">
+                        <main className="flex-1 overflow-y-auto bg-gray-900 dash-main">
                               <div className="h-full">
                                     {blocked ? (
                                           <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center text-white">
@@ -499,6 +521,9 @@ const Dashboard = () => {
                                     ) : <Outlet />}
                               </div>
                         </main>
+                        <TabBar items={phoneItems} paths={shortcuts.paths} sheetOpen={sheetOpen} onMore={() => setSheetOpen(true)} badge={phoneBadge} />
+                        <AppSheet open={sheetOpen} onClose={closeSheet} groups={phoneGroups} badge={phoneBadge} user={user} theme={theme}
+                              onToggleTheme={toggle} onLogout={handleLogout} {...shortcuts} />
                   </div>
             </div>
       )
